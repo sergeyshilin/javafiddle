@@ -1,14 +1,40 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <h:head>
-        <title>Facelet Title</title>
+        <title>Java Fiddle</title>
+        <h:outputStylesheet library="css" name="style.css" />
     </h:head>
     <h:body>
-        Hello from Facelets
-        <div>
-            #{user.user.id}  #{user.user.firstName}
+        <div id="header">
+            <div id="header-top">
+                <div id="logo"> 
+                    <div class="ltgt"><img src="resources/images/br_prev.ico"></img></div>
+                    <h2><h:link value="JavaFiddle" outcome="index" /></h2>
+                    <div class="ltgt"><img src="resources/images/br_next.ico"></img></div>
+                </div>
+                <h:panelGroup layout="block" id="projectname" >NetCrackerTasks</h:panelGroup>
+                <h:panelGroup layout="block" id="username" >
+                    <h:link value="snape@liceum8.ru" outcome="index" />
+                </h:panelGroup>
+                <div id="bottom"> 
+                    <ul id="main_menu">
+                        <li>Файл</li>
+                        <li>Правка</li>
+                        <li>Поиск</li>
+                        <li>Вид</li>
+                        <li>Настройки</li>
+                        <li>История</li>
+                    </ul>
+                    <h:panelGroup layout="block" id="latest_update">Последнее изменение: 1 ноября 2012 г.</h:panelGroup>
+                    <h:link id="share" value="Поделиться кодом" outcome="index" />
+                </div>
+            </div>
+            <div id="header-bottom">
+                
+            </div>
         </div>
     </h:body>
 </html>

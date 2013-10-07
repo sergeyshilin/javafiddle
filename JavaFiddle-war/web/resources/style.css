@@ -1,0 +1,145 @@
+/* 
+    Document   : style
+    Created on : 07.10.2013, 19:25:33
+    Author     : Java Fiddle
+    Description: Main stylesheet for home page
+*/
+
+html, body {
+    margin: 0;
+    padding: 0; 
+}
+
+/**
+* Header
+*/
+
+#header {
+    background-color: #fff;
+    height: 105px;
+    width: 100%;
+}
+
+#header-top {
+    height: 68px;
+    widht: 100%;
+    border-bottom: 1px solid #dadada;
+}
+
+#header-top #logo {
+    width: 155px;
+    height: 25px;
+    margin: 8px 0 0 8px;
+    float: left;
+    padding: 0;
+    cursor: pointer;
+}
+
+#logo .ltgt {
+    display: inline;
+    width: 32px;
+    height: 32px;
+}
+
+#logo h2 {
+    display: inline;
+    font: normal 22px sans;
+    margin: 0;
+    margin-left: 2px;
+}
+
+#logo h2 a {
+    text-decoration: none;
+    color: #388de7;
+}
+
+#header-top #projectname {
+    height: 20px;
+    margin: 9px 0 0 10px;
+    font: normal 18px sans;
+    color: #333;
+    float: left;
+}
+
+#header-top #username {
+    float: right;
+    heigh: 20px;
+    margin: 12px 10px 0 0;
+}
+
+#header-top #username a {
+    text-decoration: none;
+    color: #666666;
+    font: normal 13px sans;    
+}
+
+#header-top #bottom {
+    position: absolute;
+    margin: 40px 0 0 0;
+    padding: 0;
+    width: 100%;
+}
+
+#header-top #bottom #main_menu {
+    margin: 0 0 0 10px;
+    height: 20px;
+    list-style: none;
+    padding: 0;
+    float: left;
+}
+
+#main_menu li {
+    display: inline;
+    color: #0e0e0e;
+    font: normal 13px sans;
+    /*border: 1px solid red;*/
+    padding: 6px 4px;
+    margin: 0;
+    cursor: default;
+}
+
+#main_menu li:hover {
+    background-color: #eaeaea; 
+}
+
+#header-top #bottom #latest_update {
+    color: #b3b3b3;
+    font: normal 12px sans;
+    position: relative;
+    float: left;
+    margin: 3px 0 0 25px;
+}
+
+#header-top #bottom #share {
+    margin: -5px 7px 0 0;
+    float: right;
+    padding: 6px 10px;
+    background-color: #4c8ffb;
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    text-indent: 0;
+    border: 1px solid #1f6eed;
+    display: inline-block;
+    color: #ffffff;
+    font: bold 12px sans;
+    width: 140px;
+    letter-spacing: -1px;
+    text-decoration: none;
+    text-align: right;
+    text-shadow: 1px 1px 0px #1b6df2;
+    background-image: url('images/share.ico');
+    background-repeat: no-repeat;
+    background-position-y: center;
+    background-position-x: 10px;
+}
+#share:hover {
+    background-color: #4189fc;
+}
+
+#header-bottom {
+    height: 37px;
+    width: 100%;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #dadada;
+}

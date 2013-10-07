@@ -4,3 +4,12 @@
 *.jar
 *.war
 *.ear
+/nbproject/private/
+/JavaFiddle-ejb/nbproject/private/
+/JavaFiddle-war/nbproject/private/
+/JavaFiddle-ejb/build/
+/build/
+/JavaFiddle-ejb/dist/
+/JavaFiddle-war/build/
+/JavaFiddle-war/dist/
+/dist/
