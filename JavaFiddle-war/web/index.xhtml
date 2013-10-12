@@ -6,6 +6,11 @@
     <h:head>
         <title>Java Fiddle</title>
         <h:outputStylesheet library="css" name="style.css" />
+        <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
+        <h:outputScript library="js" name="main.js" target="head"/>
+        <script type="text/javascript" src="#{request.contextPath}/cm/lib/codemirror.js"></script>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/cm/lib/codemirror.css"></link>
+        <script type="text/javascript" src="#{request.contextPath}/cm/mode/javascript/javascript.js"></script>
     </h:head>
     <h:body>
         <div id="header">
@@ -34,6 +39,24 @@
             </div>
             <div id="header-bottom">
                 
+            </div>
+        </div>
+        <div id="content">
+            <div id="treepanel" class="mainblock">
+            </div>
+            <div id="codetext" class="mainblock">
+                <h:inputTextarea id="textarea" />
+                <script type="text/javascript">
+                //<![CDATA[
+                    var codearea = document.getElementById("textarea");
+                    var myCodeMirror = CodeMirror(function(elt) {
+                            codearea.parentNode.replaceChild(elt, codearea);
+                    }, {
+                        value: codearea.value,
+                        lineNumbers: true
+                    });
+                //]]>
+                </script>
             </div>
         </div>
     </h:body>
