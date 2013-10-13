@@ -1,25 +1,21 @@
 package com.javafiddle.web.beans;
 
-import java.util.Date;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.inject.Named;
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 import ru.javafiddle.core.ejb.UserManagerLocal;
-import ru.javafiddle.core.jpa.User;
 
 /**
- *
+ * A session-scoped bean for accessing current user status.
  * @author wawilon
  */
 @Named(value = "user")
-@RequestScoped
-public class UserBean {
-
-    @EJB
-    private UserManagerLocal um;
+@SessionScoped
+public class UserBean extends CommonBean {
     
-    private User user;
+    @Inject
+    private UserManagerLocal um;
     
     /**
      * Creates a new instance of UserBean
@@ -30,10 +26,16 @@ public class UserBean {
     
     @PostConstruct
     private void init() {
-        user = um.createUser(new Date().toString());
+        // some initializations after the bean is created and all fields are injected
+        // load user info by id from database
     }
     
-    public User getUser() {
-        return user;
+    public boolean isLoggedIn() {
+        return getCurrentUserId() != null;
     }
+    
+    public Long getId() {
+        return getCurrentUserId();
+    }
+    
 }
