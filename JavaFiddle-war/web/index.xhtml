@@ -11,6 +11,16 @@
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/lib/codemirror.js"></script>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/javascript/javascript.js"></script>
+        <!-- Start of editor scripts -->
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/clike/clike.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/matchbrackets.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/brace-fold.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/comment-fold.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/foldcode.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/foldgutter.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/indent-fold.js"></script>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/fold/fold.css"></link>
+        <!-- End of editor scripts -->
         <style media="all" type="text/css">
             @import url("#{request.contextPath}/resources/osans.css");
         </style>
@@ -48,16 +58,26 @@
             <div id="treepanel" class="mainblock">
             </div>
             <div id="codetext" class="mainblock">
-                <h:inputTextarea id="textarea" />
+                <h:inputTextarea id="textarea" value="#{code.getText()}"/>
                 <script type="text/javascript">
                 //<![CDATA[
-                    var codearea = document.getElementById("textarea");
-                    var myCodeMirror = CodeMirror(function(elt) {
-                            codearea.parentNode.replaceChild(elt, codearea);
-                    }, {
-                        value: codearea.value,
-                        lineNumbers: true
+                    var javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
+                        lineNumbers: true,
+                        lineWrapping: true,
+                        theme: "default",
+                        indentWithTabs: true,
+                        mode: "text/x-java",
+                        matchBrackets: true,
+                        extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+                        foldGutter: {
+                            rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
+                        },    
+                        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
                     });
+                    var height = $(window).height() - $("#header").height() - 30;
+                    
+                    javaEditor.setSize("100%", height);
+                    javaEditor.foldCode(CodeMirror.Pos(8, 0));
                 //]]>
                 </script>
             </div>
