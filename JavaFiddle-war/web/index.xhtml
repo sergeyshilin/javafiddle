@@ -14,12 +14,22 @@
         <!-- Start of editor scripts -->
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/clike/clike.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/matchbrackets.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/closebrackets.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/brace-fold.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/comment-fold.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/foldcode.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/foldgutter.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/indent-fold.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/dialog/dialog.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/search/searchcursor.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/search/search.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/selection/active-line.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/show-hint.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/anyword-hint.js"></script>
+        
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/fold/fold.css"></link>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/dialog/dialog.css"></link>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/hint/show-hint.css"></link>
         <!-- End of editor scripts -->
         <style media="all" type="text/css">
             @import url("#{request.contextPath}/resources/osans.css");
@@ -61,14 +71,24 @@
                 <h:inputTextarea id="textarea" value="#{code.getText()}"/>
                 <script type="text/javascript">
                 //<![CDATA[
+                    CodeMirror.commands.autocomplete = function(cm) {
+                        CodeMirror.showHint(cm, CodeMirror.hint.anyword);
+                    }
                     var javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
                         lineNumbers: true,
                         lineWrapping: true,
+                        styleActiveLine: true,
                         theme: "default",
                         indentWithTabs: true,
+                        tabSize: 4,
+                        indentUnit: 4,
                         mode: "text/x-java",
                         matchBrackets: true,
-                        extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+                        autoCloseBrackets: true,
+                        extraKeys: {
+                            "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); },
+                            "Ctrl-Space": "autocomplete"
+                        },
                         foldGutter: {
                             rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
                         },    
