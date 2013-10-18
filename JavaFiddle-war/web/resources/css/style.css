@@ -161,6 +161,7 @@ html, body {
 #header-bottom {
     height: 37px;
     width: 100%;
+    padding: 0;
     border-bottom: 1px solid #dadada;
     -webkit-box-shadow: inset 0 1px 0 0 #fff;
     -moz-box-shadow: inset 0 1px 0 0 #fff;
@@ -172,6 +173,34 @@ html, body {
     background-image: -o-linear-gradient(top,#f5f5f5,#eee);
     background-image: linear-gradient(top,#f5f5f5,#eee);
 }
+
+#header-bottom #editor_buttons {
+    width: 300px;
+    height: 21px;
+    list-style: none;
+    /*border: 1px solid red;*/
+    margin: 8px 0 0 20px;
+    position: absolute;
+    padding: 0;
+}
+
+#header-bottom ul li {
+    display: inline;
+    margin-right: 5px;
+}
+
+#header-bottom li input {
+    width: 21px;
+    height: 21px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: none;
+    cursor: pointer;
+}
+
+#editor_buttons li #open {background-image: url('images/folder_open.ico')}
+#editor_buttons li #save {background-image: url('images/save.ico')}
 
 /**
 * Content
@@ -187,6 +216,7 @@ html, body {
 #content #treepanel {
     width: 20%;
     float: left;
+    overflow: auto;
 }
 
 #content #codetext {

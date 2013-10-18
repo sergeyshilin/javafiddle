@@ -6,8 +6,10 @@
     <h:head>
         <title>Java Fiddle</title>
         <h:outputStylesheet library="css" name="style.css" />
+        <h:outputStylesheet library="css" name="projecttree.css" />
         <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
         <h:outputScript library="js" name="main.js" target="head"/>
+        <h:outputScript library="js" name="projecttree.js" target="head"/>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/lib/codemirror.js"></script>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/javascript/javascript.js"></script>
@@ -61,12 +63,89 @@
                 </div>
             </div>
             <div id="header-bottom">
-                
+                <ul id="editor_buttons">
+<!--                    <li><h:commandButton value="" type="button" id="open" /></li>
+                    <li><h:commandButton value="" type="button" id="save" /></li>-->
+                </ul>   
             </div>
         </div>
         <div id="content">
-            <div id="treepanel" class="mainblock">
-            </div>
+            <h:panelGroup layout="block" id="treepanel" class="mainblock">
+                <ul class="project">
+                    <li class="open"><a href="#" class="root">NetCrackerTasks</a>
+                        <ul>
+                            <li><a href="#" class="folder">.idea</a></li>
+                            <li class="open"><a href="#" class="sources">src</a>
+                                <ul>
+                                    <li><a href="#" class="package">ru.ncedu.java.tasks</a>
+                                        <ul>
+                                            <li><a href="#" class="package">ru.ncedu.java.tasks.sub</a>
+                                                <ul>
+                                                    <li><a href="#" class="folder">SMTHING ELSE</a>
+                                                        <ul>
+                                                            <li><a href="#" class="folder">SMTHING ELSE</a>
+                                                                <ul>
+                                                                    <li><a href="#" class="folder">SMTHING ELSE</a>
+                                                                        <ul>
+                                                                            <li><a href="#" class="folder">SMTHING ELSE</a>
+                                                                                <ul>
+                                                                                    <li><a href="#" class="class">ArrayVectorImpl</a></li>
+                                                                                    <li><a href="#" class="interface">Employee</a></li>
+                                                                                    <li><a href="#" class="class">EmployeeImpl</a></li>
+                                                                                    <li><a href="#" class="interface">WordCounter</a></li>
+                                                                                    <li><a href="#" class="class">WordCounterImpl</a></li>
+                                                                                    <li><a href="#" class="interface">WordProcessor</a></li>
+                                                                                    <li><a href="#" class="folder">AnotherFolder</a>
+                                                                                        <ul>
+                                                                                            <li><a href="#" class="class">ArrayVectorImpl</a></li>
+                                                                                            <li><a href="#" class="interface">Employee</a></li>
+                                                                                            <li><a href="#" class="class">EmployeeImpl</a></li>
+                                                                                            <li><a href="#" class="interface">WordCounter</a></li>
+                                                                                            <li><a href="#" class="class">WordCounterImpl</a></li>
+                                                                                            <li><a href="#" class="interface">WordProcessor</a></li>
+                                                                                            <li><a href="#" class="class">WordProcessorImpl</a></li>
+                                                                                        </ul>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li><a href="#" class="class">ArrayVectorImpl</a></li>
+                                            <li><a href="#" class="interface">Employee</a></li>
+                                            <li><a href="#" class="class">EmployeeImpl</a></li>
+                                            <li><a href="#" class="interface">WordCounter</a></li>
+                                            <li><a href="#" class="class">WordCounterImpl</a></li>
+                                            <li><a href="#" class="interface">WordProcessor</a></li>
+                                            <li><a href="#" class="class">WordProcessorImpl</a></li>
+                                        </ul>
+                                    </li>
+                                    <li><a href="#" class="runnable">ArrayVectorTest</a></li>
+                                    <li><a href="#" class="runnable">WordCounterTest</a></li>
+                                    <li><a href="#" class="runnable">WordProcessorTest</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#" class="iml">NetCracketTasks.iml</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#" class="lib">External Libraries</a></li>
+                </ul>
+                <script type="text/javascript">
+                    //<![CDATA[
+                        $(function () {
+                            $('.project').liHarmonica({
+                                onlyOne: false,
+                                speed: 500
+                            });
+                        });
+                    //]]>
+                </script>
+            </h:panelGroup>
             <div id="codetext" class="mainblock">
                 <h:inputTextarea id="textarea" value="#{code.getText()}"/>
                 <script type="text/javascript">
