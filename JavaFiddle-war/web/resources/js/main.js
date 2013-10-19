@@ -3,11 +3,13 @@ $(document).ready(function(){
 });
 
 function setContentHeight() {
+    var MINSCREENWIDTH = 1300;
     var $header = $('#header');
     var $content = $('#content');
     var $tree = $("#treepanel");
     var $code = $("#codetext");
     var $codearea = $("#textarea");
+    var $tabpanel = $("#tabpanel");
     var height = $(window).height() - $header.height();
     var width = $(window).width();
     
@@ -37,5 +39,22 @@ function setContentHeight() {
     $codearea.width($code.width() - 20);
     $codearea.css("margin", "10px 0 0 10px");
     
+    /**
+     * set position of tabpanel
+     */
+    var sizer = parseInt($(".CodeMirror-sizer").css("margin-left"));
+    var margin = ($(window).width()) < MINSCREENWIDTH ? 340 : (35 + $tree.width() + sizer);
+    $tabpanel.css("margin-left", (margin - 340) + "px");
+    $tabpanel.width($(window).width() - margin - 50);
+}
+
+function closeTab(parent) {
+    parent.remove();
+}
+
+function selectTab(li) {
+    $tabs = $("#tabpanel");
+    $tabs.find(".active").removeClass("active");
+    li.addClass("active");
 }
 

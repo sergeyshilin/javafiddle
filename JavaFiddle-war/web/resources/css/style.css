@@ -18,7 +18,8 @@ html, body {
 
 #header {
     background-color: #fff;
-    height: 107px;
+    min-height: 107px;
+    height: auto;
     width: 100%;
     /*border: 1px solid red;*/
 }
@@ -151,15 +152,16 @@ html, body {
     text-shadow: 1px 1px 0px #1b6df2;
     background-image: url('images/share.ico');
     background-repeat: no-repeat;
-    background-position-y: center;
-    background-position-x: 10px;
+    background-position: 7% 50%;
 }
 #share:hover {
     background-color: #4189fc;
 }
 
 #header-bottom {
-    height: 37px;
+    height: auto;
+    min-height: 37px;
+    position: relative;
     width: 100%;
     padding: 0;
     border-bottom: 1px solid #dadada;
@@ -175,32 +177,102 @@ html, body {
 }
 
 #header-bottom #editor_buttons {
-    width: 300px;
-    height: 21px;
+    width: 320px;
+    height: 18px;
     list-style: none;
     /*border: 1px solid red;*/
-    margin: 8px 0 0 20px;
-    position: absolute;
+    margin: 9px 0 0 20px;
+    position: relative;
+    float: left;
     padding: 0;
 }
 
-#header-bottom ul li {
+#editor_buttons li {
     display: inline;
     margin-right: 5px;
+    cursor: default;
 }
 
-#header-bottom li input {
-    width: 21px;
-    height: 21px;
+#editor_buttons li input {
+    width: 18px;
+    height: 18px;
     border: 0;
     padding: 0;
     margin: 0;
     background: none;
-    cursor: pointer;
+    cursor: default;
+}
+
+#editor_buttons div.separator {
+    width: 1px; 
+    height: 33px; 
+    border-left: 1px solid #ccc; 
+    display: inline; 
+    position: absolute; 
+    margin: -7px 0 0 0;
+}
+
+#editor_buttons div#end.separator {
+    border-left: 1px solid #333 !important;
+    margin-left: 18px;
 }
 
 #editor_buttons li #open {background-image: url('images/folder_open.ico')}
 #editor_buttons li #save {background-image: url('images/save.ico')}
+#editor_buttons li #reload {background-image: url('images/playback_reload.ico')}
+#editor_buttons li #undo {background-image: url('images/undo.ico')}
+#editor_buttons li #redo {background-image: url('images/redo.ico')}
+#editor_buttons li #cut {background-image: url('images/clipboard_cut.ico')}
+#editor_buttons li #copy {background-image: url('images/copy.ico')}
+#editor_buttons li #paste {background-image: url('images/paste.ico')}
+#editor_buttons li #run {background-image: url('images/playback_play.ico')}
+#editor_buttons li #setup {background-image: url('images/settings.ico')}
+
+#header-bottom #tabpanel {
+    width: 70%;
+    height: auto;
+    min-height: 37px;
+    list-style: none;
+    border-left: 1px solid #999;
+    position: relative;
+    float: left;
+    padding: 0 0 3px 5px;
+    margin: 0;
+}
+
+ul#tabpanel li {
+    float: left;
+    display: inline;
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    padding: 3px 0 3px 22px;
+    margin-right: 5px !important;
+    margin-top: 3px !important;
+    background-repeat: no-repeat;
+    background-position-x: 5px !important; 
+    background-position-y: 4px !important;
+    background-position: 3% 50%;
+    background-color: #eee;
+    cursor: default;
+}
+
+ul#tabpanel li div.close {
+    width: 10px;
+    height: 10px;
+    margin: 0 3px 0 3px;
+    padding: 0;
+    float: right;
+    background-image: url('images/close.png');
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+ul#tabpanel li.active{background-color: #fff !important}
+ul#tabpanel li.class{background-image: url('images/idea-class.png')}
+ul#tabpanel li.interface{background-image: url('images/idea-class-interface.png')}
+ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 
 /**
 * Content
@@ -231,11 +303,104 @@ html, body {
     height: 100%;
 }
 
-#content .mainblock {
+#content .mainblock, #tabpanel li {
     background-color: #fff;
     border: 1px solid #d1d1d1;
-    /*box-shadow: inset 1px 1px 0 rgba(0,0,0,0.1),inset 0 -1px 0 rgba(0,0,0,0.07);*/   
     -webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
     -moz-box-shadow:    0px 0px 5px rgba(50, 50, 50, 0.15);
     box-shadow:         0px 0px 5px rgba(50, 50, 50, 0.15); 
+}
+
+/**
+* Project tree styles
+*/
+
+.project, .project ul {
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    margin: 0;
+    padding: 3px 0 0 7px;
+    list-style: none;
+    /*border: 1px solid red;*/
+}
+
+.project ul {
+    display: none;
+    margin: 0 0 0 10px;
+    border-left: 1px solid #ddd;
+}
+
+.project li {
+    list-style: none;
+    padding: 0 3px 0 0;
+}
+
+.project ul.opened {
+    display: block;
+}
+
+.project a {
+    color: #000;
+    display: block;
+    position: relative;
+    text-decoration: none;
+    padding: 1px 0 1px 28px;
+    background-repeat: no-repeat;
+    background-position-y: 3px !important;
+    background-position-x: 9px !important;  
+    background-position: 4% 50%;  
+}
+
+.project a.folder {background-image: url('images/idea-folder.png')}
+.project a.root {background-image: url('images/idea-folder-root.gif'); font-weight: bold}
+.project a.sources {background-image: url('images/idea-folder-src.gif')}
+.project a.package {background-image: url('images/idea-package.png')}
+.project a.runnable {background-image: url('images/idea-class-runnable.png')}
+.project a.iml {background-image: url('images/idea-logo.png')}
+.project a.lib {background-image: url('images/idea-libs.png'); background-position-y: 1px}
+.project a.class {background-image: url('images/idea-class.png')}
+.project a.interface {background-image: url('images/idea-class-interface.png')}
+.project a.exception {background-image: url('images/idea-class-exception.png')}
+.project a.annotation {background-image: url('images/idea-class-annotation.png')}
+
+.project a:before {
+    content: '';
+    width: 0;
+    height: 0;
+    border: 0;
+    border-top: 3px solid transparent;
+    border-left: 4px solid #ccc;
+    border-bottom: 3px solid transparent;
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    left: 0px;
+    margin: 0 4px 0 0;
+}
+
+.project a.harFull.harOpen:before {
+    border:0;
+    border-left: 3px solid transparent;
+    border-top: 4px solid #555;
+    border-right: 3px solid transparent;
+    top: 7px;
+}
+
+.project a.harFull:before {
+    border:0;
+    border-top: 3px solid transparent;
+    border-left: 4px solid #555;
+    border-bottom: 3px solid transparent;
+    top: 5px;
+}
+.project a:hover {
+    text-decoration: underline;
+}
+.project a.cur {
+  color: #000
+}
+.project a.harOpen {
+  color: #000
 }

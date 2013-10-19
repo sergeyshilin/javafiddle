@@ -6,7 +6,6 @@
     <h:head>
         <title>Java Fiddle</title>
         <h:outputStylesheet library="css" name="style.css" />
-        <h:outputStylesheet library="css" name="projecttree.css" />
         <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
         <h:outputScript library="js" name="main.js" target="head"/>
         <h:outputScript library="js" name="projecttree.js" target="head"/>
@@ -64,9 +63,35 @@
             </div>
             <div id="header-bottom">
                 <ul id="editor_buttons">
-<!--                    <li><h:commandButton value="" type="button" id="open" /></li>
-                    <li><h:commandButton value="" type="button" id="save" /></li>-->
-                </ul>   
+                    <li><h:commandButton value="" type="button" id="open" /></li>
+                    <li><h:commandButton value="" type="button" id="save" /></li>
+                    <li><h:commandButton value="" type="button" id="reload" /></li>
+                    <div class="separator"></div>
+                    <li></li>
+                    <li></li>
+                    <li><h:commandButton value="" type="button" id="undo" /></li>
+                    <li><h:commandButton value="" type="button" id="redo" /></li>
+                    <div class="separator"></div>
+                    <li></li>
+                    <li></li>
+                    <li><h:commandButton value="" type="button" id="cut" /></li>
+                    <li><h:commandButton value="" type="button" id="copy" /></li>
+                    <li><h:commandButton value="" type="button" id="paste" /></li>
+                    <div class="separator"></div>
+                    <li></li>
+                    <li></li>
+                    <li><h:commandButton value="" type="button" id="run" /></li>
+                    <div class="separator"></div>
+                    <li></li>
+                    <li></li>
+                    <li><h:commandButton value="" type="button" id="setup" /></li>
+                </ul>  
+                <ul id="tabpanel">
+                    <li class="class active" onclick="selectTab($(this))">WordProcessorImpl.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
+                    <li class="interface" onclick="selectTab($(this))">WordProcessor.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
+                    <li class="runnable" onclick="selectTab($(this))">WordProcessorTest.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
+                </ul>
+                <div style="clear:both"></div>
             </div>
         </div>
         <div id="content">
