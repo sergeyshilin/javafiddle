@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:p="http://primefaces.org/ui">
     <h:head>
         <title>Java Fiddle</title>
         <h:outputStylesheet library="css" name="style.css" />
@@ -33,7 +33,7 @@
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/hint/show-hint.css"></link>
         <!-- End of editor scripts -->
         <style media="all" type="text/css">
-            @import url("#{request.contextPath}/resources/osans.css");
+            @import url("#{request.contextPath}/resources/css/osans.css");
         </style>
     </h:head>
     <h:body>
@@ -64,13 +64,13 @@
             <div id="header-bottom">
                 <ul id="editor_buttons">
                     <li><h:commandButton value="" type="button" id="open" /></li>
-                    <li><h:commandButton value="" type="button" id="save" /></li>
-                    <li><h:commandButton value="" type="button" id="reload" /></li>
+                    <li><h:commandButton value="" type="button" id="save" onclick="push();"/></li>
+                    <li><h:commandButton value="" type="button" id="reload" onclick="pop();"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="undo" /></li>
-                    <li><h:commandButton value="" type="button" id="redo" /></li>
+                    <li><h:commandButton value="" type="button" id="undo" onclick="undo();"/></li>
+                    <li><h:commandButton value="" type="button" id="redo" onclick="redo();"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
@@ -91,6 +91,12 @@
                     <li class="interface" onclick="selectTab($(this))">WordProcessor.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
                     <li class="runnable" onclick="selectTab($(this))">WordProcessorTest.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
                 </ul>
+                <h:form prependId="false">
+                    <h:inputHidden id="hiddenButton" value="#{history.list('e').current}"/>
+                    <p:remoteCommand name="remoteChangeCommand" update="hiddenButton"/>
+                    <p:commandButton value="prev" actionListener="#{history.list('e').dec}" oncomplete="pop();"/>
+                    <p:commandButton value="next" actionListener="#{history.list('e').inc}" oncomplete="pop();"/>
+                </h:form>
                 <div style="clear:both"></div>
             </div>
         </div>
@@ -172,12 +178,12 @@
                 </script>
             </h:panelGroup>
             <div id="codetext" class="mainblock">
-                <h:inputTextarea id="textarea" value="#{code.getText()}"/>
+                <h:inputTextarea id="textarea"/>
                 <script type="text/javascript">
                 //<![CDATA[
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
-                    }
+                    };
                     var javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
                         lineNumbers: true,
                         lineWrapping: true,
@@ -202,10 +208,31 @@
                     
                     javaEditor.setSize("100%", height);
                     javaEditor.foldCode(CodeMirror.Pos(8, 0));
+                    
+                    function push() {
+                        var jsonString = JSON.stringify(javaEditor.getValue());
+                        document.getElementById("hiddenButton").value = jsonString;
+                        remoteChangeCommand();
+                        alert("Saved");
+                    }
+
+                    function pop() {
+                        var jsonObject = JSON.parse(document.getElementById("hiddenButton").value);
+                        javaEditor.setValue(jsonObject);
+                    }
+                    
+                    function undo() {
+                        javaEditor.undo();
+                    }
+                    
+                    function redo() {
+                        javaEditor.redo();
+                    }
                 //]]>
                 </script>
             </div>
         </div>
+        
     </h:body>
 </html>
 
