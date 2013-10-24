@@ -1,0 +1,87 @@
+package ru.ncedu.java.tasks;
+
+import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Sergey Shilin
+ * Mail: sergey.shilin@phystech.edu
+ * Date: 26.09.13
+ * Time: 22:17
+ */
+public class WordProcessorImpl implements WordProcessor {
+    private String text = "";
+    private boolean readed = false;
+
+    @Override
+    public String getText() {
+        return text.isEmpty() ? null : text;
+    }
+
+    @Override
+    public void setSource(String src) {
+        if(src == null) throw new IllegalArgumentException();
+        text = src;
+    }
+
+    @Override
+    public void setSourceFile(String srcFile) throws IOException {
+        if(srcFile == null) throw new IllegalArgumentException();
+        if(!(new File(srcFile).exists())) throw new IOException();
+
+        if(!readed ) {
+            try {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(
+                                new FileInputStream(srcFile), "UTF8"));
+
+                String str;
+                while ((str = in.readLine()) != null) {
+                    text += str;
+                }
+
+                in.close();
+                readed = !readed;
+            } catch (IOException e) {
+                throw new IOException();
+            }
+        }
+    }
+
+    @Override
+    public void setSource(FileInputStream fis) throws IOException {
+        if(fis == null) throw new IllegalArgumentException();
+
+        try {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(
+                            fis, "UTF8"));
+
+            String str;
+            while ((str = in.readLine()) != null) {
+                text += str;
+            }
+
+            in.close();
+        } catch (IOException e) {
+            throw new IOException();
+        }
+    }
+
+    @Override
+    public Set<String> wordsStartWith(String begin) {
+        if(text.isEmpty()) throw new IllegalStateException();
+
+        Set<String> words = new HashSet<>();
+        String prefix = begin.toLowerCase();
+        for(String word : text.split("\\s+")) {
+            word = word.toLowerCase();
+            if(begin == null || begin.isEmpty() || word.startsWith(prefix)) {
+                words.add(word);
+            }
+        }
+        return words;
+    }
+}

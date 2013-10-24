@@ -35,7 +35,6 @@
         <style media="all" type="text/css">
             @import url("#{request.contextPath}/resources/css/osans.css");
         </style>
-        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/style.css" />
     </h:head>
     <h:body>
         <div id="header">
@@ -70,8 +69,8 @@
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="undo" actionListener="#{history.list('e').dec}" oncomplete="pop();"/></li>
-                    <li><h:commandButton value="" type="button" id="redo" actionListener="#{history.list('e').inc}" oncomplete="pop();"//></li>
+                    <li><h:commandButton value="" type="button" id="undo" /></li>
+                    <li><h:commandButton value="" type="button" id="redo" /></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
