@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
         <title>Java Fiddle</title>
         <h:outputStylesheet library="css" name="style.css" />
@@ -57,20 +56,20 @@
                         <li>Настройки</li>
                         <li>История</li>
                     </ul>
-                    <h:panelGroup layout="block" id="latest_update">Последнее изменение: 1 ноября 2012 г.</h:panelGroup>
+                    <h:panelGroup layout="block" id="latest_update">Последнее изменение: не сохранялось.</h:panelGroup>
                     <h:link id="share" value="Поделиться кодом" outcome="index" />
                 </div>
             </div>
             <div id="header-bottom">
                 <ul id="editor_buttons">
                     <li><h:commandButton value="" type="button" id="open" /></li>
-                    <li><h:commandButton value="" type="button" id="save" onclick="push();"/></li>
-                    <li><h:commandButton value="" type="button" id="reload" onclick="pop();"/></li>
+                    <li><h:commandButton value="" type="button" id="save" onclick="post('temp');"/></li>
+                    <li><h:commandButton value="" type="button" id="reload" onclick="get('temp', 'current');"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="undo" onclick="undo();"/></li>
-                    <li><h:commandButton value="" type="button" id="redo" onclick="redo();"/></li>
+                    <li><h:commandButton value="" type="button" id="undo" onclick="get('temp', 'prev');"/></li>
+                    <li><h:commandButton value="" type="button" id="redo" onclick="get('temp', 'next');"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
@@ -91,12 +90,6 @@
                     <li class="interface" onclick="selectTab($(this))">WordProcessor.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
                     <li class="runnable" onclick="selectTab($(this))">WordProcessorTest.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
                 </ul>
-                <h:form prependId="false">
-                    <h:inputHidden id="hiddenButton" value="#{history.list('e').current}"/>
-                    <p:remoteCommand name="remoteChangeCommand" update="hiddenButton"/>
-                    <p:commandButton value="prev" actionListener="#{history.list('e').dec}" oncomplete="pop();"/>
-                    <p:commandButton value="next" actionListener="#{history.list('e').inc}" oncomplete="pop();"/>
-                </h:form>
                 <div style="clear:both"></div>
             </div>
         </div>
@@ -196,8 +189,8 @@
                         matchBrackets: true,
                         autoCloseBrackets: true,
                         extraKeys: {
-                            "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); },
-                            "Ctrl-S": function(){ push(); },
+                            "Ctrl-Q": function(cm){cm.foldCode(cm.getCursor());},
+                            "Ctrl-S": function(){post('temp');},
                             "Ctrl-Space": "autocomplete"
                         },
                         foldGutter: {
@@ -210,17 +203,31 @@
                     javaEditor.setSize("100%", height);
                     javaEditor.foldCode(CodeMirror.Pos(8, 0));
                     
-                    function push() {
-                        var jsonString = JSON.stringify(javaEditor.getValue());
-                        document.getElementById("hiddenButton").value = jsonString;
-                        remoteChangeCommand();
-                        alert("Saved");
+                    function post(id) {
+                        var time = (new Date).toString();
+                        var dummy = {
+                            id: id,
+                            time: time,
+                            value: javaEditor.getValue()
+                        };
+                        $.ajax({
+                            url:'#{request.contextPath}/webapi/revisions', type:'POST', 
+                            data: JSON.stringify(dummy), contentType: "application/json",
+                            success: function() {
+                                document.getElementById("latest_update").innerHTML = "Последнее изменение: " + time;
+                            }
+                        });
                     }
 
-                    function pop() {
-                        var jsonObject = JSON.parse(document.getElementById("hiddenButton").value);
-                        javaEditor.setValue(jsonObject);
-                    }
+                    function get(id, revision) {
+                        $.ajax({
+                            url:'#{request.contextPath}/webapi/revisions', type:'GET',
+                            data: {id : id, revision : revision}, dataType: "json",
+                            success: function(data) {
+                                javaEditor.setValue(data.value);
+                            }
+                        });
+                      }
                     
                     function undo() {
                         javaEditor.undo();

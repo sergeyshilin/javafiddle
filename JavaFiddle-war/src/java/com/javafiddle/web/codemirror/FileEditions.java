@@ -2,57 +2,45 @@ package com.javafiddle.web.codemirror;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.primefaces.context.RequestContext;
 
 public class FileEditions {
-    List<String> editions;
+    List<Dummy> editions;
     int currentindex, maxindex;
-    String current;
-    int returnedIndex;
     
     public FileEditions() {
         editions = new ArrayList<>();
         currentindex = -1;
         maxindex = -1;
-        current = "\"\""; 
-        returnedIndex = -1;
     }
 
-    public void setCurrent(String current) {
-        if ((maxindex < 0 || !current.equals(editions.get(maxindex))) &&
-           (returnedIndex == -1 || !current.equals(editions.get(returnedIndex))) &&
-           (returnedIndex == maxindex || !current.equals(editions.get(returnedIndex+1)))){
-            editions.add(current);
-            if (editions.lastIndexOf(current) > 19)
-                editions.remove(0);
-            maxindex = editions.lastIndexOf(current);
+    public void addRevision(Dummy newElement) {
+            editions.add(newElement);
+            maxindex = editions.lastIndexOf(newElement);
             currentindex = maxindex;
-            returnedIndex = -1;
-        }
     }
 
-    public String getCurrent() {
+    public Dummy getLastRevision() {
         if (maxindex == -1)
-            return "\"\"";
+            return null;
+        return editions.get(maxindex);
+    }
+    
+    public Dummy getCurrentRevision() {
+        if (currentindex == -1)
+            return null;
         return editions.get(currentindex);
     }
     
-    public void inc() {
-        if (hasNext()) {
-            currentindex++;
-            returnedIndex = currentindex;
-            RequestContext context = RequestContext.getCurrentInstance(); 
-            context.update("hiddenButton");
-        }
-    }
-    
-    public void dec() {
-        if (hasPrevious()) {
+    public Dummy getPrevRevision() {
+        if (hasPrevious())
             currentindex--;
-            returnedIndex = currentindex;
-            RequestContext context = RequestContext.getCurrentInstance(); 
-            context.update("hiddenButton");
-        }
+        return editions.get(currentindex);
+    }
+   
+    public Dummy getNextRevision() {
+        if (hasNext())
+            currentindex++;
+        return editions.get(currentindex);
     }
     
     public boolean hasPrevious() {
