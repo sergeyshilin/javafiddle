@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <h:head>
         <title>Java Fiddle</title>
         <h:outputStylesheet library="css" name="style.css" />
@@ -64,13 +64,13 @@
             <div id="header-bottom">
                 <ul id="editor_buttons">
                     <li><h:commandButton value="" type="button" id="open" /></li>
-                    <li><h:commandButton value="" type="button" id="save" onclick="push();"/></li>
-                    <li><h:commandButton value="" type="button" id="reload" onclick="pop();"/></li>
+                    <li><h:commandButton value="" type="button" id="save" /></li>
+                    <li><h:commandButton value="" type="button" id="reload" /></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="undo" onclick="undo();"/></li>
-                    <li><h:commandButton value="" type="button" id="redo" onclick="redo();"/></li>
+                    <li><h:commandButton value="" type="button" id="undo" actionListener="#{history.list('e').dec}" oncomplete="pop();"/></li>
+                    <li><h:commandButton value="" type="button" id="redo" actionListener="#{history.list('e').inc}" oncomplete="pop();"//></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
@@ -91,12 +91,6 @@
                     <li class="interface" onclick="selectTab($(this))">WordProcessor.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
                     <li class="runnable" onclick="selectTab($(this))">WordProcessorTest.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
                 </ul>
-                <h:form prependId="false">
-                    <h:inputHidden id="hiddenButton" value="#{history.list('e').current}"/>
-                    <p:remoteCommand name="remoteChangeCommand" update="hiddenButton"/>
-                    <p:commandButton value="prev" actionListener="#{history.list('e').dec}" oncomplete="pop();"/>
-                    <p:commandButton value="next" actionListener="#{history.list('e').inc}" oncomplete="pop();"/>
-                </h:form>
                 <div style="clear:both"></div>
             </div>
         </div>
@@ -178,12 +172,12 @@
                 </script>
             </h:panelGroup>
             <div id="codetext" class="mainblock">
-                <h:inputTextarea id="textarea"/>
+                <h:inputTextarea id="textarea" value="#{code.getText()}"/>
                 <script type="text/javascript">
                 //<![CDATA[
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
-                    };
+                    }
                     var javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
                         lineNumbers: true,
                         lineWrapping: true,
@@ -209,7 +203,6 @@
                     
                     javaEditor.setSize("100%", height);
                     javaEditor.foldCode(CodeMirror.Pos(8, 0));
-                    
                     function push() {
                         var jsonString = JSON.stringify(javaEditor.getValue());
                         document.getElementById("hiddenButton").value = jsonString;
@@ -229,11 +222,10 @@
                     function redo() {
                         javaEditor.redo();
                     }
+
                 //]]>
                 </script>
             </div>
         </div>
-        
     </h:body>
 </html>
-
