@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
         <title>Java Fiddle</title>
         <h:outputStylesheet library="css" name="style.css" />
         <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
         <h:outputScript library="js" name="main.js" target="head"/>
         <h:outputScript library="js" name="projecttree.js" target="head"/>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/tooglepopup.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/lib/codemirror.js"></script>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/javascript/javascript.js"></script>
@@ -36,7 +36,7 @@
             @import url("#{request.contextPath}/resources/css/osans.css");
         </style>
     </h:head>
-    <h:body>
+    <h:body onload="showPopup('');">
         <div id="header">
             <div id="header-top">
                 <div id="logo"> 

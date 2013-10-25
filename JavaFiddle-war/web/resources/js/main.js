@@ -58,3 +58,17 @@ function selectTab(li) {
     li.addClass("active");
 }
 
+function showPopup(content) {
+    var html = "<div id=\"opaco\" class=\"hidden\"></div>";
+    html += "<div id=\"popup\" class=\"hidden\"></div>";
+    html += "<div id=\"popup_bug\" class=\"hidden\">";
+    html += "<div class=\"bug\">";
+    html += (content === "" || content === null) ? "" : content;
+    html += "</div>";
+    html += "</div>";
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    $("body").append(div);
+    $('#popup_bug').togglePopup();
+}
+

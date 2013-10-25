@@ -404,3 +404,45 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 .project a.harOpen {
   color: #000
 }
+
+/**
+*  Popup Window
+*/
+#opaco {
+    background-color: #fff;
+    left: 0;
+    opacity: 0.7;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+#popup {
+    position: fixed;
+    left:50%;
+    top:50%;
+    right: 50% !important;
+    min-width: 300px;
+    min-height: 300px;
+    z-index: 11;
+    -webkit-box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    background: #fff;
+    background-clip: padding-box;
+    border: 1px solid #acacac;
+    border: 1px solid rgba(0,0,0,.333);
+    outline: 0;
+}
+
+.hidden {
+	display: none;
+}
+/*
+div.bug {
+    padding:10px;
+    position: relative;
+    z-index: 20;
+    color: #fff;
+}*/
