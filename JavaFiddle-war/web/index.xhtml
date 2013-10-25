@@ -57,20 +57,20 @@
                         <li>Настройки</li>
                         <li>История</li>
                     </ul>
-                    <h:panelGroup layout="block" id="latest_update">Последнее изменение: 1 ноября 2012 г.</h:panelGroup>
+                    <h:panelGroup layout="block" id="latest_update">Последнее изменение: не сохранялось.</h:panelGroup>
                     <h:link id="share" value="Поделиться кодом" outcome="index" />
                 </div>
             </div>
             <div id="header-bottom">
                 <ul id="editor_buttons">
                     <li><h:commandButton value="" type="button" id="open" /></li>
-                    <li><h:commandButton value="" type="button" id="save" /></li>
-                    <li><h:commandButton value="" type="button" id="reload" /></li>
+                    <li><h:commandButton value="" type="button" id="save" onclick="post('temp');"/></li>
+                    <li><h:commandButton value="" type="button" id="reload" onclick="get('temp', 'current');"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="undo" /></li>
-                    <li><h:commandButton value="" type="button" id="redo" /></li>
+                    <li><h:commandButton value="" type="button" id="undo" onclick="get('temp', 'prev');"/></li>
+                    <li><h:commandButton value="" type="button" id="redo" onclick="get('temp', 'next');"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
@@ -172,12 +172,12 @@
                 </script>
             </h:panelGroup>
             <div id="codetext" class="mainblock">
-                <h:inputTextarea id="textarea" value="#{code.getText()}"/>
+                <h:inputTextarea id="textarea"/>
                 <script type="text/javascript">
                 //<![CDATA[
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
-                    }
+                    };
                     var javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
                         lineNumbers: true,
                         lineWrapping: true,
@@ -190,8 +190,8 @@
                         matchBrackets: true,
                         autoCloseBrackets: true,
                         extraKeys: {
-                            "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); },
-                            "Ctrl-S": function(){ push(); },
+                            "Ctrl-Q": function(cm){cm.foldCode(cm.getCursor());},
+                            "Ctrl-S": function(){post('temp');},
                             "Ctrl-Space": "autocomplete"
                         },
                         foldGutter: {
@@ -203,17 +203,32 @@
                     
                     javaEditor.setSize("100%", height);
                     javaEditor.foldCode(CodeMirror.Pos(8, 0));
-                    function push() {
-                        var jsonString = JSON.stringify(javaEditor.getValue());
-                        document.getElementById("hiddenButton").value = jsonString;
-                        remoteChangeCommand();
-                        alert("Saved");
+                    
+                    function post(id) {
+                        var time = (new Date).toString();
+                        var dummy = {
+                            id: id,
+                            time: time,
+                            value: javaEditor.getValue()
+                        };
+                        $.ajax({
+                            url:'#{request.contextPath}/webapi/revisions', type:'POST', 
+                            data: JSON.stringify(dummy), contentType: "application/json",
+                            success: function() {
+                                document.getElementById("latest_update").innerHTML = "Последнее изменение: " + time;
+                            }
+                        });
                     }
 
-                    function pop() {
-                        var jsonObject = JSON.parse(document.getElementById("hiddenButton").value);
-                        javaEditor.setValue(jsonObject);
-                    }
+                    function get(id, revision) {
+                        $.ajax({
+                            url:'#{request.contextPath}/webapi/revisions', type:'GET',
+                            data: {id : id, revision : revision}, dataType: "json",
+                            success: function(data) {
+                                javaEditor.setValue(data.value);
+                            }
+                        });
+                      }
                     
                     function undo() {
                         javaEditor.undo();
@@ -222,10 +237,10 @@
                     function redo() {
                         javaEditor.redo();
                     }
-
                 //]]>
                 </script>
             </div>
         </div>
+        
     </h:body>
 </html>
