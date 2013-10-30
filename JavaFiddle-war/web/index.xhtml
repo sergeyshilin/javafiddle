@@ -7,8 +7,6 @@
         <h:outputStylesheet library="css" name="style.css" />
         <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
         <h:outputScript library="js" name="main.js" target="head"/>
-        <h:outputScript library="js" name="projecttree.js" target="head"/>
-        <h:outputScript library="js" name="tooglepopup.js" target="head"/>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/lib/codemirror.js"></script>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
         <!-- Start of editor scripts -->
@@ -49,12 +47,24 @@
                 </h:panelGroup>
                 <div id="bottom"> 
                     <ul id="main_menu">
-                        <li>Файл</li>
-                        <li>Правка</li>
-                        <li>Поиск</li>
-                        <li>Вид</li>
-                        <li>Настройки</li>
-                        <li>История</li>
+                        <li>
+                            <div class="link">Файл</div>
+                            <ul>
+                                <li>Открыть проект</li>
+                                <li>Закрыть проект</li>
+                                <li>Что-то еще</li>
+                            </ul>
+                        </li>
+                        <li><div class="link">Правка</div></li>
+                        <li><div class="link">Поиск</div></li>
+                        <li><div class="link">Вид</div></li>
+                        <li><div class="link">Настройки</div></li>
+                        <li>
+                            <div class="link">История</div>
+                            <ul>
+                                <li onclick="showPopup('Список ревизий будет здесь');">Список ревизий</li>
+                            </ul>
+                        </li>
                     </ul>
                     <h:panelGroup layout="block" id="latest_update">Последнее изменение: не сохранялось.</h:panelGroup>
                     <h:link id="share" value="Поделиться кодом" outcome="index" />
