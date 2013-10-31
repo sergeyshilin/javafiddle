@@ -34,9 +34,28 @@
  */
 package com.javafiddle.web.projecttree;
 
-public interface FileSaver {
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class ProjectUpdater {
+    private ProjectTree tree = new ProjectTree();
+    
+    public ProjectTree getTree(){
+        return tree;
+    }
     /**
      * @param element элемент, которые нужно сохранить
      */
-    public void save(ProjectNode element);
+    public void save(ProjectNode element) throws IOException{
+
+    }
+    
+    public void add(String name, String parent){
+        tree.add(ProjectNode.makeNode(name, parent, tree));
+    }
+    
+    public void add(ProjectNode node){
+        tree.add(node);
+    }
 }
