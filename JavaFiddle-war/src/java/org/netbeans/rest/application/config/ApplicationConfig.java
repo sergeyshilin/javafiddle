@@ -33,6 +33,7 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.javafiddle.web.services.DocumentRevisionsService.class);
+        resources.add(com.javafiddle.web.services.TreeRevisionsService.class);
     }
     
 }

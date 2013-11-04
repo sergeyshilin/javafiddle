@@ -89,7 +89,7 @@
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="run" /></li>
+                    <li><h:commandButton value="" type="button" id="run" onclick="makeTree();"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
@@ -106,77 +106,57 @@
         <div id="content">
             <h:panelGroup layout="block" id="treepanel" class="mainblock">
                 <ul class="project">
-                    <li class="open"><a href="#" class="root">NetCrackerTasks</a>
-                        <ul>
-                            <li><a href="#" class="folder">.idea</a></li>
-                            <li class="open"><a href="#" class="sources">src</a>
-                                <ul>
-                                    <li><a href="#" class="package">ru.ncedu.java.tasks</a>
-                                        <ul>
-                                            <li><a href="#" class="package">ru.ncedu.java.tasks.sub</a>
-                                                <ul>
-                                                    <li><a href="#" class="folder">SMTHING ELSE</a>
-                                                        <ul>
-                                                            <li><a href="#" class="folder">SMTHING ELSE</a>
-                                                                <ul>
-                                                                    <li><a href="#" class="folder">SMTHING ELSE</a>
-                                                                        <ul>
-                                                                            <li><a href="#" class="folder">SMTHING ELSE</a>
-                                                                                <ul>
-                                                                                    <li><a href="#" class="class">ArrayVectorImpl</a></li>
-                                                                                    <li><a href="#" class="interface">Employee</a></li>
-                                                                                    <li><a href="#" class="class">EmployeeImpl</a></li>
-                                                                                    <li><a href="#" class="interface">WordCounter</a></li>
-                                                                                    <li><a href="#" class="class">WordCounterImpl</a></li>
-                                                                                    <li><a href="#" class="interface">WordProcessor</a></li>
-                                                                                    <li><a href="#" class="folder">AnotherFolder</a>
-                                                                                        <ul>
-                                                                                            <li><a href="#" class="class">ArrayVectorImpl</a></li>
-                                                                                            <li><a href="#" class="interface">Employee</a></li>
-                                                                                            <li><a href="#" class="class">EmployeeImpl</a></li>
-                                                                                            <li><a href="#" class="interface">WordCounter</a></li>
-                                                                                            <li><a href="#" class="class">WordCounterImpl</a></li>
-                                                                                            <li><a href="#" class="interface">WordProcessor</a></li>
-                                                                                            <li><a href="#" class="class">WordProcessorImpl</a></li>
-                                                                                        </ul>
-                                                                                    </li>
-                                                                                </ul>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </li>
-                                                                </ul>
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                            <li><a href="#" class="class">ArrayVectorImpl</a></li>
-                                            <li><a href="#" class="interface">Employee</a></li>
-                                            <li><a href="#" class="class">EmployeeImpl</a></li>
-                                            <li><a href="#" class="interface">WordCounter</a></li>
-                                            <li><a href="#" class="class">WordCounterImpl</a></li>
-                                            <li><a href="#" class="interface">WordProcessor</a></li>
-                                            <li><a href="#" class="class">WordProcessorImpl</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="#" class="runnable">ArrayVectorTest</a></li>
-                                    <li><a href="#" class="runnable">WordCounterTest</a></li>
-                                    <li><a href="#" class="runnable">WordProcessorTest</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="#" class="iml">NetCracketTasks.iml</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#" class="lib">External Libraries</a></li>
+                    <div id="tree">
+                        
+                    </div>
                 </ul>
-                <script type="text/javascript">
-                    //<![CDATA[
-                        $(function () {
-                            $('.project').liHarmonica({
-                                onlyOne: false,
-                                speed: 500
+                <script type="text/javascript">  
+                    //<![CDATA[  
+			function makeTree() {
+                            $("#tree").empty();
+                            $.ajax({
+                                url:'#{request.contextPath}/webapi/tree',
+                                type:'GET',
+                                dataType: "json",
+                                success: function(data) {
+                                    for (var i = 0; i < data.projects.length; i++) {
+                                        var tree = "tree";
+                                        var proj = data.projects[i];
+                                        var treeProject = tree + "_" + proj.project;
+                                        add("tree", "root", proj.project);
+                                        for (var j = 0; j < proj.packages.length; j++) {
+                                            var pcg = proj.packages[j];
+                                            add(treeProject + pcg.parent, "package", pcg.pack);
+                                        }   
+                                        for (var j = 0; j < proj.packages.length; j++) {
+                                            var pcg = proj.packages[j];
+                                            var treePackage = treeProject + pcg.parent + "_" + pcg.pack;
+                                            for (var k = 0; k < pcg.files.length; k++) {
+                                                var file = pcg.files[k];
+                                                add(treePackage, file.type, file.name);
+                                            }
+                                        }   
+                                        
+                                    }
+                                    $(function () {
+                                        $('#tree').liHarmonica({
+                                            onlyOne: false,
+                                            speed: 100
+                                        });
+                                    });
+                                }
                             });
-                        });
+                        }
+                        
+                        function add(parent, type, title) {  
+                            var categories = ["root", "folder", "package", "lib"];
+                            parent = parent.replace(new RegExp("\\.",'g'),"");
+                            if ($.inArray(type, categories) > -1)
+                                $('#' + parent).append('<li><a href="#" class="' + type + '">' + title + '</a><ul><div id ="' + parent + '_' + title.replace(new RegExp("\\.",'g'),"") + '"\></ul></li>');
+                            else
+                                $('#' + parent).append('<li><a href="#" class="' + type + '">' + title + '</a></li>'); 
+                        }
+
                     //]]>
                 </script>
             </h:panelGroup>
@@ -221,8 +201,10 @@
                             value: javaEditor.getValue()
                         };
                         $.ajax({
-                            url:'#{request.contextPath}/webapi/revisions', type:'POST', 
-                            data: JSON.stringify(dummy), contentType: "application/json",
+                            url:'#{request.contextPath}/webapi/revisions',
+                            type:'POST', 
+                            data: JSON.stringify(dummy),
+                            contentType: "application/json",
                             success: function() {
                                 document.getElementById("latest_update").innerHTML = "Последнее изменение: " + time;
                             }
@@ -231,8 +213,10 @@
 
                     function get(id, revision) {
                         $.ajax({
-                            url:'#{request.contextPath}/webapi/revisions', type:'GET',
-                            data: {id : id, revision : revision}, dataType: "json",
+                            url:'#{request.contextPath}/webapi/revisions',
+                            type:'GET',
+                            data: {id : id, revision : revision},
+                            dataType: "json",
                             success: function(data) {
                                 javaEditor.setValue(data.value);
                             }

@@ -1,14 +1,18 @@
 package com.javafiddle.web.codemirror;
 
-/**
- *
- * @author wawilon
- */
 public class Dummy {
-    
     private String id;
     private String time;
     private String value;
+
+    public Dummy() {
+    }
+    
+    public Dummy(String id, String time, String value) {
+        this.id = id;
+        this.time = time;
+        this.value = value;
+    }
 
     public String getId() {
         return id;

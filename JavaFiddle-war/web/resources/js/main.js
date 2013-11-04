@@ -1,6 +1,7 @@
 $(document).ready(function(){
    setContentHeight();
    loadContent();
+   makeTree();
 });
 
 function setContentHeight() {

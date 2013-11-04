@@ -53,7 +53,5 @@ public class FileEditions {
         if (currentindex < maxindex)
             return true;
         return false;               
-    }
-    
-    
+    }   
 }
