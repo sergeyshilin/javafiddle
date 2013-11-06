@@ -12,6 +12,10 @@ public class FileEditions {
         currentindex = -1;
         maxindex = -1;
     }
+    
+    public int size() {
+        return editions.size();
+    }
 
     public void addRevision(Dummy newElement) {
             editions.add(newElement);

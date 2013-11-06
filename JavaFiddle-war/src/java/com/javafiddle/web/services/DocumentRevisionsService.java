@@ -1,6 +1,7 @@
 package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.javafiddle.web.codemirror.Dummy;
 import com.javafiddle.web.codemirror.FileEditions;
 import java.io.Serializable;
@@ -59,6 +60,24 @@ public class DocumentRevisionsService implements Serializable {
        if (!files.containsKey(d.getId()))
             files.put(d.getId(), new FileEditions());
        files.get(d.getId()).addRevision(d);
+    }
+    
+    @GET
+    @Path("classfile")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getJavaClassText(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String id
+            ) {
+        Gson gson = new GsonBuilder().create();
+        String result = "";
+        FileEditions editions = files.get(id);
+        if(editions != null && editions.size() != 0 ) {
+            String curRevisionText = editions.getCurrentRevision().getValue();
+            if(curRevisionText != null)
+                result = curRevisionText;
+        }
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
     
 }

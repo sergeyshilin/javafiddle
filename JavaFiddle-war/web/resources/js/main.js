@@ -1,3 +1,6 @@
+var PATH = "";
+var javaEditor;
+
 $(document).ready(function(){
    setContentHeight();
    loadContent();
@@ -58,6 +61,8 @@ function selectTab(li) {
     $tabs = $("#tabpanel");
     $tabs.find(".active").removeClass("active");
     li.addClass("active");
+    var id = li.attr("id");
+    getCurrentFileText(id);
 }
 
 function showPopup(content) {
@@ -188,5 +193,64 @@ function loadContent() {
     loadProjectTree();
     loadMainMenu();
     loadToogles();
+}
+
+function openJavaClass($el) {
+    var id = $el.closest('li').closest('div').attr('id') + "_" + $el.text();
+    var name = $el.text();
+    var cl = $el.attr('class');
+    
+    setCurrentFileID(id);
+    getCurrentFileText(id);
+    
+    var li = addTabToPanel(id, name, cl);
+    selectTab(li);
+    
+}
+
+function getCurrentFileText(id) {
+    $.ajax({
+        url: PATH + '/webapi/revisions/classfile',
+        type: 'GET',
+        dataType: "json",
+        data: {id: id},
+        async: false,
+        success: function(data) {
+            javaEditor.setValue(data);
+        }
+    });
+}
+
+function addTabToPanel(id, name, cl) {
+    var li = $('<li id="'+ id +'" class="'+ cl +' active" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
+    $("#tabpanel").append(li);
+    return li;
+}
+
+function getCurrentFileID() {
+    var id = "";
+    $.ajax({
+         url: PATH + '/webapi/current/openedfileid',
+         type:'GET',
+         dataType: "text",
+         async: false,
+         success: function(data) {
+             id = data;
+         }
+     }); 
+     return id;
+}
+
+function setCurrentFileID(id) {
+    $.ajax({
+         url: PATH + '/webapi/current/setopenedfileid',
+         type: 'POST',
+         data: JSON.stringify(id),
+         contentType: "application/json",
+         async: false,
+         success: function() {
+             
+         }
+     }); 
 }
 

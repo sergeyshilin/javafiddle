@@ -73,13 +73,13 @@
             <div id="header-bottom">
                 <ul id="editor_buttons">
                     <li><h:commandButton value="" type="button" id="open" /></li>
-                    <li><h:commandButton value="" type="button" id="save" onclick="post('temp');"/></li>
-                    <li><h:commandButton value="" type="button" id="reload" onclick="get('temp', 'current');"/></li>
+                    <li><h:commandButton value="" type="button" id="save" onclick="postFileRevision();"/></li>
+                    <li><h:commandButton value="" type="button" id="reload" onclick="getFileRevision('current');"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="undo" onclick="get('temp', 'prev');"/></li>
-                    <li><h:commandButton value="" type="button" id="redo" onclick="get('temp', 'next');"/></li>
+                    <li><h:commandButton value="" type="button" id="undo" onclick="getFileRevision('prev');"/></li>
+                    <li><h:commandButton value="" type="button" id="redo" onclick="getFileRevision('next');"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
@@ -114,6 +114,7 @@
                     //<![CDATA[  
 			function makeTree() {
                             $("#tree").empty();
+                            PATH = "#{request.contextPath}";
                             $.ajax({
                                 url:'#{request.contextPath}/webapi/tree',
                                 type:'GET',
@@ -136,7 +137,6 @@
                                                 add(treePackage, file.type, file.name);
                                             }
                                         }   
-                                        
                                     }
                                     $(function () {
                                         $('#tree').liHarmonica({
@@ -154,7 +154,7 @@
                             if ($.inArray(type, categories) > -1)
                                 $('#' + parent).append('<li><a href="#" class="' + type + '">' + title + '</a><ul><div id ="' + parent + '_' + title.replace(new RegExp("\\.",'g'),"") + '"\></ul></li>');
                             else
-                                $('#' + parent).append('<li><a href="#" class="' + type + '">' + title + '</a></li>'); 
+                                $('#' + parent).append('<li><a href="#" onclick="openJavaClass($(this));" class="' + type + '">' + title + '</a></li>'); 
                         }
 
                     //]]>
@@ -167,7 +167,7 @@
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
                     };
-                    var javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
+                    javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
                         lineNumbers: true,
                         lineWrapping: true,
                         styleActiveLine: true,
@@ -180,7 +180,7 @@
                         autoCloseBrackets: true,
                         extraKeys: {
                             "Ctrl-Q": function(cm){cm.foldCode(cm.getCursor());},
-                            "Ctrl-S": function(){post('temp');},
+                            "Ctrl-S": function(){postFileRevision();},
                             "Ctrl-Space": "autocomplete"
                         },
                         foldGutter: {
@@ -193,8 +193,9 @@
                     javaEditor.setSize("100%", height);
                     javaEditor.foldCode(CodeMirror.Pos(8, 0));
                     
-                    function post(id) {
+                    function postFileRevision() {
                         var time = (new Date).toString();
+                        var id = getCurrentFileID();
                         var dummy = {
                             id: id,
                             time: time,
@@ -211,7 +212,8 @@
                         });
                     }
 
-                    function get(id, revision) {
+                    function getFileRevision(revision) {
+                        var id = getCurrentFileID();
                         $.ajax({
                             url:'#{request.contextPath}/webapi/revisions',
                             type:'GET',
@@ -221,7 +223,7 @@
                                 javaEditor.setValue(data.value);
                             }
                         });
-                      }
+                    }
                     
                     function undo() {
                         javaEditor.undo();
