@@ -22,12 +22,7 @@ import javax.ws.rs.core.Response;
 @Path("revisions")
 @SessionScoped
 public class DocumentRevisionsService implements Serializable {
-    Map<String, FileEditions> files;
-
-    
-    public DocumentRevisionsService() {
-        files = new TreeMap<>();
-    }
+    Map<String, FileEditions> files = new TreeMap<>();
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)

@@ -3,10 +3,6 @@ package org.netbeans.rest.application.config;
 import java.util.Set;
 import javax.ws.rs.core.Application;
 
-/**
- *
- * @author wawilon
- */
 @javax.ws.rs.ApplicationPath("webapi")
 public class ApplicationConfig extends Application {
 
@@ -34,7 +30,8 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.javafiddle.web.services.CurrentVariablesService.class);
         resources.add(com.javafiddle.web.services.DocumentRevisionsService.class);
-        resources.add(com.javafiddle.web.services.TreeRevisionsService.class);
+        resources.add(com.javafiddle.web.services.ProjectRevisionsService.class);
+        resources.add(com.javafiddle.web.services.TreeService.class);
     }
     
 }

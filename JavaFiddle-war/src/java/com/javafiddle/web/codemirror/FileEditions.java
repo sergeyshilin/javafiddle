@@ -4,14 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileEditions {
-    List<Dummy> editions;
-    int currentindex, maxindex;
-    
-    public FileEditions() {
-        editions = new ArrayList<>();
-        currentindex = -1;
-        maxindex = -1;
-    }
+    List<Dummy> editions = new ArrayList<>();
+    int currentindex = 0;
     
     public int size() {
         return editions.size();
@@ -19,18 +13,17 @@ public class FileEditions {
 
     public void addRevision(Dummy newElement) {
             editions.add(newElement);
-            maxindex = editions.lastIndexOf(newElement);
-            currentindex = maxindex;
+            currentindex = editions.size();
     }
 
     public Dummy getLastRevision() {
-        if (maxindex == -1)
+        if (editions.isEmpty())
             return null;
-        return editions.get(maxindex);
+        return editions.get(editions.size());
     }
     
     public Dummy getCurrentRevision() {
-        if (currentindex == -1)
+        if (editions.isEmpty())
             return null;
         return editions.get(currentindex);
     }
@@ -54,7 +47,7 @@ public class FileEditions {
     }
     
     public boolean hasNext() {
-        if (currentindex < maxindex)
+        if (currentindex < editions.size())
             return true;
         return false;               
     }   
