@@ -1,27 +1,21 @@
 package com.javafiddle.web.codemirror;
 
+import com.javafiddle.web.tree.TreeProject;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectEditions {
-    List<Tree> editions;
-    int currentindex, maxindex;
+    List<TreeProject> editions = new ArrayList<>();
+    int currentindex;
     
-public ProjectEditions() {
-        editions = new ArrayList<>();
-        currentindex = -1;
-        maxindex = -1;
-    }
-
-    public void addRevision(Tree newElement) {
+    public void addRevision(TreeProject newElement) {
             editions.add(newElement);
-            maxindex = editions.lastIndexOf(newElement);
-            currentindex = maxindex;
+            currentindex = editions.size();
     }
 
-    public Tree getLastRevision() {
-        if (maxindex == -1)
+    public TreeProject getLastRevision() {
+        if (editions.isEmpty())
             return null;
-        return editions.get(maxindex);
+        return editions.get(editions.size());
     }
 }

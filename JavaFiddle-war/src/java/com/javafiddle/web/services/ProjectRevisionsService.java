@@ -18,9 +18,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("revisions")
+@Path("projectrevisions")
 @SessionScoped
-public class DocumentRevisionsService implements Serializable {
+public class ProjectRevisionsService implements Serializable {
     Map<String, FileEditions> files = new TreeMap<>();
     
     @GET
@@ -30,16 +30,7 @@ public class DocumentRevisionsService implements Serializable {
             @QueryParam("id") String id,
             @QueryParam("revision") String revision
             ) {
-        switch (revision) {
-            case "current":
-                return Response.ok(files.get(id).getCurrentRevision(), MediaType.APPLICATION_JSON).build();
-            case "last":
-                return Response.ok(files.get(id).getLastRevision(), MediaType.APPLICATION_JSON).build();
-            case "prev":
-                return Response.ok(files.get(id).getPrevRevision(), MediaType.APPLICATION_JSON).build();
-            case "next":
-                return Response.ok(files.get(id).getNextRevision(), MediaType.APPLICATION_JSON).build();
-        }
+        
         return Response.noContent().build();
     }
     
@@ -50,10 +41,7 @@ public class DocumentRevisionsService implements Serializable {
             @Context HttpServletRequest request,
             String data
             ) {
-       Dummy d = new Gson().fromJson(data, Dummy.class);
-       if (!files.containsKey(d.getId()))
-            files.put(d.getId(), new FileEditions());
-       files.get(d.getId()).addRevision(d);
+      
     }
     
 }
