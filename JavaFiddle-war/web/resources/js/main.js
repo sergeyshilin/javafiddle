@@ -196,7 +196,7 @@ function loadContent() {
 }
 
 function openJavaClass($el) {
-    var id = $el.closest('li').closest('div').attr('id') + "_" + $el.text();
+    var id = $el.closest('li').attr('id') + "_" + $el.text();
     var name = $el.text();
     var cl = $el.attr('class');
     

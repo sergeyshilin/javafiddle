@@ -138,7 +138,7 @@
                                     var pack = proj.packages[j];
                                     for (var k = 0; k < pack.files.length; k++) {
                                         var file = pack.files[k];
-                                        $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
+                                        $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" onclick="openJavaClass($(this));" class="' + file.type + '">' + file.name + '</a></li>');
                                      }
                                 }   
                             }

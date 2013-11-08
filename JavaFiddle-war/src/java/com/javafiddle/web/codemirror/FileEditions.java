@@ -13,13 +13,13 @@ public class FileEditions {
 
     public void addRevision(Dummy newElement) {
             editions.add(newElement);
-            currentindex = editions.size();
+            currentindex = editions.size()-1;
     }
 
     public Dummy getLastRevision() {
         if (editions.isEmpty())
             return null;
-        return editions.get(editions.size());
+        return editions.get(editions.size()-1);
     }
     
     public Dummy getCurrentRevision() {
@@ -47,7 +47,7 @@ public class FileEditions {
     }
     
     public boolean hasNext() {
-        if (currentindex < editions.size())
+        if (currentindex < editions.size()-1)
             return true;
         return false;               
     }   
