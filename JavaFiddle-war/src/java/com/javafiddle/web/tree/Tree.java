@@ -38,6 +38,7 @@ public class Tree implements Serializable {
         TreeFile tf = (TreeFile)IdList.getInstance().getById(id);
         TreePackage tp = (TreePackage)IdList.getInstance().getById(tf.getPackageId());
         tp.deleteFile(tf);
+        IdList.getInstance().removeId(id);
     }
     
     private TreeProject getProject(String projectName) {
