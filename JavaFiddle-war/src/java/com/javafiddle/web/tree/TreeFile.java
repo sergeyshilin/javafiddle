@@ -6,6 +6,7 @@ import java.util.Locale;
 public class TreeFile implements Comparable<TreeFile> { 
     private String name;
     private int id;
+    private int packageId;
     private String type;
     private String timeStamp;
 
@@ -21,6 +22,14 @@ public class TreeFile implements Comparable<TreeFile> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getPackageId() {
+        return packageId;
+    }
+
+    public void setPackageId(int packageId) {
+        this.packageId = packageId;
     }
 
     public int getId() {
@@ -39,12 +48,12 @@ public class TreeFile implements Comparable<TreeFile> {
         this.type = type;
     }
 
-    public String getTimeRevision() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeRevision(String timeRevision) {
-        this.timeStamp = timeRevision;
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     @Override

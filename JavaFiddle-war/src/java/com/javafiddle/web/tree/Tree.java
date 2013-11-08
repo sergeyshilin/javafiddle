@@ -34,8 +34,10 @@ public class Tree implements Serializable {
         tp.addFile(type, fileName);
     }
     
-    public void getById(int id) {
-        IdList.getInstance().getById(id);
+    public void deleteFileById(int id) {
+        TreeFile tf = (TreeFile)IdList.getInstance().getById(id);
+        TreePackage tp = (TreePackage)IdList.getInstance().getById(tf.getPackageId());
+        tp.deleteFile(tf);
     }
     
     private TreeProject getProject(String projectName) {

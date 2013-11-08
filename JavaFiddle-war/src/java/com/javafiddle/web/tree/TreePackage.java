@@ -53,10 +53,15 @@ public class TreePackage implements Comparable<TreePackage>{
         TreeFile tf = new TreeFile(name, type, "");
         files.add(tf);
         tf.setId(IdList.getInstance().addId(tf));
+        tf.setPackageId(id);
         Collections.sort(files);
         return tf;
     }
         
+    public void deleteFile(TreeFile tf) {
+        files.remove(tf);
+    }
+    
     @Override
     public int compareTo(TreePackage compareObject)
     {
