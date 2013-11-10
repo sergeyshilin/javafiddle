@@ -1,4 +1,4 @@
-package com.javafiddle.web.codemirror;
+package com.javafiddle.web.editions;
 
 import com.javafiddle.web.tree.TreeProject;
 import java.util.ArrayList;

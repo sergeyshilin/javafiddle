@@ -1,6 +1,6 @@
 package com.javafiddle.web.projecttree;
 
-import com.javafiddle.web.codemirror.FileEditions;
+import com.javafiddle.web.editions.FileEditions;
 import java.io.File;
 
 public class ProjectNode extends File{

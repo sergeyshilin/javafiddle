@@ -1,40 +1,41 @@
-package com.javafiddle.web.codemirror;
+package com.javafiddle.web.editions;
 
+import com.javafiddle.web.services.structuresforjson.AddFileRevisionRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileEditions {
-    List<Dummy> editions = new ArrayList<>();
+    List<AddFileRevisionRequest> editions = new ArrayList<>();
     int currentindex = 0;
     
     public int size() {
         return editions.size();
     }
 
-    public void addRevision(Dummy newElement) {
+    public void addRevision(AddFileRevisionRequest newElement) {
             editions.add(newElement);
             currentindex = editions.size()-1;
     }
 
-    public Dummy getLastRevision() {
+    public AddFileRevisionRequest getLastRevision() {
         if (editions.isEmpty())
             return null;
         return editions.get(editions.size()-1);
     }
     
-    public Dummy getCurrentRevision() {
+    public AddFileRevisionRequest getCurrentRevision() {
         if (editions.isEmpty())
             return null;
         return editions.get(currentindex);
     }
     
-    public Dummy getPrevRevision() {
+    public AddFileRevisionRequest getPrevRevision() {
         if (hasPrevious())
             currentindex--;
         return editions.get(currentindex);
     }
    
-    public Dummy getNextRevision() {
+    public AddFileRevisionRequest getNextRevision() {
         if (hasNext())
             currentindex++;
         return editions.get(currentindex);

@@ -1,8 +1,8 @@
 package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
-import com.javafiddle.web.codemirror.Dummy;
-import com.javafiddle.web.codemirror.FileEditions;
+import com.javafiddle.web.services.structuresforjson.AddFileRevisionRequest;
+import com.javafiddle.web.editions.FileEditions;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;

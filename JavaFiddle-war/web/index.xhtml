@@ -89,7 +89,7 @@
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="run" onclick="makeTree('yes');"/></li>
+                    <li><h:commandButton value="" type="button" id="run" onclick="addFiles();"/></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
@@ -112,43 +112,49 @@
                 </ul>
                 <script type="text/javascript">  
                     //<![CDATA[  
-			function makeTree(test) {
+			function makeTree() {
                             $("#tree").empty();
                             PATH = "#{request.contextPath}";
                             $.ajax({
                                 url:'#{request.contextPath}/webapi/tree',
-                                data: {example : test},
                                 type:'GET',
                                 dataType: "json",
                                 success: function(data) {
-                                    buildTree(data);
+                                    for (var i = 0; i < data.projects.length; i++) {
+                                        var proj = data.projects[i];
+                                        $('#tree').append('<li id = "node_' + proj.id + '"><a href="#" class="root">' + proj.name + '</a><ul id ="node_' + proj.id + '_list"\></li>');
+                                        for (var j = 0; j < proj.packages.length; j++) {
+                                            var pck = proj.packages[j];
+                                            $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
+                                        }   
+                                        for (var j = 0; j < proj.packages.length; j++) {
+                                            var pack = proj.packages[j];
+                                            for (var k = 0; k < pack.files.length; k++) {
+                                                var file = pack.files[k];
+                                                $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" onclick="openJavaClass($(this));" class="' + file.type + '">' + file.name + '</a></li>');
+                                             }
+                                        }   
+                                    }
+                                    $(function () {
+                                        $('#tree').liHarmonica({
+                                            onlyOne: false,
+                                            speed: 100
+                                        });
+                                    });
                                 }
                             });
                         }
-                        
-                        function buildTree(data) {
-                            for (var i = 0; i < data.projects.length; i++) {
-                                var proj = data.projects[i];
-                                $('#tree').append('<li id = "node_' + proj.id + '"><a href="#" class="root">' + proj.name + '</a><ul id ="node_' + proj.id + '_list"\></li>');
-                                for (var j = 0; j < proj.packages.length; j++) {
-                                    var pck = proj.packages[j];
-                                    $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
-                                }   
-                                for (var j = 0; j < proj.packages.length; j++) {
-                                    var pack = proj.packages[j];
-                                    for (var k = 0; k < pack.files.length; k++) {
-                                        var file = pack.files[k];
-                                        $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" onclick="openJavaClass($(this));" class="' + file.type + '">' + file.name + '</a></li>');
-                                     }
-                                }   
+                    
+                        function addFiles() {
+                        $.ajax({
+                            url:'#{request.contextPath}/webapi/tree/addExampleTree',
+                            type:'POST', 
+                            contentType: "application/json",
+                            success: function() {
+                                makeTree();
                             }
-                            $(function () {
-                                $('#tree').liHarmonica({
-                                    onlyOne: false,
-                                    speed: 100
-                                });
-                            });
-                        }
+                        });
+                    }
                     //]]>
                 </script>
             </h:panelGroup>

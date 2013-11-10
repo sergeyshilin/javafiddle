@@ -4,16 +4,15 @@ import java.text.Collator;
 import java.util.Locale;
 
 public class TreeFile implements Comparable<TreeFile> { 
-    private String name;
     private int id;
     private int packageId;
+    private String name;
     private String type;
     private String timeStamp;
 
-    public TreeFile(String name, String type, String timeStamp) {
+    public TreeFile(String name, String type) {
         this.name = name;
         this.type = type;
-        this.timeStamp = timeStamp;
     }
 
     public String getName() {

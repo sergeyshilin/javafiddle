@@ -28,19 +28,46 @@ public class TreeProject {
     public void setId(int id) {
         this.id = id;
     }
+
+    public List<TreePackage> getPackages() {
+        return packages;
+    }
+
+    public void setPackages(List<TreePackage> packages) {
+        this.packages = packages;
+    }
     
-    public TreePackage getPackage(String name) {
-        TreePackage tp = null;
+    public TreePackage getPackageInstance(IdList idList, String name) {
+        return addPackage(idList, name, true);
+    }
+    
+    public TreePackage addPackage(IdList idList, String name) {
+        return addPackage(idList, name, false);
+    }
+    
+    public TreePackage addPackage(IdList idList, String name, boolean getInstance) {
         for (TreePackage temp : packages)
             if (name.equals(temp.getName()))
-                tp = temp;
-        if (tp == null) {
-            tp = new TreePackage(name);
-            packages.add(tp);
-            tp.setId(IdList.getInstance().addId(tp));
-            calcParents();
-        }
+                if (getInstance)
+                    return temp;
+                else 
+                    return null;
+        TreePackage tp = new TreePackage(name);
+        packages.add(tp);
+        tp.setId(idList.addId(tp));
+        tp.setProjectId(id);
+        calcParents();
+
         return tp;
+    }
+    
+    public void deletePackage(IdList idList, int id) {
+        TreePackage tp = idList.getPackage(id);
+        for (TreeFile temp : tp.getFiles()) {
+            tp.deleteFile(idList, temp.getId());
+        }
+        packages.remove(tp);
+        idList.removeId(id);
     }
     
     private void calcParents() {

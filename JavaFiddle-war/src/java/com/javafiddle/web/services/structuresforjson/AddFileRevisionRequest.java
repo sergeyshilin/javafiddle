@@ -1,14 +1,14 @@
-package com.javafiddle.web.codemirror;
+package com.javafiddle.web.services.structuresforjson;
 
-public class Dummy {
+public class AddFileRevisionRequest {
     private String id;
     private String time;
     private String value;
 
-    public Dummy() {
+    public AddFileRevisionRequest() {
     }
     
-    public Dummy(String id, String time, String value) {
+    public AddFileRevisionRequest(String id, String time, String value) {
         this.id = id;
         this.time = time;
         this.value = value;

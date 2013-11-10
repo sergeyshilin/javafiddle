@@ -11,6 +11,7 @@ public class TreePackage implements Comparable<TreePackage>{
     private int id;
     private int parentId;
     private int parents;
+    private int projectId;
     private List<TreeFile> files = new ArrayList<>();
     
     public TreePackage(String name) {
@@ -48,18 +49,35 @@ public class TreePackage implements Comparable<TreePackage>{
     public void setParents(int parents) {
         this.parents = parents;
     }
+
+    public int getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
+    public List<TreeFile> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<TreeFile> files) {
+        this.files = files;
+    }
     
-    public TreeFile addFile(String type, String name) {
-        TreeFile tf = new TreeFile(name, type, "");
+    public TreeFile addFile(IdList idList, String type, String name) {
+        TreeFile tf = new TreeFile(name, type);
         files.add(tf);
-        tf.setId(IdList.getInstance().addId(tf));
+        tf.setId(idList.addId(tf));
         tf.setPackageId(id);
         Collections.sort(files);
         return tf;
     }
         
-    public void deleteFile(TreeFile tf) {
-        files.remove(tf);
+    public void deleteFile(IdList idList, int fileId) {
+        files.remove(idList.getFile(id));
+        idList.removeId(fileId);
     }
     
     @Override
