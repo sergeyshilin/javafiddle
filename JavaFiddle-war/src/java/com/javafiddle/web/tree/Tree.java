@@ -7,7 +7,11 @@ import java.util.List;
 public class Tree implements Serializable {
     private List<TreeProject> projects = new ArrayList<>();
     
-     public TreeProject addProject(IdList idList, String projectName) {
+    public boolean isEmpty() {
+        return projects.isEmpty();
+    }
+    
+    public TreeProject addProject(IdList idList, String projectName) {
         for (TreeProject temp : projects)
             if (projectName.equals(temp.getName()))
                 return null;

@@ -32,8 +32,26 @@ public class TreeService implements Serializable {
     public Response getTree(
             @Context HttpServletRequest request
             ) {
+        if(tree.isEmpty()) {
+            addExampleTree();
+        }
         Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(tree), MediaType.APPLICATION_JSON).build();
+    }
+    
+    @GET
+    @Path("filedata")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFileData(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String element_id
+            ) {
+        Gson gson = new GsonBuilder().create();
+        int start_pos = element_id.indexOf("_") + 1;
+        int end_pos = element_id.indexOf('_', start_pos);
+        Integer id = Integer.parseInt(element_id.substring(start_pos, end_pos));
+        
+        return Response.ok(gson.toJson(idList.getFile(id)), MediaType.APPLICATION_JSON).build();
     }
     
     @POST
@@ -104,12 +122,12 @@ public class TreeService implements Serializable {
      }
     
     @POST
-    @Path("delete")
+    @Path("remove")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void delete(
             @Context HttpServletRequest request,
-            @QueryParam("id") String idString
+            String idString
             ) {
         int id = parseId(idString);
         switch (idList.getType(id)) {
@@ -135,5 +153,26 @@ public class TreeService implements Serializable {
         if (idString.indexOf("node_") == -1)
             return -1;
         return Integer.parseInt(idString.substring(idString.indexOf('_')+1));
+    }
+
+    private void addExampleTree() {
+        TreeProject tpr = tree.getProjectInstance(idList, "javafiddle");
+        tpr.getPackageInstance(idList, "com.javafiddle.web.beans.death");
+        TreePackage tp = tpr.getPackageInstance(idList, "com.javafiddle.web.projecttree.a.b.c.d.e.f.g.h.i");
+        tp.addFile(idList, "class", "Reflections.java");
+        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.beans");
+        tp.addFile(idList, "class", "CommonBean.java");
+        tp.addFile(idList, "interface", "Example.txt");
+        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror"); 
+        tp.addFile(idList, "class", "Dummy.java");
+        tp.addFile(idList, "class", "FileEditions.java");
+        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror.gui.core");  
+        tp.addFile(idList, "class", "ProjectEditions.java");
+        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror.gui.core.adding");  
+        tp.addFile(idList, "class", "Tree.java");
+        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.appl");
+        tpr.getPackageInstance(idList, "com.javafiddle.web.acore");
+        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
+        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
     }
 }

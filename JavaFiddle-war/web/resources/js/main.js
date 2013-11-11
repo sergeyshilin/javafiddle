@@ -3,8 +3,12 @@ var javaEditor;
 
 $(document).ready(function(){
    setContentHeight();
+   buildTree();
+   loadTabs();
    loadContent();
-   makeTree();
+   $("body").click(function() {
+       closeAllPopUps();
+   });
 });
 
 function setContentHeight() {
@@ -54,6 +58,7 @@ function setContentHeight() {
 }
 
 function closeTab(parent) {
+    removeTab(parent);
     parent.remove();
 }
 
@@ -62,20 +67,38 @@ function selectTab(li) {
     $tabs.find(".active").removeClass("active");
     li.addClass("active");
     var id = li.attr("id");
+    setCurrentFileID(id);
     getCurrentFileText(id);
 }
 
-function showPopup(content) {
+function showPopup(content, params) {
+    var options = {
+        width: 300,
+        height: 300
+    };
+    if(arguments.length > 1) {
+        options = params;
+    }
     var html = "<div id=\"opaco\" class=\"hidden\"></div>";
     html += "<div id=\"popup\" class=\"hidden\"></div>";
     html += "<div id=\"popup_bug\" class=\"hidden\">";
     html += "<div class=\"bug\">";
-    html += (content === "" || content === null) ? "" : content;
+    if( Object.prototype.toString.call(content) === '[object String]' ) {
+        html += (content === "" || content === null) ? "" : content;
+    }
     html += "</div>";
     html += "</div>";
-    var div = document.createElement('div');
-    div.innerHTML = html;
-    $("body").append(div);
+    
+    $div = $('<div/>', {
+        html: html
+    });
+    
+    $("body").append($div);
+    $("#popup").attr("style", "height: " + options.height + "px !important; width: " + options.width + "px !important");
+    if( Object.prototype.toString.call(content) === '[object Object]' ) {
+        $("#popup_bug .bug").html("");
+        $("#popup_bug .bug").append(content);
+    }
     $('#popup_bug').togglePopup();
 }
 
@@ -123,34 +146,15 @@ function loadProjectTree() {
 }
 
 function loadToogles() {
-    //additional properties for jQuery object
-    //align element in the middle of the screen
     $.fn.alignCenter = function() {
-       //get margin left
        var marginLeft =  - $(this).width()/2 + 'px';
-       //get margin top
        var marginTop =  - $(this).height()/2 + 'px';
-       //return updated element
        return $(this).css({'margin-left':marginLeft, 'margin-top':marginTop});
     };
 
     $.fn.togglePopup = function(){
-      //detect whether popup is visible or not
       if($('#popup').hasClass('hidden'))
       {
-        //hidden - then display
-        //when IE - fade immediately
- //       if($.browser.msie)
- //       {
- //         $('#opaco').height($(document).height()).toggleClass('hidden')
- //                    .click(function(){$(this).togglePopup();});
- //       }
- //       else
- //       //in all the rest browsers - fade slowly
- //       {
- //         $('#opaco').height($(document).height()).toggleClass('hidden').fadeTo('slow', 0.7)
- //                    .click(function(){$(this).togglePopup();});
- //       }
         $('#opaco').height($(document).height()).toggleClass('hidden').fadeTo('slow', 0.7)
                      .click(function(){$(this).togglePopup();});
 
@@ -161,7 +165,6 @@ function loadToogles() {
       }
       else
       {
-        //visible - then hide
         $('#opaco').toggleClass('hidden').removeAttr('style').unbind('click');
         $('#popup').toggleClass('hidden');
       }
@@ -170,7 +173,7 @@ function loadToogles() {
 
 function loadMainMenu() {
     $menu = $("#main_menu");
-    $('div.link').each(function() {
+    $('#main_menu div.link').each(function() {
         $parent = $(this).parent();
         if($parent.children().length > 1) {
             $(this).click(function() {  
@@ -187,11 +190,17 @@ function loadMainMenu() {
             });
         }
     });
+    
+    $menu.click(function(event){
+        $("#context_menu").remove();
+        event.stopPropagation();
+    });
 }
 
 function loadContent() {
     loadProjectTree();
     loadMainMenu();
+    loadTreeOperation();
     loadToogles();
 }
 
@@ -203,7 +212,13 @@ function openJavaClass($el) {
     setCurrentFileID(id);
     getCurrentFileText(id);
     
-    var li = addTabToPanel(id, name, cl);
+    var li;
+    if(!isOpened(id))
+        li = addTabToPanel(id, name, cl);
+    else {
+        li = document.getElementById(id);
+        li = $("#tabpanel").find(li);
+    }
     selectTab(li);
     
 }
@@ -222,6 +237,7 @@ function getCurrentFileText(id) {
 }
 
 function addTabToPanel(id, name, cl) {
+    addTab(id);
     var li = $('<li id="'+ id +'" class="'+ cl +' active" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
     $("#tabpanel").append(li);
     return li;
@@ -230,27 +246,277 @@ function addTabToPanel(id, name, cl) {
 function getCurrentFileID() {
     var id = "";
     $.ajax({
-         url: PATH + '/webapi/current/openedfileid',
-         type:'GET',
-         dataType: "text",
-         async: false,
-         success: function(data) {
-             id = data;
-         }
-     }); 
-     return id;
+        url: PATH + '/webapi/current/openedfileid',
+        type:'GET',
+        dataType: "text",
+        async: false,
+        success: function(data) {
+            id = data;
+        }
+    }); 
+    return id;
 }
 
 function setCurrentFileID(id) {
     $.ajax({
-         url: PATH + '/webapi/current/setopenedfileid',
-         type: 'POST',
-         data: JSON.stringify(id),
-         contentType: "application/json",
-         async: false,
-         success: function() {
-             
-         }
-     }); 
+        url: PATH + '/webapi/current/openedfileid',
+        type: 'POST',
+        data: JSON.stringify(id),
+        contentType: "application/json",
+        async: false,
+        success: function() {
+
+        }
+    }); 
 }
 
+function loadTabs() {
+    $.ajax({
+        url: PATH + '/webapi/current/openedtabs',
+        type: 'GET',
+        contentType: "application/json",
+        success: function(data) {
+            for(var i = 0; i < data.length; i++) {
+                var file = getFileDataById(data[i]);
+                var cl = file["type"];
+                var name = file["name"];
+                var li = $('<li id="'+ data[i] +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
+                $("#tabpanel").append(li);
+            }
+        }
+    }); 
+}
+
+function getFileDataById(id) {
+    var filedata;
+
+    $.ajax({
+        url: PATH + '/webapi/tree/filedata',
+        type: 'GET',
+        data: {id: id},
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            filedata = data;
+        }
+    }); 
+    
+    return filedata;
+}
+
+function isOpened(id) {
+    var result = false;
+    
+    $.ajax({
+        url: PATH + '/webapi/current/opened',
+        type: 'GET',
+        data: {id: id},
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });  
+    
+    return result;
+}
+
+function addTab(id) {
+    $.ajax({
+        url: PATH + '/webapi/current/openedtabs',
+        type: 'POST',
+        data: JSON.stringify(id),
+        contentType: "application/json",
+        success: function() {
+             
+        }
+    }); 
+}
+
+function removeTab(li) {
+    var id = li.attr("id");
+    
+    $.ajax({
+        url: PATH + '/webapi/current/remove',
+        type: 'POST',
+        data: JSON.stringify(id),
+        contentType: "application/json",
+        success: function() {
+             
+        }
+    }); 
+}
+
+function loadTreeOperation() {
+    $("#tree a").each(function() {
+        this.oncontextmenu = function() {return false;};  
+        $(this).mousedown(function(event) {
+            var classname = $(this).attr("class").split(" ")[0];
+            switch(classname) {
+                case "class": 
+                case "interface": 
+                case "exception": 
+                case"annotation": 
+                case "runnable":
+                    switch(event.which) {
+                        case 1:
+                            openJavaClass($(this));
+                            break;
+                        case 3: 
+                            showContextMenu($(this), event, "file");
+                            break;
+                    }
+                    break;
+                case "package":
+                    switch(event.which) {
+                        case 3: 
+                            showContextMenu($(this), event, "package");
+                            break;
+                    }
+                    break;
+                case "root":
+                    switch(event.which) {
+                        case 3: 
+                            showContextMenu($(this), event, "root");
+                            break;
+                    }
+                    break;
+            }
+        });
+    });
+}
+
+function showContextMenu($el, event, classname) {
+    $("#context_menu").remove();
+    var elementname = $el.html();
+    var id = $el.parent().attr("id");
+    var x = event.clientX;
+    var y = event.clientY;
+    var context_menu_id = "context_menu";
+    $ul = $('<ul/>', {
+        id: context_menu_id
+    });
+    $ul.css('margin-left', x + 'px');
+    $ul.css('margin-top', y + 'px');
+    $ul.appendTo('body');
+   
+    switch(classname) {
+        case "file":
+            $li = $('<li/>', {text: 'Открыть'});
+            $li.click(function() {
+                openJavaClass($el);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
+            
+            $('<li/>', {text: 'Переименовать'}).appendTo($ul);
+            
+            $li = $('<li/>', {text: 'Удалить'});
+            $li.click(function() {
+                deleteFromProject(id, classname, elementname);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
+            break;
+        case "package":
+            $('<li/>', {text: 'Добавить...'}).appendTo($ul);
+            $('<li/>', {text: 'Переименовать'}).appendTo($ul);
+            
+            $li = $('<li/>', {text: 'Удалить'});
+            $li.click(function() {
+                deleteFromProject(id, classname, elementname);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
+            break;
+        case "root":
+            $('<li/>', {text: 'Запустить'}).appendTo($ul);
+            $('<li/>', {text: 'Переименовать'}).appendTo($ul);
+            $('<li/>', {text: 'Настройки проекта'}).appendTo($ul);
+            $li = $('<li/>', {text: 'Удалить'});
+            $li.click(function() {
+                deleteFromProject(id, classname, elementname);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
+            break;
+    }
+    $("#context_menu").click(function(event) {
+        event.stopPropagation();
+    });
+}
+
+function closeAllPopUps() {
+    $("#context_menu").remove();
+    $("#main_menu").find('.active').removeClass("active");
+    $("#main_menu").find('.show').removeClass('show'); 
+}
+
+function deleteFromProject(id, classname, name) {
+    $div = drawPopup(id, classname, name);
+    
+    var params = {
+        width: 500,
+        height: 150
+    };
+    showPopup($div, params);
+}
+
+function drawPopup(id, classname, name) {
+    var cn = "";
+    switch(classname) {
+        case "file":
+            cn = "файл";
+            break;
+        case "package":
+            cn = "пакет";
+            break;
+        case "root":
+            cn = "проект";
+            break;
+    }
+    $div = $('<div/>', {
+        id: "delete_confirm"
+    });
+    $div.append("<span class='title'>Вы уверены, что хотите удалить " + cn + " " + name + "?</span>");
+    
+    $buttons = $('<div/>', {
+        class: "buttons"
+    });
+    
+    $confirm = $('<div/>', {
+        text: "Подтвердить",
+        id: "confirm",
+        class: "button"
+    });
+    $confirm.attr("onclick", "removeFromProject('"+ id +"')");
+    
+    $decline = $('<div/>', {
+        text: "Отмена",
+        id: "decline",
+        class: "button"
+    });
+    $decline.attr("onclick", "$('#popup_bug').togglePopup();");
+    
+    $buttons.append($confirm);
+    $buttons.append($decline);
+    
+    $div.append($buttons);
+    return $div;
+}
+
+function removeFromProject(id) {
+    var idString = String(id);
+    $.ajax({
+        url: PATH + '/webapi/tree/remove',
+        type: 'POST',
+        data: idString,
+        contentType: "application/json",
+        success: function() {
+            var removeId = "#" + idString;
+            $(removeId).remove();
+            $("#context_menu").remove();
+            $('#popup_bug').togglePopup(); 
+        }
+    });     
+}

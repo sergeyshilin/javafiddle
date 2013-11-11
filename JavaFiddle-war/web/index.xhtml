@@ -96,9 +96,6 @@
                     <li><h:commandButton value="" type="button" id="setup" /></li>
                 </ul>  
                 <ul id="tabpanel">
-                    <li class="class active" onclick="selectTab($(this))">WordProcessorImpl.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
-                    <li class="interface" onclick="selectTab($(this))">WordProcessor.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
-                    <li class="runnable" onclick="selectTab($(this))">WordProcessorTest.java<div class="close" onclick="closeTab($(this).parent())"></div></li>
                 </ul>
                 <div style="clear:both"></div>
             </div>
@@ -112,13 +109,14 @@
                 </ul>
                 <script type="text/javascript">  
                     //<![CDATA[  
-			function makeTree() {
+			function buildTree() {
                             $("#tree").empty();
                             PATH = "#{request.contextPath}";
                             $.ajax({
-                                url:'#{request.contextPath}/webapi/tree',
-                                type:'GET',
+                                url: '#{request.contextPath}/webapi/tree',
+                                type: 'GET',
                                 dataType: "json",
+                                async: false,
                                 success: function(data) {
                                     for (var i = 0; i < data.projects.length; i++) {
                                         var proj = data.projects[i];
@@ -131,7 +129,7 @@
                                             var pack = proj.packages[j];
                                             for (var k = 0; k < pack.files.length; k++) {
                                                 var file = pack.files[k];
-                                                $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" onclick="openJavaClass($(this));" class="' + file.type + '">' + file.name + '</a></li>');
+                                                $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
                                              }
                                         }   
                                     }
@@ -145,16 +143,17 @@
                             });
                         }
                     
-                        function addFiles() {
-                        $.ajax({
-                            url:'#{request.contextPath}/webapi/tree/addExampleTree',
-                            type:'POST', 
-                            contentType: "application/json",
-                            success: function() {
-                                makeTree();
-                            }
-                        });
-                    }
+//                        function addFiles() {
+//                        $.ajax({
+//                            url: '#{request.contextPath}/webapi/tree/addExampleTree',
+//                            type: 'POST', 
+//                            contentType: "application/json",
+//                            async: false,
+//                            success: function() {
+//                                
+//                            }
+//                        });
+//                    }
                     //]]>
                 </script>
             </h:panelGroup>

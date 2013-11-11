@@ -485,8 +485,8 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
     left:50%;
     top:50%;
     right: 50% !important;
-    min-width: 300px;
-    min-height: 300px;
+    min-width: 100px;
+    min-height: 100px;
     z-index: 11;
     -webkit-box-shadow: 0 4px 16px rgba(0,0,0,.2);
     -moz-box-shadow: 0 4px 16px rgba(0,0,0,.2);
@@ -508,3 +508,83 @@ div.bug {
     z-index: 20;
     color: #fff;
 }*/
+
+#context_menu {
+    list-style: none;
+    left: 2px;
+    top: 1px;
+    min-width: 150px;
+    min-height: 100px;
+    width: auto;
+    background-color: #fff;
+    position: absolute;
+    margin: 0;
+    padding: 10px 0 0 0;
+    z-index: 20;
+    display: block;
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#context_menu li {
+    float: none;
+    position: relative;
+    color: #0e0e0e;
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    margin: 0;
+    cursor: default;
+    min-width: 150px;
+    width: auto;
+    padding: 5px 0 5px 10px;
+    margin: 0;   
+}
+
+#context_menu li:hover {
+    background-color: #eaeaea; 
+}
+
+#delete_confirm {
+    text-align: center;
+    color: #0e0e0e;
+    font-size: 15px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    padding: 15px;
+}
+
+#delete_confirm div.buttons {
+    width: 270px;
+    position: relative;
+    margin: 0 auto;
+    height: 50px;
+    margin-top: 40px;
+}
+
+#delete_confirm div.button {
+    width: 120px;
+    height: 22px;
+    background-color: #eaeaea;
+    padding: 12px 0;
+    border: 1px solid #acacac;
+    border: 1px solid rgba(0,0,0,.111);
+    outline: 0;
+    cursor: default;
+}
+#delete_confirm div.button:hover {
+    background-color: #99CCFF;
+}
+
+
+#delete_confirm #confirm.button {
+    float: left;
+}
+
+#delete_confirm #decline.button {
+    float: right;
+}
