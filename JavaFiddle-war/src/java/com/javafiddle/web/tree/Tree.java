@@ -33,12 +33,15 @@ public class Tree implements Serializable {
         return tpr;
     }
     
-    public void deleteProject(IdList idList, int id) {
-        TreeProject tpr = idList.getProject(id);
+    public void deleteProject(IdList idList, int projectId) {
+        TreeProject tpr = idList.getProject(projectId);
         for (TreePackage temp : tpr.getPackages()) {
-            tpr.deletePackage(idList, temp.getId());
+            for (TreeFile tempFile : temp.getFiles())
+                idList.removeId(tempFile.getId());
+            idList.removeId(temp.getId());
         }
+        
         projects.remove(tpr);
-        idList.removeId(id);
+        idList.removeId(projectId);
     }
 }

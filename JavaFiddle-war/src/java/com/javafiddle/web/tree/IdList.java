@@ -5,12 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IdList implements Serializable {
-
     private List<IdListElement> idList = new ArrayList<>();
     private List<Integer> removedNodes = new ArrayList<>();
     
     protected int addId(TreeProject project) {
-        return addObject(IdNodeType.PROJECT, (Object)project);
+        return addObject(IdNodeType.PROJECT, project);
     }
     
     protected int addId(TreePackage pack) {
@@ -35,9 +34,15 @@ public class IdList implements Serializable {
     
     protected void removeId(int id) {
         if (idList.get(id) != null) {
-            idList.add(id, null);
+            idList.set(id, null);
             removedNodes.add(id);
         }
+    }
+    
+    public boolean isExist(int id) {
+        if (idList.get(id) == null)
+            return false;
+        return true;   
     }
     
     public IdNodeType getType(int id) {

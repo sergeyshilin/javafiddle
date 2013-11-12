@@ -76,7 +76,7 @@ public class TreePackage implements Comparable<TreePackage>{
     }
         
     public void deleteFile(IdList idList, int fileId) {
-        files.remove(idList.getFile(id));
+        files.remove(idList.getFile(fileId));
         idList.removeId(fileId);
     }
     

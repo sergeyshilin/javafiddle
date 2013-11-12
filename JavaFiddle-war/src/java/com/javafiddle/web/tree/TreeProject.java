@@ -61,13 +61,21 @@ public class TreeProject {
         return tp;
     }
     
-    public void deletePackage(IdList idList, int id) {
-        TreePackage tp = idList.getPackage(id);
-        for (TreeFile temp : tp.getFiles()) {
-            tp.deleteFile(idList, temp.getId());
-        }
+    public void  deletePackage(IdList idList, int packageId) {
+        List<TreePackage> childPackages = new ArrayList<>();
+        TreePackage tp = idList.getPackage(packageId);
+     
+        for (TreePackage temp : packages)
+            if (temp.getParentId() == packageId)
+                childPackages.add(temp);
+        for (TreePackage temp : childPackages)
+            deletePackage(idList, temp.getId());
+        
+        for (TreeFile temp : tp.getFiles())
+            idList.removeId(temp.getId());
+        
         packages.remove(tp);
-        idList.removeId(id);
+        idList.removeId(packageId);
     }
     
     private void calcParents() {

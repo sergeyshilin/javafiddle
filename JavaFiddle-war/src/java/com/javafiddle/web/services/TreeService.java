@@ -125,11 +125,13 @@ public class TreeService implements Serializable {
     @Path("remove")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void delete(
+    public Response delete(
             @Context HttpServletRequest request,
             String idString
             ) {
         int id = parseId(idString);
+        if (!idList.isExist(id))
+            return Response.status(400).build();
         switch (idList.getType(id)) {
             case PROJECT:
                 tree.deleteProject(idList, id);
@@ -147,6 +149,7 @@ public class TreeService implements Serializable {
             default:
                 break;
         }
+        return Response.ok().build();
      }
        
     private int parseId(String idString) {
@@ -174,5 +177,10 @@ public class TreeService implements Serializable {
         tpr.getPackageInstance(idList, "com.javafiddle.web.acore");
         tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
         tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
+        
+        tpr = tree.getProjectInstance(idList, "temp");
+        tpr.getPackageInstance(idList, "com.javafiddle.web.beans.death");
+        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.projecttree.a.b.c.d.e.f.g.h.i");
+        tp.addFile(idList, "class", "Reflections.java");
     }
 }
