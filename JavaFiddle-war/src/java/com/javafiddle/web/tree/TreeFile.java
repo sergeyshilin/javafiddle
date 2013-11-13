@@ -1,9 +1,10 @@
 package com.javafiddle.web.tree;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Locale;
 
-public class TreeFile implements Comparable<TreeFile> { 
+public class TreeFile implements Comparable<TreeFile>, Serializable { 
     private int id;
     private int packageId;
     private String name;

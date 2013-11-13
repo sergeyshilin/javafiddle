@@ -1,6 +1,8 @@
 package com.javafiddle.web.tree;
 
-public class IdListElement {
+import java.io.Serializable;
+
+public class IdListElement implements Serializable {
     Object object; 
     IdNodeType idNodeType;
 

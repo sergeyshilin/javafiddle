@@ -53,34 +53,7 @@ public class TreeService implements Serializable {
         
         return Response.ok(gson.toJson(idList.getFile(id)), MediaType.APPLICATION_JSON).build();
     }
-    
-    @POST
-    @Path("addExampleTree")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public void addExampleTree(
-            @Context HttpServletRequest request
-            ) {
-        TreeProject tpr = tree.getProjectInstance(idList, "javafiddle");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.beans.death");
-        TreePackage tp = tpr.getPackageInstance(idList, "com.javafiddle.web.projecttree.a.b.c.d.e.f.g.h.i");
-        tp.addFile(idList, "class", "Reflections.java");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.beans");
-        tp.addFile(idList, "class", "CommonBean.java");
-        tp.addFile(idList, "interface", "Example.txt");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror"); 
-        tp.addFile(idList, "class", "Dummy.java");
-        tp.addFile(idList, "class", "FileEditions.java");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror.gui.core");  
-        tp.addFile(idList, "class", "ProjectEditions.java");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror.gui.core.adding");  
-        tp.addFile(idList, "class", "Tree.java");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.appl");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
-    }
-    
+     
     @POST
     @Path("addProject")
     @Consumes(MediaType.APPLICATION_JSON)

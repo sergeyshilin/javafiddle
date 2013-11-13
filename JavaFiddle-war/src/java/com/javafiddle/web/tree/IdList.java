@@ -1,12 +1,12 @@
 package com.javafiddle.web.tree;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IdList implements Serializable {
-    private List<IdListElement> idList = new ArrayList<>();
-    private List<Integer> removedNodes = new ArrayList<>();
+    private Map<Integer, IdListElement> idList = new HashMap<>();
+    private int count = 0;
     
     protected int addId(TreeProject project) {
         return addObject(IdNodeType.PROJECT, project);
@@ -21,22 +21,15 @@ public class IdList implements Serializable {
     }
     
     protected int addObject(IdNodeType type, Object object) {
-        if (idList.indexOf(object) != -1)
-            return -1;
         IdListElement ile = new IdListElement(type, object);
-        if (!removedNodes.isEmpty()) {
-            idList.set(removedNodes.get(0), ile);
-            removedNodes.remove(0);
-        } else
-            idList.add(ile);
-        return idList.indexOf(ile);              
+        if (idList.containsValue(ile))
+            return -1;
+        idList.put(count++, ile);
+        return count-1;              
     }
     
     protected void removeId(int id) {
-        if (idList.get(id) != null) {
-            idList.set(id, null);
-            removedNodes.add(id);
-        }
+        idList.remove(id);
     }
     
     public boolean isExist(int id) {

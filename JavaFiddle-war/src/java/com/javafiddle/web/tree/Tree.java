@@ -2,6 +2,7 @@ package com.javafiddle.web.tree;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Tree implements Serializable {
@@ -18,6 +19,7 @@ public class Tree implements Serializable {
         TreeProject tpr = new TreeProject(projectName);
         projects.add(tpr);
         tpr.setId(idList.addId(tpr));
+        Collections.sort(projects);
         
         return tpr;
     }

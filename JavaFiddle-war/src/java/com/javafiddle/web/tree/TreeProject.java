@@ -1,10 +1,13 @@
 package com.javafiddle.web.tree;
 
+import java.io.Serializable;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
-public class TreeProject {
+public class TreeProject implements Comparable<TreeProject>, Serializable {
     private String name;
     private int id;
     private List<TreePackage> packages = new ArrayList<>();
@@ -94,5 +97,11 @@ public class TreeProject {
             }
         }
         Collections.sort(packages);
+    }
+    
+    @Override
+    public int compareTo(TreeProject compareObject) {
+        Collator collator = Collator.getInstance(new Locale("en", "US"));
+        return collator.compare(name, compareObject.name);
     }
 }
