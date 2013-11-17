@@ -1,4 +1,4 @@
-.cm-s-idea {font-family: monospace;}	/*customized editor font*/
+.cm-s-idea {font-family: "Courier New", Courier, monospace; font-size: 9pt; line-height: 1.4;}
 
 .cm-s-idea span.cm-tab {border-left: 1px solid #e6e6e6; margin-left: 3px;} /*not works (why?)*/
 .cm-s-idea span.cm-meta {color: #808000;} /*@SessionScoped*/
@@ -13,7 +13,7 @@
 .cm-s-idea .CodeMirror-activeline-background {background: #ffffd7 !important;} /*activeline*/
 .cm-s-idea .CodeMirror-matchingbracket {background: #99ccff; color: black !important;} /*{}*/
 
-.cm-s-idea .CodeMirror-gutters {background: #f0f0f0; border-right: 0px;}
+.cm-s-idea .CodeMirror-gutters {background: #f0f0f0; border: 0px;}
 .cm-s-idea .CodeMirror-linenumber {color: #800000;}
 .cm-s-idea .CodeMirror-cursor {border-left: 2px solid black !important;}
 

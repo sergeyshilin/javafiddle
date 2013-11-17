@@ -2,107 +2,116 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.javafiddle.web.editions.FileEditions;
+import com.javafiddle.web.services.utils.AddFileRevisionRequest;
+import com.javafiddle.web.services.utils.FileRevision;
+import com.javafiddle.web.services.utils.TreeUtils;
 import com.javafiddle.web.tree.*;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 
-@Path("tree")
+@Path("")
 @SessionScoped
 public class TreeService implements Serializable {
     Tree tree;
     IdList idList;
-    
+    Map<String, FileEditions> projects = new HashMap<>();
+    Map<Integer, FileEditions> files = new HashMap<>();
+        
     public TreeService() {
         idList = new IdList();
         tree = new Tree();
     }
 
     @GET
+    @Path("tree")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTree(
             @Context HttpServletRequest request
             ) {
-        if(tree.isEmpty()) {
+        if(tree.isEmpty())
             addExampleTree();
-        }
         Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(tree), MediaType.APPLICATION_JSON).build();
     }
     
     @GET
-    @Path("filedata")
+    @Path("tree/filedata")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFileData(
             @Context HttpServletRequest request,
-            @QueryParam("id") String element_id
+            @QueryParam("id") String idString
             ) {
+        if (idString == null)
+            return Response.status(400).build();
         Gson gson = new GsonBuilder().create();
-        int start_pos = element_id.indexOf("_") + 1;
-        int end_pos = element_id.indexOf('_', start_pos);
-        Integer id = Integer.parseInt(element_id.substring(start_pos, end_pos));
+        int id = TreeUtils.parseId(idString);
         
         return Response.ok(gson.toJson(idList.getFile(id)), MediaType.APPLICATION_JSON).build();
     }
      
     @POST
-    @Path("addProject")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public void addProject(
+    @Path("tree/addProject")
+    public Response addProject(
             @Context HttpServletRequest request,
             @QueryParam("name") String name
             ) {
+        if (name == null)
+            return Response.status(400).build();
         tree.addProject(idList, name);
+        return Response.ok().build();
     }
     
     @POST
-    @Path("addPackage")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public void addPackage(
+    @Path("tree/addPackage")
+    public Response addPackage(
             @Context HttpServletRequest request,
             @QueryParam("projectId") String idString,
             @QueryParam("name") String name
             ) {
-        int id = parseId(idString);
+        if (idString == null || name == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(idString);
         TreeProject tpr = idList.getProject(id);
         tpr.addPackage(idList, name);
+        return Response.ok().build();
     }
        
     @POST
-    @Path("addFile")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public void addFile(
+    @Path("tree/addFile")
+    public Response addFile(
             @Context HttpServletRequest request,
             @QueryParam("packageId") String idString,
             @QueryParam("name") String name,
             @QueryParam("type") String type
             ) {
-        int id = parseId(idString);
+        if (idString == null || name == null || type == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(idString);
         TreePackage tp = idList.getPackage(id);
         tp.addFile(idList, type, name);
+        return Response.ok().build();
      }
     
     @POST
-    @Path("remove")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("tree/remove")
     public Response delete(
             @Context HttpServletRequest request,
-            String idString
+            @QueryParam("id") String idString
             ) {
-        int id = parseId(idString);
+        if (idString == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(idString);
         if (!idList.isExist(id))
             return Response.status(400).build();
         switch (idList.getType(id)) {
@@ -123,16 +132,10 @@ public class TreeService implements Serializable {
                 break;
         }
         return Response.ok().build();
-     }
-       
-    private int parseId(String idString) {
-        if (idString.indexOf("node_") == -1)
-            return -1;
-        return Integer.parseInt(idString.substring(idString.indexOf('_')+1));
     }
-
+       
     private void addExampleTree() {
-        TreeProject tpr = tree.getProjectInstance(idList, "javafiddle");
+        TreeProject tpr = tree.getProjectInstance(idList, "NewProject");
         tpr.getPackageInstance(idList, "com.javafiddle.web.beans.death");
         TreePackage tp = tpr.getPackageInstance(idList, "com.javafiddle.web.projecttree.a.b.c.d.e.f.g.h.i");
         tp.addFile(idList, "class", "Reflections.java");
@@ -150,10 +153,85 @@ public class TreeService implements Serializable {
         tpr.getPackageInstance(idList, "com.javafiddle.web.acore");
         tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
         tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
+    }
+    
+    // ex ProjectRevisionsService
+    //
+    @GET
+    @Path("revisions/project")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProjectRevisions(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String id,
+            @QueryParam("revision") String revision
+            ) {
         
-        tpr = tree.getProjectInstance(idList, "temp");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.beans.death");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.projecttree.a.b.c.d.e.f.g.h.i");
-        tp.addFile(idList, "class", "Reflections.java");
+        return Response.ok("", MediaType.TEXT_PLAIN).build();
+    }
+    
+    @POST
+    @Path("revisions/project")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void saveProjectRevisions(
+            @Context HttpServletRequest request,
+            String data
+            ) {
+      
+    }
+    
+    // ex DocumentRevisionsSrevice
+    //
+    @POST
+    @Path("revisions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addFileRevision(
+            @Context HttpServletRequest request,
+            String data
+            ) {
+        if (data == null)
+            return Response.status(400).build();
+        AddFileRevisionRequest d = new Gson().fromJson(data, AddFileRevisionRequest.class);
+        if (d.getId() == null || d.getTimeStamp() == null || d.getValue() == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(d.getId());
+        if (!idList.isFile(id))
+            return Response.status(400).build();
+        
+        if (!files.containsKey(id))
+            files.put(id, new FileEditions());
+        try {
+            DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            Date result = df.parse(d.getTimeStamp());
+            files.get(id).addRevision(result, d.getValue());
+            idList.getFile(id).setTimeStamp(result);
+        } catch (ParseException ex) {
+            return Response.status(400).build();
+        }
+        return Response.ok().build();
+    }
+    
+    @GET
+    @Path("revisions")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFileRevision(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String idString
+            ) {
+        if (idString == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(idString);
+        
+        Gson gson = new GsonBuilder().create();
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        FileRevision fr;
+        Date dateTime = idList.getFile(id).getTimeStamp();
+        if (dateTime == null) {
+            fr = new FileRevision("", "");
+        } else {    
+            String text = files.get(id).getByTimeStamp(dateTime);
+            fr = new FileRevision(df.format(dateTime), text);
+        }     
+        return Response.ok(gson.toJson(fr), MediaType.APPLICATION_JSON).build();
     }
 }

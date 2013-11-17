@@ -1,16 +1,9 @@
-/* 
-    Document   : fold
-    Created on : Oct 18, 2013, 2:00:20 AM
-    Author     : snape
-    Description:
-        Purpose of the stylesheet follows.
-*/
-
 .CodeMirror-foldmarker {
   color: blue;
-  text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
+  background: #99ccff; 
   font-family: arial;
   line-height: .3;
+  font-weight: bold;
   cursor: pointer;
 }
 .CodeMirror-foldgutter {

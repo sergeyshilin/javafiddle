@@ -7,6 +7,8 @@
         <h:outputStylesheet library="css" name="style.css" />
         <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
         <h:outputScript library="js" name="main.js" target="head"/>
+        <h:outputScript library="js" name="cookies.js" target="head"/>
+        <h:outputScript library="js" name="moment-with-langs.min.js" target="head"/>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/lib/codemirror.js"></script>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
         <link rel="stylesheet" href="#{request.contextPath}/resources/cm/theme/idea.css"/>
@@ -105,64 +107,14 @@
         <div id="content">
             <h:panelGroup layout="block" id="treepanel" class="mainblock">
                 <ul class="project">
-                    <div id="tree">
-                        
-                    </div>
+                    <div id="tree" />
                 </ul>
-                <script type="text/javascript">  
-                    //<![CDATA[  
-			function buildTree() {
-                            $("#tree").empty();
-                            PATH = "#{request.contextPath}";
-                            $.ajax({
-                                url: '#{request.contextPath}/webapi/tree',
-                                type: 'GET',
-                                dataType: "json",
-                                async: false,
-                                success: function(data) {
-                                    for (var i = 0; i < data.projects.length; i++) {
-                                        var proj = data.projects[i];
-                                        $('#tree').append('<li id = "node_' + proj.id + '"><a href="#" class="root">' + proj.name + '</a><ul id ="node_' + proj.id + '_list"\></li>');
-                                        for (var j = 0; j < proj.packages.length; j++) {
-                                            var pck = proj.packages[j];
-                                            $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
-                                        }   
-                                        for (var j = 0; j < proj.packages.length; j++) {
-                                            var pack = proj.packages[j];
-                                            for (var k = 0; k < pack.files.length; k++) {
-                                                var file = pack.files[k];
-                                                $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
-                                             }
-                                        }   
-                                    }
-                                    $(function () {
-                                        $('#tree').liHarmonica({
-                                            onlyOne: false,
-                                            speed: 100
-                                        });
-                                    });
-                                }
-                            });
-                        }
-                    
-//                        function addFiles() {
-//                        $.ajax({
-//                            url: '#{request.contextPath}/webapi/tree/addExampleTree',
-//                            type: 'POST', 
-//                            contentType: "application/json",
-//                            async: false,
-//                            success: function() {
-//                                
-//                            }
-//                        });
-//                    }
-                    //]]>
-                </script>
             </h:panelGroup>
             <div id="codetext" class="mainblock">
                 <h:inputTextarea id="textarea"/>
                 <script type="text/javascript">
                 //<![CDATA[
+                    PATH = "#{request.contextPath}";
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
                     };
@@ -191,47 +143,7 @@
                     var height = $(window).height() - $("#header").height() - 30;
                     
                     javaEditor.setSize("100%", height);
-                    javaEditor.foldCode(CodeMirror.Pos(8, 0));
-                    
-                    function postFileRevision() {
-                        var time = (new Date).toString();
-                        var id = getCurrentFileID();
-                        var dummy = {
-                            id: id,
-                            time: time,
-                            value: javaEditor.getValue()
-                        };
-                        $.ajax({
-                            url:'#{request.contextPath}/webapi/revisions',
-                            type:'POST', 
-                            data: JSON.stringify(dummy),
-                            contentType: "application/json",
-                            success: function() {
-                                document.getElementById("latest_update").innerHTML = "Последнее изменение: " + time;
-                            }
-                        });
-                    }
-
-                    function getFileRevision(revision) {
-                        var id = getCurrentFileID();
-                        $.ajax({
-                            url:'#{request.contextPath}/webapi/revisions',
-                            type:'GET',
-                            data: {id : id, revision : revision},
-                            dataType: "json",
-                            success: function(data) {
-                                javaEditor.setValue(data.value);
-                            }
-                        });
-                    }
-                    
-                    function undo() {
-                        javaEditor.undo();
-                    }
-                    
-                    function redo() {
-                        javaEditor.redo();
-                    }
+                    javaEditor.foldCode(CodeMirror.Pos(0, 0));
                 //]]>
                 </script>
             </div>

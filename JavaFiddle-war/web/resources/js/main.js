@@ -6,6 +6,7 @@ $(document).ready(function(){
    buildTree();
    loadTabs();
    loadContent();
+   moment.lang('ru');
    $("body").click(function() {
        closeAllPopUps();
    });
@@ -205,7 +206,7 @@ function loadContent() {
 }
 
 function openJavaClass($el) {
-    var id = $el.closest('li').attr('id') + "_" + $el.text();
+    var id = $el.closest('li').attr('id') + "_tab";
     var name = $el.text();
     var cl = $el.attr('class');
     
@@ -224,16 +225,7 @@ function openJavaClass($el) {
 }
 
 function getCurrentFileText(id) {
-    $.ajax({
-        url: PATH + '/webapi/revisions/classfile',
-        type: 'GET',
-        dataType: "json",
-        data: {id: id},
-        async: false,
-        success: function(data) {
-            javaEditor.setValue(data);
-        }
-    });
+    getFileRevision(id);
 }
 
 function addTabToPanel(id, name, cl) {
@@ -244,47 +236,25 @@ function addTabToPanel(id, name, cl) {
 }
 
 function getCurrentFileID() {
-    var id = "";
-    $.ajax({
-        url: PATH + '/webapi/current/openedfileid',
-        type:'GET',
-        dataType: "text",
-        async: false,
-        success: function(data) {
-            id = data;
-        }
-    }); 
-    return id;
+    return getCookie("currentFileID");
 }
 
 function setCurrentFileID(id) {
-    $.ajax({
-        url: PATH + '/webapi/current/openedfileid',
-        type: 'POST',
-        data: JSON.stringify(id),
-        contentType: "application/json",
-        async: false,
-        success: function() {
-
-        }
-    }); 
+    var date = new Date(new Date().getTime() + 30*60*1000);
+    setCookie("currentFileID", id, "path=/; expires=" + date.toUTCString());
 }
 
 function loadTabs() {
-    $.ajax({
-        url: PATH + '/webapi/current/openedtabs',
-        type: 'GET',
-        contentType: "application/json",
-        success: function(data) {
-            for(var i = 0; i < data.length; i++) {
-                var file = getFileDataById(data[i]);
-                var cl = file["type"];
-                var name = file["name"];
-                var li = $('<li id="'+ data[i] +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
-                $("#tabpanel").append(li);
-            }
-        }
-    }); 
+    var data = JSON.parse(getCookie('openedtabs'));
+    if (data === null)
+        return;
+    for(var i = 0; i < data.length; i++) {
+        var file = getFileDataById(data[i]);
+        var cl = file["type"];
+        var name = file["name"];
+        var li = $('<li id="'+ data[i] +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
+        $("#tabpanel").append(li);
+    }
 }
 
 function getFileDataById(id) {
@@ -305,46 +275,34 @@ function getFileDataById(id) {
 }
 
 function isOpened(id) {
-    var result = false;
-    
-    $.ajax({
-        url: PATH + '/webapi/current/opened',
-        type: 'GET',
-        data: {id: id},
-        dataType: "json",
-        async: false,
-        success: function(data) {
-            result = data;
-        }
-    });  
-    
-    return result;
+    var data = JSON.parse(getCookie('openedtabs'));
+    if (data === null)
+        return false;
+    if (data.indexOf(id) >= 0)
+        return true;
+    return false;
 }
 
 function addTab(id) {
-    $.ajax({
-        url: PATH + '/webapi/current/openedtabs',
-        type: 'POST',
-        data: JSON.stringify(id),
-        contentType: "application/json",
-        success: function() {
-             
-        }
-    }); 
+    var data = JSON.parse(getCookie('openedtabs'));
+    if (data === null)
+        data = [];
+    data.push(id);
+    
+    setCookie('openedtabs', JSON.stringify(data));
 }
 
 function removeTab(li) {
     var id = li.attr("id");
+    var data = JSON.parse(getCookie('openedtabs'));
+    if (data === null)
+        data = [];
+    var index = data.indexOf(id);
+    if (index > -1) {
+        data.splice(index, 1);
+    }
     
-    $.ajax({
-        url: PATH + '/webapi/current/remove',
-        type: 'POST',
-        data: JSON.stringify(id),
-        contentType: "application/json",
-        success: function() {
-             
-        }
-    }); 
+    setCookie('openedtabs', JSON.stringify(data));
 }
 
 function loadTreeOperation() {
@@ -519,4 +477,78 @@ function removeFromProject(id) {
             $('#popup_bug').togglePopup(); 
         }
     });     
+}
+
+function buildTree() {
+    $("#tree").empty();
+    $.ajax({
+        url: PATH + '/webapi/tree',
+        type: 'GET',
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            for (var i = 0; i < data.projects.length; i++) {
+                var proj = data.projects[i];
+                $('#tree').append('<li id = "node_' + proj.id + '" class="open"><a href="#" class="root">' + proj.name + '</a><ul id ="node_' + proj.id + '_src"\></li>');
+                $('#node_' + proj.id + '_src').append('<li id = "node_' + proj.id + '_srcfolder" class="open"><a href="#" class="sources">src</a><ul id ="node_' + proj.id + '_list"\></li>');
+                document.getElementById("projectname").innerHTML = proj.name;
+                for (var j = 0; j < proj.packages.length; j++) {
+                    var pck = proj.packages[j];
+                    $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
+                }   
+                for (var j = 0; j < proj.packages.length; j++) {
+                    var pack = proj.packages[j];
+                    for (var k = 0; k < pack.files.length; k++) {
+                        var file = pack.files[k];
+                        $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
+                     }
+                }   
+            }
+            $(function () {
+                $('#tree').liHarmonica({
+                    onlyOne: false,
+                    speed: 100
+                });
+            });
+        }
+    });
+}
+
+function postFileRevision() {
+    var time = moment().format("DD.MM.YYYY HH:mm:ss");
+    var id = getCurrentFileID();
+    var dummy = {
+        id: id,
+        timeStamp: time,
+        value: javaEditor.getValue()
+    };
+    $.ajax({
+        url: PATH + '/webapi/revisions',
+        type:'POST', 
+        data: JSON.stringify(dummy),
+        contentType: "application/json",
+        success: function() {
+            document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
+        }
+    });
+}
+
+function getFileRevision() {
+    var id = getCurrentFileID();
+    $.ajax({
+        url: PATH + '/webapi/revisions',
+        type:'GET',
+        data: {id : id},
+        dataType: "json",
+        contentType: "application/json",
+        success: function(data) {
+            javaEditor.setValue(data.value);
+            if (data.timeStamp == "")
+                document.getElementById("latest_update").innerHTML = "Последнее изменение: еще не сохранялось";    
+            else {
+                var earlier = moment(data.timeStamp, "DD.MM.YYYY HH:mm:ss");
+                document.getElementById("latest_update").innerHTML = "Последнее изменение: " + earlier.from(moment());
+            }
+        }
+    });
 }
