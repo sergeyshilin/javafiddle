@@ -95,6 +95,7 @@ function buildTree() {
             });
         }
     });
+    loadTreeOperation();
 }
 
 function closeTab(parent) {

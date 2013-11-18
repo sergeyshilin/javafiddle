@@ -92,7 +92,7 @@ public class TreeService implements Serializable {
     }
     
     @GET
-    @Path("classfile")
+    @Path("tree/classfile")
     @Produces(MediaType.APPLICATION_JSON)
     public Response isRightClassName(
             @Context HttpServletRequest request,
@@ -125,9 +125,10 @@ public class TreeService implements Serializable {
     
     @POST
     @Path("tree/remove")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response delete(
             @Context HttpServletRequest request,
-            @QueryParam("id") String idString
+            String idString
             ) {
         if (idString == null)
             return Response.status(400).build();
@@ -155,7 +156,7 @@ public class TreeService implements Serializable {
     }
     
     @GET
-    @Path("package")
+    @Path("tree/package")
     @Produces(MediaType.APPLICATION_JSON)
     public Response isRightPackage(
             @Context HttpServletRequest request,
@@ -180,7 +181,7 @@ public class TreeService implements Serializable {
     }
     
     @GET
-    @Path("projectname")
+    @Path("tree/projectname")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getProjectName(
             @Context HttpServletRequest request,
