@@ -7,8 +7,11 @@
         <h:outputStylesheet library="css" name="style.css" />
         <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
         <h:outputScript library="js" name="main.js" target="head"/>
+        <h:outputScript library="js" name="cookies.js" target="head"/>
+        <h:outputScript library="js" name="moment-with-langs.min.js" target="head"/>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/lib/codemirror.js"></script>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
+        <link rel="stylesheet" href="#{request.contextPath}/resources/cm/theme/idea.css"/>
         <!-- Start of editor scripts -->
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/clike/clike.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/matchbrackets.js"></script>
@@ -22,9 +25,10 @@
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/search/searchcursor.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/search/search.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/selection/active-line.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/selection/mark-selection.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/show-hint.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/anyword-hint.js"></script>
-        
+         
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/fold/fold.css"></link>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/dialog/dialog.css"></link>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/hint/show-hint.css"></link>
@@ -108,20 +112,17 @@
                     <li><h:commandButton value="" type="button" id="open" title="Открыть проект" /></li>
                     <li><h:commandButton value="" type="button" id="save" onclick="postFileRevision();" title="Сохранить проект" /></li>
                     <li><h:commandButton value="" type="button" id="reload" onclick="getFileRevision('current');" title="Обновить" /></li>
-                    <div class="separator"></div>
-                    <li></li>
-                    <li></li>
+                    <div class="separator" />
+                    <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><h:commandButton value="" type="button" id="undo" onclick="getFileRevision('prev');" title="Отменить действие" /></li>
                     <li><h:commandButton value="" type="button" id="redo" onclick="getFileRevision('next');" title="Повторить действие" /></li>
-                    <div class="separator"></div>
-                    <li></li>
-                    <li></li>
+                    <div class="separator" />
+                    <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><h:commandButton value="" type="button" id="cut" title="Вырезать" /></li>
                     <li><h:commandButton value="" type="button" id="copy" title="Копировать" /></li>
                     <li><h:commandButton value="" type="button" id="paste" title="Вставить" /></li>
-                    <div class="separator"></div>
-                    <li></li>
-                    <li></li>
+                    <div class="separator" />
+                    <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><h:commandButton value="" type="button" id="compile" title="Компиляция"/></li>
                     <li><h:commandButton value="" type="button" id="run" onclick="addFiles();" title="Выполнение"/></li>
                 </ul>  
@@ -134,52 +135,16 @@
             <h:panelGroup layout="block" id="treepanel" class="mainblock">
                 <ul class="project">
                     <div id="tree">
-                        
+                    
                     </div>
                 </ul>
-                <script type="text/javascript">  
-                    //<![CDATA[  
-			function buildTree() {
-                            $("#tree").empty();
-                            PATH = "#{request.contextPath}";
-                            $.ajax({
-                                url: '#{request.contextPath}/webapi/tree',
-                                type: 'GET',
-                                dataType: "json",
-                                async: false,
-                                success: function(data) {
-                                    for (var i = 0; i < data.projects.length; i++) {
-                                        var proj = data.projects[i];
-                                        $('#tree').append('<li id = "node_' + proj.id + '"><a href="#" class="root">' + proj.name + '</a><ul id ="node_' + proj.id + '_list"\></li>');
-                                        for (var j = 0; j < proj.packages.length; j++) {
-                                            var pck = proj.packages[j];
-                                            $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
-                                        }   
-                                        for (var j = 0; j < proj.packages.length; j++) {
-                                            var pack = proj.packages[j];
-                                            for (var k = 0; k < pack.files.length; k++) {
-                                                var file = pack.files[k];
-                                                $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
-                                             }
-                                        }   
-                                    }
-                                    $(function () {
-                                        $('#tree').liHarmonica({
-                                            onlyOne: false,
-                                            speed: 100
-                                        });
-                                    });
-                                }
-                            });
-                            loadTreeOperation();
-                        }
-                    //]]>
-                </script>
+
             </h:panelGroup>
             <div id="codetext" class="mainblock">
                 <h:inputTextarea id="textarea"/>
                 <script type="text/javascript">
                 //<![CDATA[
+                    PATH = "#{request.contextPath}";
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
                     };
@@ -187,8 +152,9 @@
                         lineNumbers: true,
                         lineWrapping: true,
                         styleActiveLine: true,
-                        theme: "default",
+                        theme: "idea",
                         indentWithTabs: true,
+                        styleSelectedText: true,
                         tabSize: 4,
                         indentUnit: 4,
                         mode: "text/x-java",
@@ -207,8 +173,7 @@
                     var height = $(window).height() - $("#header").height() - 30;
                     
                     javaEditor.setSize("100%", height);
-                    javaEditor.foldCode(CodeMirror.Pos(8, 0));
-                    
+                    javaEditor.foldCode(CodeMirror.Pos(0, 0));
                 //]]>
                 </script>
             </div>

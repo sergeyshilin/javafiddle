@@ -26,7 +26,7 @@ html, body {
 
 #header-top {
     height: 68px;
-    widht: 100%;
+    width: 100%;
     border-bottom: 1px solid #dadada;
 }
 
@@ -73,7 +73,7 @@ html, body {
 
 #header-top #username {
     float: right;
-    heigh: 20px;
+    height: 20px;
     margin: 12px 10px 0 0;
 }
 

@@ -28,9 +28,6 @@ public class ApplicationConfig extends Application {
      * given list with all resources defined in the project.
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
-        resources.add(com.javafiddle.web.services.CurrentVariablesService.class);
-        resources.add(com.javafiddle.web.services.DocumentRevisionsService.class);
-        resources.add(com.javafiddle.web.services.ProjectRevisionsService.class);
         resources.add(com.javafiddle.web.services.TreeService.class);
     }
     

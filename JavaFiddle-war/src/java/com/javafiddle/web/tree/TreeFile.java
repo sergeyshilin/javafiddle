@@ -2,6 +2,7 @@ package com.javafiddle.web.tree;
 
 import java.io.Serializable;
 import java.text.Collator;
+import java.util.Date;
 import java.util.Locale;
 
 public class TreeFile implements Comparable<TreeFile>, Serializable { 
@@ -9,7 +10,7 @@ public class TreeFile implements Comparable<TreeFile>, Serializable {
     private int packageId;
     private String name;
     private String type;
-    private String timeStamp;
+    private Date timeStamp;
 
     public TreeFile(String name, String type) {
         this.name = name;
@@ -48,11 +49,11 @@ public class TreeFile implements Comparable<TreeFile>, Serializable {
         this.type = type;
     }
 
-    public String getTimeStamp() {
+    public Date getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(String timeStamp) {
+    public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
     }
 
