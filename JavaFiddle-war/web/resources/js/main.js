@@ -11,6 +11,10 @@ $(document).ready(function(){
    });
 });
 
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
 function setContentHeight() {
     var MINSCREENWIDTH = 1300;
     var $header = $('#header');
@@ -52,7 +56,7 @@ function setContentHeight() {
      * set position of tabpanel
      */
     var sizer = parseInt($(".CodeMirror-sizer").css("margin-left"));
-    var margin = ($(window).width()) < MINSCREENWIDTH ? 340 : (35 + $tree.width() + sizer);
+    var margin = ($(window).width()) < MINSCREENWIDTH ? 340 : (33 + $tree.width() + sizer);
     $tabpanel.css("margin-left", (margin - 340) + "px");
     $tabpanel.width($(window).width() - margin - 50);
 }
@@ -153,21 +157,19 @@ function loadToogles() {
     };
 
     $.fn.togglePopup = function(){
-      if($('#popup').hasClass('hidden'))
-      {
-        $('#opaco').height($(document).height()).toggleClass('hidden').fadeTo('slow', 0.7)
+        if($('#popup').hasClass('hidden')) {
+            $("#popup").empty();
+            $('#opaco').height($(document).height()).toggleClass('hidden').fadeTo('slow', 0.7)
                      .click(function(){$(this).togglePopup();});
 
-        $('#popup')
-          .html($(this).html())
-          .alignCenter()
-          .toggleClass('hidden');
-      }
-      else
-      {
-        $('#opaco').toggleClass('hidden').removeAttr('style').unbind('click');
-        $('#popup').toggleClass('hidden');
-      }
+            $('#popup')
+              .html($(this).html())
+              .alignCenter()
+              .toggleClass('hidden');
+        } else  {
+            $('#opaco').toggleClass('hidden').removeAttr('style').unbind('click');
+            $('#popup').toggleClass('hidden');
+        }
     };
 }
 
@@ -200,7 +202,6 @@ function loadMainMenu() {
 function loadContent() {
     loadProjectTree();
     loadMainMenu();
-    loadTreeOperation();
     loadToogles();
 }
 
@@ -419,7 +420,12 @@ function showContextMenu($el, event, classname) {
             $li.appendTo($ul);
             break;
         case "package":
-            $('<li/>', {text: 'Добавить...'}).appendTo($ul);
+            $li = $('<li/>', {text: 'Добавить...'});
+            $li.click(function() {
+                showAddFileWindow(id);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
             $('<li/>', {text: 'Переименовать'}).appendTo($ul);
             
             $li = $('<li/>', {text: 'Удалить'});
@@ -432,6 +438,12 @@ function showContextMenu($el, event, classname) {
         case "root":
             $('<li/>', {text: 'Запустить'}).appendTo($ul);
             $('<li/>', {text: 'Переименовать'}).appendTo($ul);
+            $li = $('<li/>', {text: 'Добавить пакет'});
+            $li.click(function() {
+                showAddPackageWindow(id); 
+                $ul.remove();
+            });
+            $li.appendTo($ul);
             $('<li/>', {text: 'Настройки проекта'}).appendTo($ul);
             $li = $('<li/>', {text: 'Удалить'});
             $li.click(function() {
@@ -453,7 +465,7 @@ function closeAllPopUps() {
 }
 
 function deleteFromProject(id, classname, name) {
-    $div = drawPopup(id, classname, name);
+    $div = drawDeleteWindow(id, classname, name);
     
     var params = {
         width: 500,
@@ -462,7 +474,7 @@ function deleteFromProject(id, classname, name) {
     showPopup($div, params);
 }
 
-function drawPopup(id, classname, name) {
+function drawDeleteWindow(id, classname, name) {
     var cn = "";
     switch(classname) {
         case "file":
@@ -481,7 +493,7 @@ function drawPopup(id, classname, name) {
     $div.append("<span class='title'>Вы уверены, что хотите удалить " + cn + " " + name + "?</span>");
     
     $buttons = $('<div/>', {
-        class: "buttons"
+        id: "confirm-buttons"
     });
     
     $confirm = $('<div/>', {
@@ -492,7 +504,7 @@ function drawPopup(id, classname, name) {
     $confirm.attr("onclick", "removeFromProject('"+ id +"')");
     
     $decline = $('<div/>', {
-        text: "Отмена",
+        text: "Отменить",
         id: "decline",
         class: "button"
     });
@@ -520,3 +532,356 @@ function removeFromProject(id) {
         }
     });     
 }
+
+function showAddPackageWindow(project_id) {
+    $div = drawAddPackageWindow(project_id);
+    var params = {
+        width: 500,
+        height: 180
+    };
+    showPopup($div, params);
+}
+
+function showAddFileWindow(package_id) {
+    $div = drawAddFileWindow(package_id);
+    var params = {
+        width: 600,
+        height: 380
+    };
+    showPopup($div, params);
+}
+
+function drawAddPackageWindow(id) {
+    $div = $('<div/>', {
+        id: "addpackage" 
+    });
+    
+    $input = $('<input/>', {
+        type: "text",
+        value: ""
+    });
+    $(document).on('input', "#addpackage input", function() {
+        checkAddPackageInputName($("#addpackage input").val(), id);
+        var val = $("#addpackage input").val();
+        $("#addpackage input").val(val.toLowerCase());
+    });
+    
+    $div.append("<div class='inputname'>Название:</div>");
+    $div.append($input);
+    $div.append("<div id='result-msg'></div>");
+    
+    $buttons = $('<div/>', {
+        id: "confirm-buttons"
+    });
+    
+    $confirm = $('<div/>', {
+        text: "Добавить",
+        id: "confirm",
+        class: "button"
+    });
+    $confirm.attr( "onclick", "addPackage('"+ id +"')");
+    
+    $decline = $('<div/>', {
+        text: "Отменить",
+        id: "decline",
+        class: "button"
+    });
+    $decline.attr("onclick", "$('#popup_bug').togglePopup();");
+    
+    $buttons.css("margin-top", "18px");
+    $buttons.append($confirm);
+    $buttons.append($decline);
+    
+    $div.append($buttons);
+    
+    return $div;
+}
+
+function drawAddFileWindow(id) {
+    var projectname = getProjectName(id);
+    var packagename = $(document.getElementById(id)).children("a").text();
+    var fullpath = "/" + projectname + "/" + packagename.replace(/\./g, '/') + "/";
+    
+    $div = $('<div/>', {
+        id: "addfile" 
+    });
+    
+    $class = $('<input/>', {
+        type: "text",
+        id: "class",
+        value: ""
+    });
+    $(document).on('input', "#addfile input#class", function() {
+        var val = $("#addfile input#path").val();
+        $("#addfile input#path").val(val.substring(0, val.lastIndexOf("/") + 1) + $("#addfile input#class").val() + ".java");
+    });
+    
+    $type = $('<div/>', {
+        id: "filetype",
+        class: "class"
+    });
+    
+    $type.attr("onclick", "showTypesList()");
+    
+    $typelist = $('<ul/>', {
+        id: "typelist",
+        class: "hidden"
+    });
+    $typelist.append("<li class='class' onclick=\"setFileType('class')\">Class</li>");
+    $typelist.append("<li class='interface' onclick=\"setFileType('interface')\">Interface</li>");
+    $typelist.append("<li class='runnable' onclick=\"setFileType('runnable')\">Runnable class</li>");
+    $typelist.append("<li class='annotation' onclick=\"setFileType('annotation')\">Annotation</li>");
+    $typelist.append("<li class='exception' onclick=\"setFileType('exception')\">Exception</li>");
+    
+    $div.append($type);
+    $div.append($typelist);
+    $div.append("<div class='inputname'>Название:</div>");
+    $div.append($class);
+    
+    $project = $('<input/>', {
+        type: "text",
+        id: "project",
+        class: "addfileinputs",
+        value: projectname
+    });
+    
+    $project.prop('disabled', true);
+    $div.append("<div class='inputname addfilename'>Проект:</div>");
+    $div.append($project);
+    
+    $package = $('<input/>', {
+        type: "text",
+        id: "package",
+        class: "addfileinputs",
+        value: packagename
+    });
+    
+    $package.prop('disabled', true);
+    $div.append("<div class='inputname addfilename'>Пакет:</div>");
+    $div.append($package);
+    
+    $fullpath = $('<input/>', {
+        type: "text",
+        id: "path",
+        class: "addfileinputs",
+        value: fullpath
+    });
+    
+    $fullpath.prop('disabled', true);
+    $div.append("<div class='inputname addfilename'>Путь до файла:</div>");
+    $div.append($fullpath);
+    
+    $div.append("<div id='result-msg'></div>");
+    
+    $buttons = $('<div/>', {
+        id: "confirm-buttons"
+    });
+    
+    $confirm = $('<div/>', {
+        text: "Добавить",
+        id: "confirm",
+        class: "button"
+    });
+    $confirm.attr( "onclick", "addFile('"+ id +"')");
+    
+    $decline = $('<div/>', {
+        text: "Отменить",
+        id: "decline",
+        class: "button"
+    });
+    $decline.attr("onclick", "$('#popup_bug').togglePopup();");
+    
+    $buttons.css("margin-top", "18px");
+    $buttons.append($confirm);
+    $buttons.append($decline);
+    
+    $div.append($buttons);
+    
+    return $div;
+}
+
+function setFileType(classname) {
+    $("#addfile div#filetype").removeClass();
+    $("#addfile div#filetype").addClass(classname);
+    $("#addfile ul#typelist").addClass("hidden");
+}
+
+function showTypesList() {
+    if(!$("#addfile ul#typelist").hasClass("hidden")) {
+            $("#addfile ul#typelist").addClass("hidden");
+    } else {
+        $("#addfile ul#typelist").removeClass("hidden");
+    }
+}
+
+function getProjectName(id) {
+    var name;
+    $.ajax({
+        url: PATH + '/webapi/tree/projectname',
+        type: 'GET',
+        dataType: "json",
+        data: {id: id},
+        async: false,
+        success: function(data) {
+            name = data;
+        }
+    }); 
+    return name;
+}
+
+function checkAddPackageInputName(name, id) {
+    var result = false;
+    if(name.endsWith(".")) {      
+        $.ajax({
+            url: PATH + '/webapi/tree/package',
+            type: 'GET',
+            dataType: "json",
+            async: false,
+            data: {name: String(name.substring(0, name.length - 1)), project_id: String(id)},
+            success: function(data) {
+                switch(data) {
+                    case "wrongname":
+                        $("#result-msg").text("Неверное название пакета. \n\
+                            Допустимы лишь латинские символы и цифры. \n\
+                            Название пакета не должно начинаться с цифры.");
+                        $("#result-msg").css("font-size", "13px");
+                        break;
+                    case "used":
+                       $("#result-msg").text("Это имя пакета уже используется в вашем проекте.");
+                       $("#result-msg").css("font-size", "15px");
+                       break;
+                    case "unknown":
+                       $("#result-msg").text("Неизвестная ошибка.");  
+                       $("#result-msg").css("font-size", "15px");
+                       break;
+                    case "ok":
+                        result = !result;
+                        break;
+                }
+            }
+        }); 
+        if(!result) {
+            $("#result-msg").css("color", "red");
+        }
+    } else {
+        $("#result-msg").text("");
+        result = !result;
+    } 
+    return result;
+}
+
+function addFile(id) {
+    $input = $("#addfile input#class");
+    var name = $input.val();
+    var type = $("#addfile #filetype").attr("class");
+
+    if(name.endsWith(".java")) {
+        name = name.substring(0, name.length - 5);
+    }
+    
+    if(isRightClassName(name)) {
+        $.ajax({
+            url: PATH + '/webapi/tree/addFile',
+            type: 'POST',
+            data: {package_id: id, name: name, type: type},
+            contentType: "application/x-www-form-urlencoded",
+            success: function() {
+                $('#popup_bug').togglePopup(); 
+                buildTree();
+            }
+        });   
+    } else {
+        $("#addfile #result-msg").text("Неверное название класса. \n\
+                            Допустимы лишь латинские символы и цифры. \n\
+                            Название класса не должно начинаться с цифры.");
+        $("#addfile #result-msg").css("color", "red");
+        $("#addfile #result-msg").css("font-size", "13px");
+    }
+}
+
+function isRightClassName(name) {
+    var result = false;
+    
+    $.ajax({
+        url: PATH + '/webapi/tree/classfile',
+        type: 'GET',
+        data: {name: name},
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });  
+    
+    return result;
+}
+
+function addPackage(id) {
+    $input = $("#addpackage input");
+    var name = $input.val().toLowerCase();
+    var dotname;
+    
+    if(!name.endsWith(".")) {
+        dotname = name + ".";
+    }
+    
+    if(checkAddPackageInputName(dotname, id)) {
+        $.ajax({
+            url: PATH + '/webapi/tree/addPackage',
+            type: 'POST',
+            data: {project_id: id, name: name},
+            contentType: "application/x-www-form-urlencoded",
+            success: function() {
+                $('#popup_bug').togglePopup(); 
+                buildTree();
+            }
+        });  
+    }
+ 
+}
+
+/**
+ * File revisions
+ */
+
+function postFileRevision() {
+    var time = (new Date).toString();
+    var id = getCurrentFileID();
+    var dummy = {
+        id: id,
+        time: time,
+        value: javaEditor.getValue()
+    };
+    $.ajax({
+        url: PATH + '/webapi/revisions',
+        type: 'POST', 
+        data: JSON.stringify(dummy),
+        contentType: "application/json",
+        success: function() {
+            document.getElementById("latest_update").innerHTML = "Последнее изменение: " + time;
+        }
+    });
+}
+
+function getFileRevision(revision) {
+    var id = getCurrentFileID();
+    $.ajax({
+        url: PATH + '/webapi/revisions',
+        type: 'GET',
+        data: {id : id, revision : revision},
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            javaEditor.setValue(data.value);
+        }
+    });
+}
+
+function undo() {
+    javaEditor.undo();
+}
+
+function redo() {
+    javaEditor.redo();
+}
+

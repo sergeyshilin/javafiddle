@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.javafiddle.web.tree.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -21,10 +23,12 @@ import javax.ws.rs.core.Response;
 public class TreeService implements Serializable {
     Tree tree;
     IdList idList;
+    ArrayList<String> packages;
     
     public TreeService() {
         idList = new IdList();
         tree = new Tree();
+        packages = new ArrayList<>();
     }
 
     @GET
@@ -56,42 +60,55 @@ public class TreeService implements Serializable {
      
     @POST
     @Path("addProject")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({"application/x-www-form-urlencoded"})
     public void addProject(
             @Context HttpServletRequest request,
-            @QueryParam("name") String name
+            @FormParam("name") String name
             ) {
         tree.addProject(idList, name);
     }
     
     @POST
     @Path("addPackage")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({"application/x-www-form-urlencoded"})
     public void addPackage(
             @Context HttpServletRequest request,
-            @QueryParam("projectId") String idString,
-            @QueryParam("name") String name
+            @FormParam("project_id") String idString,
+            @FormParam("name") String name
             ) {
         int id = parseId(idString);
         TreeProject tpr = idList.getProject(id);
         tpr.addPackage(idList, name);
+        packages.add(name);
+    }
+    
+    @GET
+    @Path("classfile")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response isRightClassName(
+            @Context HttpServletRequest request,
+            @QueryParam("name") String name
+            ) {
+        Gson gson = new GsonBuilder().create();
+        boolean result = false;
+        if(name.matches("([a-zA-Z][a-zA-Z0-9_]*)")){
+            result = !result;
+        }
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
        
     @POST
     @Path("addFile")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({"application/x-www-form-urlencoded"})
     public void addFile(
             @Context HttpServletRequest request,
-            @QueryParam("packageId") String idString,
-            @QueryParam("name") String name,
-            @QueryParam("type") String type
+            @FormParam("package_id") String idString,
+            @FormParam("name") String name,
+            @FormParam("type") String type
             ) {
         int id = parseId(idString);
         TreePackage tp = idList.getPackage(id);
-        tp.addFile(idList, type, name);
+        tp.addFile(idList, type, name + ".java");
      }
     
     @POST
@@ -123,7 +140,45 @@ public class TreeService implements Serializable {
                 break;
         }
         return Response.ok().build();
-     }
+    }
+    
+    @GET
+    @Path("package")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response isRightPackage(
+            @Context HttpServletRequest request,
+            @QueryParam("name") String name,
+            @QueryParam("project_id") String id
+            ) {
+        Gson gson = new GsonBuilder().create();
+        String result = "unknown";
+        if(packages.isEmpty()) {
+            packages.addAll(Tree.getPackagesNames(idList.getProject(parseId(id)).getPackages()));
+        }
+        
+        if(!name.matches("(([a-zA-Z][a-zA-Z0-9]*)(\\.)?)+")) {
+            result = "wrongname";
+        } else if(packages.contains(name)) {
+            result = "used";
+        } else {
+            result = "ok";
+        }
+        
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+    }
+    
+    @GET
+    @Path("projectname")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProjectName(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String id
+            ) {
+        Gson gson = new GsonBuilder().create();
+        int project_id = idList.getPackage(parseId(id)).getProjectId();
+        String result = idList.getProject(project_id).getName();
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+    }
        
     private int parseId(String idString) {
         if (idString.indexOf("node_") == -1)

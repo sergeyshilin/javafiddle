@@ -148,12 +148,13 @@ html, body {
     left: -1px;
     top: 26px;
     min-width: 150px;
-    min-height: 100px;
+    min-height: 10px;
     width: auto;
+    height: auto;
     background-color: #fff;
     position: absolute;
     margin: 0;
-    padding: 10px 0 0 0;
+    padding: 10px 0 10px 0;
     z-index: 20;
     display: none;
     -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -167,9 +168,18 @@ html, body {
     position: relative;
     min-width: 150px;
     width: auto;
-    padding: 5px 0 5px 10px;
+    padding: 5px 10px 5px 10px;
     margin: 0;
     
+}
+
+#main_menu ul div.hr {
+    width: 90%;
+    margin: 0 auto;
+    padding: 0 0 4px 0;
+    margin-top: 6px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    height: 1px !important;
 }
 
 #main_menu ul.show {
@@ -288,7 +298,7 @@ html, body {
 #editor_buttons li #copy {background-image: url('images/copy.ico')}
 #editor_buttons li #paste {background-image: url('images/paste.ico')}
 #editor_buttons li #run {background-image: url('images/playback_play.ico')}
-#editor_buttons li #setup {background-image: url('images/settings.ico')}
+#editor_buttons li #compile {background-image: url('images/compile.ico')}
 
 #header-bottom #tabpanel {
     width: 70%;
@@ -499,53 +509,7 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 }
 
 .hidden {
-	display: none;
-}
-/*
-div.bug {
-    padding:10px;
-    position: relative;
-    z-index: 20;
-    color: #fff;
-}*/
-
-#context_menu {
-    list-style: none;
-    left: 2px;
-    top: 1px;
-    min-width: 150px;
-    min-height: 100px;
-    width: auto;
-    background-color: #fff;
-    position: absolute;
-    margin: 0;
-    padding: 10px 0 0 0;
-    z-index: 20;
-    display: block;
-    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-#context_menu li {
-    float: none;
-    position: relative;
-    color: #0e0e0e;
-    font-size: 13px;
-    font-family: 'Open Sans';
-    font-weight: normal;
-    font-style: normal;
-    margin: 0;
-    cursor: default;
-    min-width: 150px;
-    width: auto;
-    padding: 5px 0 5px 10px;
-    margin: 0;   
-}
-
-#context_menu li:hover {
-    background-color: #eaeaea; 
+    display: none !important;
 }
 
 #delete_confirm {
@@ -558,7 +522,7 @@ div.bug {
     padding: 15px;
 }
 
-#delete_confirm div.buttons {
+#confirm-buttons {
     width: 270px;
     position: relative;
     margin: 0 auto;
@@ -566,7 +530,7 @@ div.bug {
     margin-top: 40px;
 }
 
-#delete_confirm div.button {
+#confirm-buttons div.button {
     width: 120px;
     height: 22px;
     background-color: #eaeaea;
@@ -576,15 +540,188 @@ div.bug {
     outline: 0;
     cursor: default;
 }
-#delete_confirm div.button:hover {
+#confirm-buttons div.button:hover {
     background-color: #99CCFF;
 }
 
 
-#delete_confirm #confirm.button {
+#confirm.button {
     float: left;
 }
 
-#delete_confirm #decline.button {
+#decline.button {
     float: right;
 }
+
+#addpackage, #addfile {
+    text-align: center;
+    color: #0e0e0e;
+    font-size: 15px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    padding: 15px;
+}
+
+#addpackage .inputname, #addfile .inputname {
+    font-size: 18px;
+    color: #0e0e0e;
+    position: absolute;
+    margin: 9px 0 0 23px;
+    z-index: 50;
+}
+
+#addpackage input, #addfile input {
+    font-family: 'Open Sans';
+    font-weight: bold;
+    font-style: normal;
+    position: relative;
+    z-index: 20;
+    outline: none;
+    font-size: 17px;
+    color: #ccc;
+    height: 40px;
+    width: 330px;
+    margin: 0 auto;
+    padding: 0 10px 0 110px;
+    border: 1px solid rgba(0,0,0,.111);
+    background-color: #ececec;
+}
+
+#addpackage #result-msg, #addfile #result-msg {
+    position: relative;
+    margin: 0 auto;
+    margin-top: 10px;
+    min-width: 200px;
+    text-align: center;
+    padding-top: 4px;
+    height: 26px;
+    /*display: none;*/
+}
+
+#addpackage input:focus, #addfile input:focus {
+    color: #0e0e0e;
+    border: 1px solid rgba(0,0,0,.222);
+}
+
+#addfile .addfileinputs {
+    margin-top: 20px;
+}
+
+#addfile .addfilename {
+    margin-top: 28px;
+}
+
+#addfile input {
+    width: 348px;
+    padding-left: 170px;
+    padding-right: 50px;
+    color: #bbb;
+}
+
+#addfile input#class {
+    color: #bbb;
+}
+
+#addfile input#class:focus {
+    color: #0e0e0e;
+}
+
+#addfile #path, #addfile #package, #addfile #project {
+    background-color: #FFFFCC;
+    cursor: text;
+}
+
+#addfile #path:focus, #addfile #package:focus, #addfile #project:focus {
+    border: 1px solid rgba(0,0,0,.111);
+    color: #bbb;
+}
+
+#addfile #filetype {
+    height: 40px;
+    width: 40px;
+    margin-left: 528px;
+    margin-top: 1px;
+    position: absolute;
+    z-index: 50;
+    background-color: #ffffff;
+    border-left: 1px solid rgba(0,0,0,.111);
+}
+
+#addfile ul#typelist {
+    z-index: 100 !important;
+    display: block;
+    margin: 50px 0 0 500px;
+}
+
+#addfile #typelist li {
+    padding-left: 30px;
+    text-align: left;
+}
+
+#addfile #typelist li:hover {
+    background-color: #eaeaea !important;
+}
+
+#addfile #filetype.class {background: url('images/idea-class.png') no-repeat 50% 50%}
+#addfile #filetype.interface {background: url('images/idea-class-interface.png') no-repeat 50% 50%}
+#addfile #filetype.runnable {background: url('images/idea-class-runnable.png') no-repeat 50% 50%}
+#addfile #filetype.annotation {background: url('images/idea-class-annotation.png') no-repeat 50% 50%}
+#addfile #filetype.exception {background: url('images/idea-class-exception.png') no-repeat 50% 50%}
+
+#addfile #typelist li.class {background: url('images/idea-class.png') no-repeat 5% 50%}
+#addfile #typelist li.interface {background: url('images/idea-class-interface.png') no-repeat 5% 50%}
+#addfile #typelist li.runnable {background: url('images/idea-class-runnable.png') no-repeat 5% 50%}
+#addfile #typelist li.annotation {background: url('images/idea-class-annotation.png') no-repeat 5% 50%}
+#addfile #typelist li.exception {background: url('images/idea-class-exception.png') no-repeat 5% 50%}
+
+/**
+* Context menu
+*/
+
+#context_menu, #typelist {
+    list-style: none;
+    left: 2px;
+    top: 1px;
+    min-width: 150px;
+    min-height: 10px;
+    width: auto;
+    height: auto;
+    background-color: #fff;
+    position: absolute;
+    margin: 0;
+    padding: 10px 0 10px 0;
+    z-index: 20;
+    display: block;
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#context_menu li, #typelist li {
+    float: none;
+    position: relative;
+    color: #0e0e0e;
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    margin: 0;
+    cursor: default;
+    min-width: 150px;
+    width: auto;
+    padding: 5px 10px 5px 10px;
+    margin: 0;   
+}
+
+#context_menu li:hover, #typelist li:hover {
+    background-color: #eaeaea; 
+}
+
+
+/**
+* Tooltip
+*/
+
+

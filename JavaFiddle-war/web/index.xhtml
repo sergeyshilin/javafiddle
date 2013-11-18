@@ -48,21 +48,54 @@
                 <div id="bottom"> 
                     <ul id="main_menu">
                         <li>
-                            <div class="link">Файл</div>
+                            <div class="link">Проект</div>
                             <ul>
-                                <li>Открыть проект</li>
-                                <li>Закрыть проект</li>
-                                <li>Что-то еще</li>
+                                <li>Сохранить</li>
+                                <li>Переименовать</li>
+                                <li>Настройки</li>
+                                <li>Удалить</li>
                             </ul>
                         </li>
-                        <li><div class="link">Правка</div></li>
-                        <li><div class="link">Поиск</div></li>
-                        <li><div class="link">Вид</div></li>
-                        <li><div class="link">Настройки</div></li>
+                        <li><div class="link">Правка</div>
+                            <ul>
+                                <li>Отменить</li>
+                                <li>Повторить</li>
+                                <div class="hr"></div>
+                                <li>Вырезать</li>
+                                <li>Копировать</li>
+                                <li>Вставить</li>
+                                <li>Выделить всё</li>
+                                <li>Удалить</li>
+                                <div class="hr"></div>
+                                <li>Найти</li>
+                                <li>Заменить</li>
+                            </ul>
+                        </li>
+                        <li><div class="link">Вид</div>
+                            <ul>
+                                <li>Отобразить консоль</li>
+                                <li>Скрыть дерево проекта</li>
+                                <li>Полноэкранный режим</li>
+                            </ul>
+                        </li>
+                        <li><div class="link">Выполнение</div>
+                            <ul>
+                                <li>Компилировать</li>
+                                <li>Выполнить</li>
+                                <li>Настройки</li>
+                            </ul>
+                        </li>
                         <li>
                             <div class="link">История</div>
                             <ul>
-                                <li onclick="showPopup('Список ревизий будет здесь');">Список ревизий</li>
+                                <li>Список ревизий</li>
+                            </ul>
+                        </li>
+                        <li><div class="link">Справка</div>
+                            <ul>
+                                <li>Справка</li>
+                                <li>Сочетания клавиш</li>
+                                <li>О JavaFiddle</li>
                             </ul>
                         </li>
                     </ul>
@@ -72,28 +105,25 @@
             </div>
             <div id="header-bottom">
                 <ul id="editor_buttons">
-                    <li><h:commandButton value="" type="button" id="open" /></li>
-                    <li><h:commandButton value="" type="button" id="save" onclick="postFileRevision();"/></li>
-                    <li><h:commandButton value="" type="button" id="reload" onclick="getFileRevision('current');"/></li>
+                    <li><h:commandButton value="" type="button" id="open" title="Открыть проект" /></li>
+                    <li><h:commandButton value="" type="button" id="save" onclick="postFileRevision();" title="Сохранить проект" /></li>
+                    <li><h:commandButton value="" type="button" id="reload" onclick="getFileRevision('current');" title="Обновить" /></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="undo" onclick="getFileRevision('prev');"/></li>
-                    <li><h:commandButton value="" type="button" id="redo" onclick="getFileRevision('next');"/></li>
+                    <li><h:commandButton value="" type="button" id="undo" onclick="getFileRevision('prev');" title="Отменить действие" /></li>
+                    <li><h:commandButton value="" type="button" id="redo" onclick="getFileRevision('next');" title="Повторить действие" /></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="cut" /></li>
-                    <li><h:commandButton value="" type="button" id="copy" /></li>
-                    <li><h:commandButton value="" type="button" id="paste" /></li>
+                    <li><h:commandButton value="" type="button" id="cut" title="Вырезать" /></li>
+                    <li><h:commandButton value="" type="button" id="copy" title="Копировать" /></li>
+                    <li><h:commandButton value="" type="button" id="paste" title="Вставить" /></li>
                     <div class="separator"></div>
                     <li></li>
                     <li></li>
-                    <li><h:commandButton value="" type="button" id="run" onclick="addFiles();"/></li>
-                    <div class="separator"></div>
-                    <li></li>
-                    <li></li>
-                    <li><h:commandButton value="" type="button" id="setup" /></li>
+                    <li><h:commandButton value="" type="button" id="compile" title="Компиляция"/></li>
+                    <li><h:commandButton value="" type="button" id="run" onclick="addFiles();" title="Выполнение"/></li>
                 </ul>  
                 <ul id="tabpanel">
                 </ul>
@@ -141,19 +171,8 @@
                                     });
                                 }
                             });
+                            loadTreeOperation();
                         }
-                    
-//                        function addFiles() {
-//                        $.ajax({
-//                            url: '#{request.contextPath}/webapi/tree/addExampleTree',
-//                            type: 'POST', 
-//                            contentType: "application/json",
-//                            async: false,
-//                            success: function() {
-//                                
-//                            }
-//                        });
-//                    }
                     //]]>
                 </script>
             </h:panelGroup>
@@ -190,45 +209,6 @@
                     javaEditor.setSize("100%", height);
                     javaEditor.foldCode(CodeMirror.Pos(8, 0));
                     
-                    function postFileRevision() {
-                        var time = (new Date).toString();
-                        var id = getCurrentFileID();
-                        var dummy = {
-                            id: id,
-                            time: time,
-                            value: javaEditor.getValue()
-                        };
-                        $.ajax({
-                            url:'#{request.contextPath}/webapi/revisions',
-                            type:'POST', 
-                            data: JSON.stringify(dummy),
-                            contentType: "application/json",
-                            success: function() {
-                                document.getElementById("latest_update").innerHTML = "Последнее изменение: " + time;
-                            }
-                        });
-                    }
-
-                    function getFileRevision(revision) {
-                        var id = getCurrentFileID();
-                        $.ajax({
-                            url:'#{request.contextPath}/webapi/revisions',
-                            type:'GET',
-                            data: {id : id, revision : revision},
-                            dataType: "json",
-                            success: function(data) {
-                                javaEditor.setValue(data.value);
-                            }
-                        });
-                    }
-                    
-                    function undo() {
-                        javaEditor.undo();
-                    }
-                    
-                    function redo() {
-                        javaEditor.redo();
-                    }
                 //]]>
                 </script>
             </div>
