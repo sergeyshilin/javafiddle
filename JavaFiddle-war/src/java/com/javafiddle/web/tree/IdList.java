@@ -47,31 +47,37 @@ public class IdList implements Serializable {
     }
     
     public boolean isProject(int id) {
-        return getType(id) == IdNodeType.PROJECT;
+        if (contains(id))
+            return getType(id) == IdNodeType.PROJECT;
+        return false;
     } 
     
     public boolean isPackage(int id) {
-        return getType(id) == IdNodeType.PACKAGE;
+        if (contains(id))
+            return getType(id) == IdNodeType.PACKAGE;
+        return false;
     } 
     
     public boolean isFile(int id) {
-        return getType(id) == IdNodeType.FILE;
+        if (contains(id))
+            return getType(id) == IdNodeType.FILE;
+        return false;
     } 
     
     public TreeProject getProject(int id) {
-        if (contains(id) && isProject(id))
+        if (isProject(id))
             return (TreeProject)idList.get(id).getObject();
         return null;
     }
     
     public TreePackage getPackage(int id) {
-        if (contains(id) && isPackage(id))
+        if (isPackage(id))
             return (TreePackage)idList.get(id).getObject();
         return null;
     }
     
     public TreeFile getFile(int id) {
-        if (contains(id) && isFile(id))
+        if (isFile(id))
             return (TreeFile)idList.get(id).getObject();
         return null;
     } 

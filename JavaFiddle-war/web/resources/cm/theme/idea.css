@@ -1,6 +1,5 @@
 .cm-s-idea {font-family: "Courier New", Courier, monospace; font-size: 9pt; line-height: 1.4;}
 
-.cm-s-idea span.cm-tab {border-left: 1px solid #e6e6e6; margin-left: 3px;} /*not works (why?)*/
 .cm-s-idea span.cm-meta {color: #808000;} /*@SessionScoped*/
 .cm-s-idea span.cm-keyword {line-height: 1em; font-weight: bold; color: #000080} /*public static void*/
 .cm-s-idea span.cm-atom {color: #000080;} /*null*/
@@ -14,9 +13,9 @@
 .cm-s-idea .CodeMirror-matchingbracket {background: #99ccff; color: black !important;} /*{}*/
 
 .cm-s-idea .CodeMirror-gutters {background: #f0f0f0; border: 0px;}
+.cm-s-idea .CodeMirror-foldgutter {outline: 1px dotted #800000;}
 .cm-s-idea .CodeMirror-linenumber {color: #800000;}
 .cm-s-idea .CodeMirror-cursor {border-left: 2px solid black !important;}
 
 .cm-s-idea .CodeMirror-selected {background-color: #526da5 !important;}
 .cm-s-idea .CodeMirror-selectedtext {color: white !important;}
-

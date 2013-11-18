@@ -7,6 +7,7 @@ $(document).ready(function(){
    loadTabs();
    loadContent();
    moment.lang('ru');
+   getFileRevision();
    $("body").click(function() {
        closeAllPopUps();
    });
@@ -245,6 +246,7 @@ function setCurrentFileID(id) {
 }
 
 function loadTabs() {
+    var opened = getCurrentFileID();
     var data = JSON.parse(getCookie('openedtabs'));
     if (data === null)
         return;
@@ -252,7 +254,12 @@ function loadTabs() {
         var file = getFileDataById(data[i]);
         var cl = file["type"];
         var name = file["name"];
-        var li = $('<li id="'+ data[i] +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
+        var active = "";
+        if (data[i] == opened) {
+            active = " active";
+            
+        }
+        var li = $('<li id="'+ data[i] +'" class="'+ cl + active +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
         $("#tabpanel").append(li);
     }
 }
