@@ -2,7 +2,6 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.javafiddle.web.editions.FileEditions;
 import com.javafiddle.web.services.utils.AddFileRevisionRequest;
 import com.javafiddle.web.services.utils.FileRevision;
 import com.javafiddle.web.services.utils.TreeUtils;
@@ -11,10 +10,8 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -25,8 +22,8 @@ import javax.ws.rs.core.*;
 public class TreeService implements Serializable {
     Tree tree;
     IdList idList;
-    Map<String, FileEditions> projects = new HashMap<>();
-    Map<Integer, FileEditions> files = new HashMap<>();
+    TreeMap<Integer, TreeMap<Date, TreeProject>> projects = new TreeMap<>();
+    TreeMap<Integer, TreeMap<Date, String>> files = new TreeMap<>();
         
     public TreeService() {
         idList = new IdList();
@@ -157,27 +154,50 @@ public class TreeService implements Serializable {
     
     // ex ProjectRevisionsService
     //
-    @GET
-    @Path("revisions/project")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getProjectRevisions(
-            @Context HttpServletRequest request,
-            @QueryParam("id") String id,
-            @QueryParam("revision") String revision
-            ) {
-        
-        return Response.ok("", MediaType.TEXT_PLAIN).build();
-    }
-    
     @POST
     @Path("revisions/project")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public void saveProjectRevisions(
+    public Response saveProjectRevision (
             @Context HttpServletRequest request,
-            String data
+            @QueryParam("id") String idString,
+            @QueryParam("timeStamp") String timeStamp     
             ) {
-      
+        if (idString == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(idString);
+        if (!idList.isProject(id))
+            return Response.status(400).build();
+        
+        TreeProject tp = idList.getProject(id);
+        if (!projects.containsKey(id))
+            projects.put(id, new TreeMap<Date, TreeProject>());
+        else {
+            if (tp.equals(projects.lastEntry().getValue()))
+                return Response.status(304).build();
+        }
+        try {
+            DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            Date result = df.parse(timeStamp);
+            projects.get(id).put(result, tp);
+        } catch (ParseException ex) {
+            return Response.status(400).build();
+        }
+        return Response.ok().build();
+    }
+    
+    @GET
+    @Path("revisions/project")
+    public Response getProjectRevisions(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String idString,
+            @QueryParam("timeStamp") String timeStamp
+            ) {
+        if (idString == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(idString);
+        if (idList.isProject(id)) {
+            // to do
+        }    
+        return Response.ok("", MediaType.TEXT_PLAIN).build();
     }
     
     // ex DocumentRevisionsSrevice
@@ -199,11 +219,17 @@ public class TreeService implements Serializable {
             return Response.status(400).build();
         
         if (!files.containsKey(id))
-            files.put(id, new FileEditions());
+            files.put(id, new TreeMap<Date, String>());
+        else {
+            Date old = idList.getFile(id).getTimeStamp();
+            String oldText = files.get(id).get(old);
+            if (oldText.hashCode() == d.getValue().hashCode())
+                return Response.status(304).build();
+        }
         try {
             DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
             Date result = df.parse(d.getTimeStamp());
-            files.get(id).addRevision(result, d.getValue());
+            files.get(id).put(result, d.getValue());
             idList.getFile(id).setTimeStamp(result);
         } catch (ParseException ex) {
             return Response.status(400).build();
@@ -223,13 +249,13 @@ public class TreeService implements Serializable {
         int id = TreeUtils.parseId(idString);
         
         Gson gson = new GsonBuilder().create();
-        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         FileRevision fr;
         Date dateTime = idList.getFile(id).getTimeStamp();
         if (dateTime == null) {
             fr = new FileRevision("", "");
-        } else {    
-            String text = files.get(id).getByTimeStamp(dateTime);
+        } else {   
+            DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            String text = files.get(id).get(dateTime);
             fr = new FileRevision(df.format(dateTime), text);
         }     
         return Response.ok(gson.toJson(fr), MediaType.APPLICATION_JSON).build();

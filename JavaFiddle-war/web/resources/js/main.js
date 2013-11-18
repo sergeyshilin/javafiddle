@@ -7,7 +7,6 @@ $(document).ready(function(){
    loadTabs();
    loadContent();
    moment.lang('ru');
-   getFileRevision();
    $("body").click(function() {
        closeAllPopUps();
    });
@@ -255,15 +254,25 @@ function loadTabs() {
         var cl = file["type"];
         var name = file["name"];
         var active = "";
-        if (data[i] == opened) {
+        if (data[i] == opened)
             active = " active";
-            
-        }
+
         var li = $('<li id="'+ data[i] +'" class="'+ cl + active +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
         $("#tabpanel").append(li);
+        
+        if (data[i] == opened)
+            selectTab(li);
     }
 }
 
+function savingTabs() {
+    var opened = getCurrentFileID();
+    var data = JSON.parse(getCookie('openedtabs'));
+    if (data === null)
+        return;
+    for(var i = 0; i < data.length; i++)
+        postFileReviison(data[i]);
+}
 function getFileDataById(id) {
     var filedata;
 
@@ -521,9 +530,10 @@ function buildTree() {
     });
 }
 
-function postFileRevision() {
+function postFileRevision(id) {
+    if(arguments.length == 0)
+        id = getCurrentFileID();
     var time = moment().format("DD.MM.YYYY HH:mm:ss");
-    var id = getCurrentFileID();
     var dummy = {
         id: id,
         timeStamp: time,
@@ -540,8 +550,9 @@ function postFileRevision() {
     });
 }
 
-function getFileRevision() {
-    var id = getCurrentFileID();
+function getFileRevision(id) {
+    if(arguments.length == 0)
+        id = getCurrentFileID();
     $.ajax({
         url: PATH + '/webapi/revisions',
         type:'GET',
