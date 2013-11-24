@@ -108,6 +108,7 @@ function selectTab(li) {
     $tabs.find(".active").removeClass("active");
     li.addClass("active");
     var id = li.attr("id");
+    setCurrentFileText(getCurrentFileID());
     setCurrentFileID(id);
     getCurrentFileText(id);
 }
@@ -258,16 +259,33 @@ function openJavaClass($el) {
         li = $("#tabpanel").find(li);
     }
     selectTab(li);
-    
+}
+
+function supportsLocalStorage() {
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+}
+
+function setCurrentFileText(id) {
+    if (!supportsLocalStorage()) { return false; }
+    localStorage["javafiddle.openedtabs." + id] = javaEditor.getValue();
 }
 
 function getCurrentFileText(id) {
-    getFileRevision(id);
+    if (!supportsLocalStorage()) { return false; }
+    var data = localStorage["javafiddle.openedtabs." + id];
+    if (data != null)
+        javaEditor.setValue(data);
+    else
+        getFileRevision(id);
 }
 
 function addTabToPanel(id, name, cl) {
     addTab(id);
-    var li = $('<li id="'+ id +'" class="'+ cl +' active" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
+    var li = $('<li id="'+ id +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
     $("#tabpanel").append(li);
     return li;
 }
@@ -354,8 +372,10 @@ function removeTab(li) {
     if (index > -1) {
         data.splice(index, 1);
     }
-    
+    if (!supportsLocalStorage()) { return false; }
+    localStorage.removeItem["javafiddle.openedtabs." + id];
     setCookie('openedtabs', JSON.stringify(data));
+    
 }
 
 function loadTreeOperation() {

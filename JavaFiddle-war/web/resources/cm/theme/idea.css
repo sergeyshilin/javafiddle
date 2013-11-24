@@ -1,4 +1,4 @@
-/*.cm-s-idea {font-family: "Courier New", Courier, monospace; font-size: 9pt; line-height: 1.4;}*/
+.cm-s-idea {font-family: "Courier New", Courier, monospace; font-size: 9pt; line-height: 1.4;}
 
 .cm-s-idea span.cm-meta {color: #808000;} /*@SessionScoped*/
 .cm-s-idea span.cm-keyword {line-height: 1em; font-weight: bold; color: #000080} /*public static void*/
@@ -7,7 +7,7 @@
 .cm-s-idea span.cm-variable {color: black;} /*usual variables*/
 .cm-s-idea span.cm-operator {color: black;} /*=*/
 .cm-s-idea span.cm-comment {font-style: italic; color: #808080;} /*comments*/
-.cm-s-idea span.cm-string {color: #00a000;} /*"String"*/
+.cm-s-idea span.cm-string {color: #00a000; font-weight: bold;} /*"String"*/
 
 .cm-s-idea .CodeMirror-activeline-background {background: #ffffd7 !important;} /*activeline*/
 .cm-s-idea .CodeMirror-matchingbracket {background: #99ccff; color: black !important;} /*{}*/

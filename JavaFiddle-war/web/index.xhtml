@@ -13,7 +13,7 @@
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
         <link rel="stylesheet" href="#{request.contextPath}/resources/cm/theme/idea.css"/>
         <!-- Start of editor scripts -->
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/clike/clike.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/java.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/matchbrackets.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/closebrackets.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/brace-fold.js"></script>
@@ -62,17 +62,21 @@
                         </li>
                         <li><div class="link">Правка</div>
                             <ul>
-                                <li>Отменить</li>
-                                <li>Повторить</li>
+                                <li><a href="#" onclick="javaEditor.execCommand('undo');">Отменить</a></li>
+                                <li><a href="#" onclick="javaEditor.execCommand('redo');">Повторить</a></li>
                                 <div class="hr"></div>
                                 <li>Вырезать</li>
                                 <li>Копировать</li>
                                 <li>Вставить</li>
-                                <li>Выделить всё</li>
                                 <li>Удалить</li>
+                                <li><a href="#" onclick="javaEditor.execCommand('selectAll');">Выделить всё</a></li>
                                 <div class="hr"></div>
-                                <li>Найти</li>
-                                <li>Заменить</li>
+                                <li><a href="#" onclick="javaEditor.execCommand('findPrev');">Найти ранее</a></li>
+                                <li><a href="#" onclick="javaEditor.execCommand('findNext');">Найти далее</a></li>
+                                <div class="hr"></div>
+                                <li><a href="#" onclick="javaEditor.execCommand('find');">Найти</a></li>
+                                <li><a href="#" onclick="javaEditor.execCommand('replace');">Заменить</a></li>
+                                <li><a href="#" onclick="javaEditor.execCommand('replaceAll');">Заменить всё</a></li>
                             </ul>
                         </li>
                         <li><div class="link">Вид</div>
