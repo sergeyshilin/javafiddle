@@ -137,13 +137,11 @@
         </div>
         <div id="content">
             <h:panelGroup layout="block" id="treepanel" class="mainblock">
-                <ul class="project">
-                    <div id="tree">
-                    
-                    </div>
-                </ul>
+                <div id="tree" class="project">
 
+                </div>
             </h:panelGroup>
+
             <div id="codetext" class="mainblock">
                 <h:inputTextarea id="textarea"/>
                 <script type="text/javascript">
@@ -174,14 +172,9 @@
                         },    
                         gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
                     });
-                    var height = $(window).height() - $("#header").height() - 30;
-                    
-                    javaEditor.setSize("100%", height);
-                    javaEditor.foldCode(CodeMirror.Pos(0, 0));
                 //]]>
                 </script>
             </div>
         </div>
-        
     </h:body>
 </html>

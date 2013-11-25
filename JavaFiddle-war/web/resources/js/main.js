@@ -1,57 +1,38 @@
 var PATH = "";
 var javaEditor;
 
+// LOADING PAGE
+
 $(document).ready(function(){
    setContentHeight();
+   loadMainMenu();
+   loadLiHarmonica();
    buildTree();
+   loadTreeOperation();
    loadTabs();
-   loadContent();
+   loadToogles();
    moment.lang('ru');
    $("body").click(function() {
        closeAllPopUps();
    });
 });
 
-String.prototype.endsWith = function(suffix) {
-    return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
+$(window).resize(function() {
+    setContentHeight();
+});
 
 function setContentHeight() {
-    var MINSCREENWIDTH = 1300;
+    var MINSCREENWIDTH = 600;
     var $header = $('#header');
-    var $content = $('#content');
     var $tree = $("#treepanel");
     var $code = $("#codetext");
-    var $codearea = $("#textarea");
     var $tabpanel = $("#tabpanel");
-    var height = $(window).height() - $header.height();
-    var width = $(window).width();
+    var height = $(window).height() - $header.height() - 32;
     
-    /**
-     * set size for main content
-     */
-    $content.height(height);
-    $content.width(width);    
+    $tree.height(height);
+    $code.height(height);
     
-    /**
-     * set position and size for left panel
-     */
-    $tree.height(height - 30);
-    $tree.css("margin", "15px");
-    
-    /**
-     * set position and size for right panel
-     */
-    $code.height(height - 30);
-    $code.width(width - $tree.width() - 50);
-    $code.css("margin", "15px 15px 15px 0");
-    
-    /**
-     * set position and size of textarea
-     */
-    $codearea.height($code.height() - 20);
-    $codearea.width($code.width() - 20);
-    $codearea.css("margin", "10px 0 0 10px");
+    javaEditor.setSize($code.width(), $code.height());
     
     /**
      * set position of tabpanel
@@ -62,6 +43,108 @@ function setContentHeight() {
     $tabpanel.width($(window).width() - margin - 50);
 }
 
+
+// MENU
+
+function loadMainMenu() {
+    $menu = $("#main_menu");
+    $('#main_menu div.link').each(function() {
+        $parent = $(this).parent();
+        if($parent.children().length > 1) {
+            $(this).click(function() {  
+                $li = $(this).parent();
+                if($li.hasClass('active')) {
+                    $li.find('ul').removeClass('show');
+                    $li.removeClass('active');
+                } else {
+                    $menu.find('.active').removeClass("active");
+                    $menu.find('.show').removeClass('show');
+                    $li.addClass('active');
+                    $li.find('ul').addClass('show');
+                }
+            });
+        }
+    });
+    
+    $menu.click(function(event){
+        $("#context_menu").remove();
+        event.stopPropagation();
+    });
+}
+
+
+// TABS
+
+function loadTabs() {
+    var opened = getCurrentFileID();
+    var data = JSON.parse(getCookie('openedtabs'));
+    if (data === null)
+        return;
+    for(var i = 0; i < data.length; i++) {
+        var file = getFileDataById(data[i]);
+        var cl = file["type"];
+        var name = file["name"];
+
+        var li = $('<li id="'+ data[i] +'" class="'+ cl + '" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
+        $("#tabpanel").append(li);
+        
+        if (data[i] == opened)
+            selectTab(li);
+    }
+}
+
+function openTabFromTree($el) {
+    var id = $el.closest('li').attr('id') + "_tab";
+    var name = $el.text();
+    var cl = $el.attr('class');
+    
+    setCurrentFileID(id);
+    getCurrentFileText(id);
+    
+    var li;
+    if(!isOpened(id))
+        li = addTabToPanel(id, name, cl);
+    else {
+        li = document.getElementById(id);
+        li = $("#tabpanel").find(li);
+    }
+    selectTab(li);
+}
+
+function addTabToPanel(id, name, cl) {
+    pushOpenedTab(id);
+    
+    var li = $('<li id="'+ id +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
+    $("#tabpanel").append(li);
+    return li;
+}
+
+function selectTab(li) {
+    var id = li.attr("id");
+    
+    $tabs = $("#tabpanel");
+    
+    if (id !== getCurrentFileID()) {
+        $tabs.find(".active").removeClass("active");
+        addCurrentFileText(getCurrentFileID());
+        setCurrentFileID(id);
+    }
+
+    li.addClass("active");
+    getCurrentFileText(id);
+}
+
+function closeTab(parent) {
+    var id = parent.attr("id");
+    closeOpenedTab(id);
+    removeCurrentFileText(id);
+    parent.remove();
+    setCurrentFileID("");
+    selectTab(getLastOpenedTab());
+}
+
+
+// TREE
 function buildTree() {
     $("#tree").empty();
     $.ajax({
@@ -95,63 +178,54 @@ function buildTree() {
             });
         }
     });
-    loadTreeOperation();
 }
 
-function closeTab(parent) {
-    removeTab(parent);
-    parent.remove();
-}
-
-function selectTab(li) {
-    $tabs = $("#tabpanel");
-    $tabs.find(".active").removeClass("active");
-    li.addClass("active");
-    var id = li.attr("id");
-    setCurrentFileText(getCurrentFileID());
-    setCurrentFileID(id);
-    getCurrentFileText(id);
-}
-
-function showPopup(content, params) {
-    var options = {
-        width: 300,
-        height: 300
-    };
-    if(arguments.length > 1) {
-        options = params;
-    }
-    var html = "<div id=\"opaco\" class=\"hidden\"></div>";
-    html += "<div id=\"popup\" class=\"hidden\"></div>";
-    html += "<div id=\"popup_bug\" class=\"hidden\">";
-    html += "<div class=\"bug\">";
-    if( Object.prototype.toString.call(content) === '[object String]' ) {
-        html += (content === "" || content === null) ? "" : content;
-    }
-    html += "</div>";
-    html += "</div>";
-    
-    $div = $('<div/>', {
-        html: html
+function loadTreeOperation() {
+    $("#tree a").each(function() {
+        this.oncontextmenu = function() {return false;};  
+        $(this).mousedown(function(event) {
+            var classname = $(this).attr("class").split(" ")[0];
+            switch(classname) {
+                case "class": 
+                case "interface": 
+                case "exception": 
+                case"annotation": 
+                case "runnable":
+                    switch(event.which) {
+                        case 1:
+                            openTabFromTree($(this));
+                            break;
+                        case 3: 
+                            showContextMenu($(this), event, "file");
+                            break;
+                    }
+                    break;
+                case "package":
+                    switch(event.which) {
+                        case 3: 
+                            showContextMenu($(this), event, "package");
+                            break;
+                    }
+                    break;
+                case "root":
+                    switch(event.which) {
+                        case 3: 
+                            showContextMenu($(this), event, "root");
+                            break;
+                    }
+                    break;
+            }
+        });
     });
-    
-    $("body").append($div);
-    $("#popup").attr("style", "height: " + options.height + "px !important; width: " + options.width + "px !important");
-    if( Object.prototype.toString.call(content) === '[object Object]' ) {
-        $("#popup_bug .bug").html("");
-        $("#popup_bug .bug").append(content);
-    }
-    $('#popup_bug').togglePopup();
 }
 
-function loadProjectTree() {
+function loadLiHarmonica() {
     (function ($) {
         $.fn.liHarmonica = function (params) {
             var p = $.extend({
-                currentClass: 'cur',    //Класс для выделенного пункта меню
-                onlyOne: true,          //true - открытым может быть только один пункт, 
-                                        //false - число открытых одновременно пунктов не ограничено
-                speed: 500              //Скорость анимации
+                currentClass: 'cur',
+                onlyOne: false,
+                speed: 100
             }, params);
             return this.each(function () {
 
@@ -187,6 +261,78 @@ function loadProjectTree() {
     })(jQuery);
 }
 
+function addPackage(id) {
+    $input = $("#addpackage input");
+    var name = $input.val().toLowerCase();
+    var dotname;
+    
+    if(!name.endsWith(".")) {
+        dotname = name + ".";
+    }
+    
+    if(checkAddPackageInputName(dotname, id)) {
+        $.ajax({
+            url: PATH + '/webapi/tree/addPackage',
+            type: 'POST',
+            data: {project_id: id, name: name},
+            contentType: "application/x-www-form-urlencoded",
+            success: function() {
+                $('#popup_bug').togglePopup(); 
+                buildTree();
+            }
+        });  
+    }
+ 
+}
+
+function addFile(id) {
+    $input = $("#addfile input#class");
+    var name = $input.val();
+    var type = $("#addfile #filetype").attr("class");
+
+    if(name.endsWith(".java")) {
+        name = name.substring(0, name.length - 5);
+    }
+    
+    if(isRightClassName(name)) {
+        $.ajax({
+            url: PATH + '/webapi/tree/addFile',
+            type: 'POST',
+            data: {package_id: id, name: name, type: type},
+            contentType: "application/x-www-form-urlencoded",
+            success: function() {
+                $('#popup_bug').togglePopup(); 
+                buildTree();
+            }
+        });   
+    } else {
+        $("#addfile #result-msg").text("Неверное название класса. \n\
+                            Допустимы лишь латинские символы и цифры. \n\
+                            Название класса не должно начинаться с цифры.");
+        $("#addfile #result-msg").css("color", "red");
+        $("#addfile #result-msg").css("font-size", "13px");
+    }
+}
+
+function removeFromProject(id) {
+    var idString = String(id);
+    $.ajax({
+        url: PATH + '/webapi/tree/remove',
+        type: 'POST',
+        data: idString,
+        contentType: "application/json",
+        success: function() {
+            var removeId = "#" + idString;
+            $(removeId).remove();
+            $("#context_menu").remove();
+            $('#popup_bug').togglePopup(); 
+        }
+    });     
+}
+
+
+// TOGGLES
+
 function loadToogles() {
     $.fn.alignCenter = function() {
        var marginLeft =  - $(this).width()/2 + 'px';
@@ -211,210 +357,35 @@ function loadToogles() {
     };
 }
 
-function loadMainMenu() {
-    $menu = $("#main_menu");
-    $('#main_menu div.link').each(function() {
-        $parent = $(this).parent();
-        if($parent.children().length > 1) {
-            $(this).click(function() {  
-                $li = $(this).parent();
-                if($li.hasClass('active')) {
-                    $li.find('ul').removeClass('show');
-                    $li.removeClass('active');
-                } else {
-                    $menu.find('.active').removeClass("active");
-                    $menu.find('.show').removeClass('show');
-                    $li.addClass('active');
-                    $li.find('ul').addClass('show');
-                }
-            });
-        }
+function showPopup(content, params) {
+    var options = {
+        width: 300,
+        height: 300
+    };
+    if(arguments.length > 1) {
+        options = params;
+    }
+    var html = "<div id=\"opaco\" class=\"hidden\"></div>";
+    html += "<div id=\"popup\" class=\"hidden\"></div>";
+    html += "<div id=\"popup_bug\" class=\"hidden\">";
+    html += "<div class=\"bug\">";
+    if( Object.prototype.toString.call(content) === '[object String]' ) {
+        html += (content === "" || content === null) ? "" : content;
+    }
+    html += "</div>";
+    html += "</div>";
+    
+    $div = $('<div/>', {
+        html: html
     });
     
-    $menu.click(function(event){
-        $("#context_menu").remove();
-        event.stopPropagation();
-    });
-}
-
-function loadContent() {
-    loadProjectTree();
-    loadMainMenu();
-    loadToogles();
-}
-
-function openJavaClass($el) {
-    var id = $el.closest('li').attr('id') + "_tab";
-    var name = $el.text();
-    var cl = $el.attr('class');
-    
-    setCurrentFileID(id);
-    getCurrentFileText(id);
-    
-    var li;
-    if(!isOpened(id))
-        li = addTabToPanel(id, name, cl);
-    else {
-        li = document.getElementById(id);
-        li = $("#tabpanel").find(li);
+    $("body").append($div);
+    $("#popup").attr("style", "height: " + options.height + "px !important; width: " + options.width + "px !important");
+    if( Object.prototype.toString.call(content) === '[object Object]' ) {
+        $("#popup_bug .bug").html("");
+        $("#popup_bug .bug").append(content);
     }
-    selectTab(li);
-}
-
-function supportsLocalStorage() {
-    try {
-        return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-        return false;
-    }
-}
-
-function setCurrentFileText(id) {
-    if (!supportsLocalStorage()) { return false; }
-    localStorage["javafiddle.openedtabs." + id] = javaEditor.getValue();
-}
-
-function getCurrentFileText(id) {
-    if (!supportsLocalStorage()) { return false; }
-    var data = localStorage["javafiddle.openedtabs." + id];
-    if (data != null)
-        javaEditor.setValue(data);
-    else
-        getFileRevision(id);
-}
-
-function addTabToPanel(id, name, cl) {
-    addTab(id);
-    var li = $('<li id="'+ id +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
-    $("#tabpanel").append(li);
-    return li;
-}
-
-function getCurrentFileID() {
-    return getCookie("currentFileID");
-}
-
-function setCurrentFileID(id) {
-    var date = new Date(new Date().getTime() + 30*60*1000);
-    setCookie("currentFileID", id, "path=/; expires=" + date.toUTCString());
-}
-
-function loadTabs() {
-    var opened = getCurrentFileID();
-    var data = JSON.parse(getCookie('openedtabs'));
-    if (data === null)
-        return;
-    for(var i = 0; i < data.length; i++) {
-        var file = getFileDataById(data[i]);
-        var cl = file["type"];
-        var name = file["name"];
-        var active = "";
-        if (data[i] == opened)
-            active = " active";
-
-        var li = $('<li id="'+ data[i] +'" class="'+ cl + active +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
-        $("#tabpanel").append(li);
-        
-        if (data[i] == opened)
-            selectTab(li);
-    }
-}
-
-function savingTabs() {
-    var opened = getCurrentFileID();
-    var data = JSON.parse(getCookie('openedtabs'));
-    if (data === null)
-        return;
-    for(var i = 0; i < data.length; i++)
-        postFileReviison(data[i]);
-}
-function getFileDataById(id) {
-    var filedata;
-
-    $.ajax({
-        url: PATH + '/webapi/tree/filedata',
-        type: 'GET',
-        data: {id: id},
-        dataType: "json",
-        async: false,
-        success: function(data) {
-            filedata = data;
-        }
-    }); 
-    
-    return filedata;
-}
-
-function isOpened(id) {
-    var data = JSON.parse(getCookie('openedtabs'));
-    if (data === null)
-        return false;
-    if (data.indexOf(id) >= 0)
-        return true;
-    return false;
-}
-
-function addTab(id) {
-    var data = JSON.parse(getCookie('openedtabs'));
-    if (data === null)
-        data = [];
-    data.push(id);
-    
-    setCookie('openedtabs', JSON.stringify(data));
-}
-
-function removeTab(li) {
-    var id = li.attr("id");
-    var data = JSON.parse(getCookie('openedtabs'));
-    if (data === null)
-        data = [];
-    var index = data.indexOf(id);
-    if (index > -1) {
-        data.splice(index, 1);
-    }
-    if (!supportsLocalStorage()) { return false; }
-    localStorage.removeItem["javafiddle.openedtabs." + id];
-    setCookie('openedtabs', JSON.stringify(data));
-    
-}
-
-function loadTreeOperation() {
-    $("#tree a").each(function() {
-        this.oncontextmenu = function() {return false;};  
-        $(this).mousedown(function(event) {
-            var classname = $(this).attr("class").split(" ")[0];
-            switch(classname) {
-                case "class": 
-                case "interface": 
-                case "exception": 
-                case"annotation": 
-                case "runnable":
-                    switch(event.which) {
-                        case 1:
-                            openJavaClass($(this));
-                            break;
-                        case 3: 
-                            showContextMenu($(this), event, "file");
-                            break;
-                    }
-                    break;
-                case "package":
-                    switch(event.which) {
-                        case 3: 
-                            showContextMenu($(this), event, "package");
-                            break;
-                    }
-                    break;
-                case "root":
-                    switch(event.which) {
-                        case 3: 
-                            showContextMenu($(this), event, "root");
-                            break;
-                    }
-                    break;
-            }
-        });
-    });
+    $('#popup_bug').togglePopup();
 }
 
 function showContextMenu($el, event, classname) {
@@ -435,7 +406,7 @@ function showContextMenu($el, event, classname) {
         case "file":
             $li = $('<li/>', {text: 'Открыть'});
             $li.click(function() {
-                openJavaClass($el);
+                openTabFromTree($el);
                 $ul.remove();
             });
             $li.appendTo($ul);
@@ -504,6 +475,9 @@ function deleteFromProject(id, classname, name) {
     showPopup($div, params);
 }
 
+
+// WINDOWS
+
 function drawDeleteWindow(id, classname, name) {
     var cn = "";
     switch(classname) {
@@ -545,22 +519,6 @@ function drawDeleteWindow(id, classname, name) {
     
     $div.append($buttons);
     return $div;
-}
-
-function removeFromProject(id) {
-    var idString = String(id);
-    $.ajax({
-        url: PATH + '/webapi/tree/remove',
-        type: 'POST',
-        data: idString,
-        contentType: "application/json",
-        success: function() {
-            var removeId = "#" + idString;
-            $(removeId).remove();
-            $("#context_menu").remove();
-            $('#popup_bug').togglePopup(); 
-        }
-    });     
 }
 
 function showAddPackageWindow(project_id) {
@@ -744,21 +702,6 @@ function showTypesList() {
     }
 }
 
-function getProjectName(id) {
-    var name;
-    $.ajax({
-        url: PATH + '/webapi/tree/projectname',
-        type: 'GET',
-        dataType: "json",
-        data: {id: id},
-        async: false,
-        success: function(data) {
-            name = data;
-        }
-    }); 
-    return name;
-}
-
 function checkAddPackageInputName(name, id) {
     var result = false;
     if(name.endsWith(".")) {      
@@ -800,35 +743,6 @@ function checkAddPackageInputName(name, id) {
     return result;
 }
 
-function addFile(id) {
-    $input = $("#addfile input#class");
-    var name = $input.val();
-    var type = $("#addfile #filetype").attr("class");
-
-    if(name.endsWith(".java")) {
-        name = name.substring(0, name.length - 5);
-    }
-    
-    if(isRightClassName(name)) {
-        $.ajax({
-            url: PATH + '/webapi/tree/addFile',
-            type: 'POST',
-            data: {package_id: id, name: name, type: type},
-            contentType: "application/x-www-form-urlencoded",
-            success: function() {
-                $('#popup_bug').togglePopup(); 
-                buildTree();
-            }
-        });   
-    } else {
-        $("#addfile #result-msg").text("Неверное название класса. \n\
-                            Допустимы лишь латинские символы и цифры. \n\
-                            Название класса не должно начинаться с цифры.");
-        $("#addfile #result-msg").css("color", "red");
-        $("#addfile #result-msg").css("font-size", "13px");
-    }
-}
-
 function isRightClassName(name) {
     var result = false;
     
@@ -846,37 +760,14 @@ function isRightClassName(name) {
     return result;
 }
 
-function addPackage(id) {
-    $input = $("#addpackage input");
-    var name = $input.val().toLowerCase();
-    var dotname;
-    
-    if(!name.endsWith(".")) {
-        dotname = name + ".";
-    }
-    
-    if(checkAddPackageInputName(dotname, id)) {
-        $.ajax({
-            url: PATH + '/webapi/tree/addPackage',
-            type: 'POST',
-            data: {project_id: id, name: name},
-            contentType: "application/x-www-form-urlencoded",
-            success: function() {
-                $('#popup_bug').togglePopup(); 
-                buildTree();
-            }
-        });  
-    }
- 
-}
 
-/**
- * File revisions
- */
+// FILE REVISIONS (SERVICES)
 
 function postFileRevision(id) {
-    if(arguments.length == 0)
+    if(arguments.length == 0) {
         id = getCurrentFileID();
+        addCurrentFileText(id);
+    }
     var time = moment().format("DD.MM.YYYY HH:mm:ss");
     var dummy = {
         id: id,
@@ -914,3 +805,60 @@ function getFileRevision(id) {
         }
     });
 }
+
+function savingTabs() {
+    var opened = getCurrentFileID();
+    var data = JSON.parse(getCookie('openedtabs'));
+    if (data === null)
+        return;
+    for(var i = 0; i < data.length; i++)
+        postFileRevision(data[i]);
+}
+
+
+// UTILS
+
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+function supportsLocalStorage() {
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+}
+
+function getFileDataById(id) {
+    var filedata;
+
+    $.ajax({
+        url: PATH + '/webapi/tree/filedata',
+        type: 'GET',
+        data: {id: id},
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            filedata = data;
+        }
+    }); 
+    
+    return filedata;
+}
+
+function getProjectName(id) {
+    var name;
+    $.ajax({
+        url: PATH + '/webapi/tree/projectname',
+        type: 'GET',
+        dataType: "json",
+        data: {id: id},
+        async: false,
+        success: function(data) {
+            name = data;
+        }
+    }); 
+    return name;
+}
+
