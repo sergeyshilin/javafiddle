@@ -77,17 +77,14 @@ function loadMainMenu() {
 
 function loadTabs() {
     var opened = getCurrentFileID();
-    var data = JSON.parse(getCookie('openedtabs'));
+    var data = openedTabs();
     if (data === null)
         return;
     for(var i = 0; i < data.length; i++) {
         var file = getFileDataById(data[i]);
         var cl = file["type"];
         var name = file["name"];
-
-        var li = $('<li id="'+ data[i] +'" class="'+ cl + '" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
-        $("#tabpanel").append(li);
-        
+        var li = addTabToPanel(data[i], name, cl);
         if (data[i] == opened)
             selectTab(li);
     }
@@ -97,9 +94,6 @@ function openTabFromTree($el) {
     var id = $el.closest('li').attr('id') + "_tab";
     var name = $el.text();
     var cl = $el.attr('class');
-    
-    setCurrentFileID(id);
-    getCurrentFileText(id);
     
     var li;
     if(!isOpened(id))
@@ -122,6 +116,9 @@ function addTabToPanel(id, name, cl) {
 function selectTab(li) {
     var id = li.attr("id");
     
+    if (openedTabs().indexOf(id) == -1)
+        return false;
+    
     $tabs = $("#tabpanel");
     
     if (id !== getCurrentFileID()) {
@@ -129,6 +126,7 @@ function selectTab(li) {
         setCurrentFileID(id);
     }
     
+    javaEditor.clearHistory();
     $tabs.find(".active").removeClass("active");
     li.addClass("active");
     getCurrentFileText(id);
@@ -136,15 +134,20 @@ function selectTab(li) {
 
 function closeTab(parent) {
     var id = parent.attr("id");
-    closeOpenedTab(id);
+    clearOpenedTab(id);
     removeCurrentFileText(id);
     parent.remove();
     setCurrentFileID("");
-    selectTab(getLastOpenedTab());
+    
+    id = getLastOpenedTab();
+    var li = document.getElementById(id);
+    li = $("#tabpanel").find(li);
+    selectTab(li);
 }
 
 
 // TREE
+
 function buildTree() {
     $("#tree").empty();
     $.ajax({
@@ -822,14 +825,6 @@ String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
-function supportsLocalStorage() {
-    try {
-        return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-        return false;
-    }
-}
-
 function getFileDataById(id) {
     var filedata;
 
@@ -861,4 +856,3 @@ function getProjectName(id) {
     }); 
     return name;
 }
-
