@@ -125,11 +125,11 @@ function selectTab(li) {
     $tabs = $("#tabpanel");
     
     if (id !== getCurrentFileID()) {
-        $tabs.find(".active").removeClass("active");
         addCurrentFileText(getCurrentFileID());
         setCurrentFileID(id);
     }
-
+    
+    $tabs.find(".active").removeClass("active");
     li.addClass("active");
     getCurrentFileText(id);
 }
