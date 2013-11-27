@@ -22,6 +22,10 @@ function isCurrent(id) {
 
 // OPENED TABS
 
+function openedTabs() {
+   return getListFromStorage('openedtabs'); 
+}
+
 function isOpened(id) {
     return isExist('openedtabs', id);
 }

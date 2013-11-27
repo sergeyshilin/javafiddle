@@ -15,7 +15,6 @@ $(document).ready(function(){
    $("body").click(function() {
        closeAllPopUps();
    });
-   setContentHeight();
 });
 
 $(window).resize(function() {
@@ -32,19 +31,27 @@ window.onbeforeunload = function() {
 function setContentHeight() {
     var MINSCREENWIDTH = 600;
     var $header = $('#header');
+    var $content = $("#content");
     var $tree = $("#treepanel");
     var $code = $("#codetext");
+    var $codearea = $("#textarea");
     var $tabpanel = $("#tabpanel");
-    var height = $(window).height() - $header.height() - 32;
+    var height = $(window).height() - $header.height();
+    var width = $(window).width();
     
-    $tree.height(height);
-    $code.height(height);
+    $content.height(height);
+    $content.width(width); 
+    
+    $tree.height(height - 30);
+    
+    $code.height(height - 30);
+    $code.width(width - $tree.width() - 50);
+    
+    $codearea.height($code.height() - 20);
+    $codearea.width($code.width() - 20);
+    $codearea.css("margin", "10px 0 0 10px");
     
     javaEditor.setSize(null, $code.height());
-    
-    /**
-     * set position of tabpanel
-     */
     var sizer = parseInt($(".CodeMirror-sizer").css("margin-left"));
     var margin = ($(window).width()) < MINSCREENWIDTH ? 340 : (33 + $tree.width() + sizer);
     $tabpanel.css("margin-left", (margin - 340) + "px");
@@ -124,17 +131,18 @@ function addTabToPanel(id, name, cl) {
 function selectTab(li) {
     var id = li.attr("id");
     
-    if (isCurrent(id)) {
-        if ($("#tabpanel").find(".active") === li)
+    if (openedTabs().indexOf(id) === -1)
+        return false;
+    
+    if (isCurrent(id) && $("#tabpanel").find(".active") === li)
             return false;
-        else
-            setCurrentFileID('');
-    }
+
         
+    if (openedTabs().indexOf($("#tabpanel").find(".active").attr("id")) > -1)
+        addCurrentFileText();
     
     $("#tabpanel").find(".active").removeClass("active");
     li.addClass("active");
-    addCurrentFileText();
     setCurrentFileID(id);
     getCurrentFileText();
 }
@@ -198,7 +206,7 @@ function loadTreeOperation() {
                 case "class": 
                 case "interface": 
                 case "exception": 
-                case"annotation": 
+                case "annotation": 
                 case "runnable":
                     switch(event.which) {
                         case 1:

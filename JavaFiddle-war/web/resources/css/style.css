@@ -351,35 +351,40 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 * Content
 */
 
-#content {
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
+#content {    
     background-color: #eee;
-    padding: 0;
-    margin: 0;
+    height: 30px;
 }
 
-#content #treepanel {
-    -webkit-box-flex: 1;
-    -moz-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    -ms-flex: 1 1 auto;
-    flex: 1;
-    overflow: auto;
+
+#content #treepanel { 
+    float: left;
+    width: 20%;
     margin: 15px 0 15px 15px;
+    resize: none;
+    overflow: auto;
 }
 
-#content #codetext {
-    -webkit-box-flex: 1;
-    -moz-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    -ms-flex: 1 1 auto;
-    flex: 4;
-    height: 100%;
+#content #codetext {  
+    float: right;
+    resize: none;
     margin: 15px 15px 15px 15px;
+}
+
+#codetext #textarea {
+    border: none;
+    resize: none;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+}
+
+#codetext #textarea {
+    border: none;
+    resize: none;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
 }
 
 #content .mainblock, #tabpanel li {
@@ -725,10 +730,3 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 #context_menu li:hover, #typelist li:hover {
     background-color: #eaeaea; 
 }
-
-
-/**
-* Tooltip
-*/
-
-

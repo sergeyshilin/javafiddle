@@ -297,10 +297,8 @@ public class TreeService implements Serializable {
         AddFileRevisionRequest d = new Gson().fromJson(data, AddFileRevisionRequest.class);
         Revisions revisions = new Revisions(idList, files);
         switch (revisions.addFileRevision(d)) {
-            case 0: return Response.ok().build();
             case 400: return Response.status(400).build();
-            case 304: return Response.status(304).build();
-            default: return Response.status(500).build();
+            default: return Response.ok().build();
         }
     }
     
