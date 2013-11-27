@@ -2,8 +2,10 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.javafiddle.revisions.Revisions;
 import com.javafiddle.web.services.utils.AddFileRevisionRequest;
 import com.javafiddle.web.services.utils.FileRevision;
+import com.javafiddle.web.services.utils.SaveAllFilesRequest;
 import com.javafiddle.web.services.utils.TreeUtils;
 import com.javafiddle.web.tree.*;
 import java.io.Serializable;
@@ -12,6 +14,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TreeMap;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
@@ -265,38 +268,40 @@ public class TreeService implements Serializable {
     // ex DocumentRevisionsSrevice
     //
     @POST
+    @Path("revisions/saveAllFiles")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response saveAllFiles(
+            @Context HttpServletRequest request,
+            String data
+            ) {
+        if (data == null)
+            return Response.status(400).build();
+        SaveAllFilesRequest d = new Gson().fromJson(data, SaveAllFilesRequest.class);
+        Revisions revisions = new Revisions(idList, files);
+        switch (revisions.saveAllFiles(d.getFiles())) {
+            case 0: return Response.ok().build();
+            case 400: return Response.status(400).build();
+            default: return Response.status(500).build();
+        }
+    }
+        
+    @POST
     @Path("revisions")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addFileRevision(
+    public Response saveFile(
             @Context HttpServletRequest request,
             String data
             ) {
         if (data == null)
             return Response.status(400).build();
         AddFileRevisionRequest d = new Gson().fromJson(data, AddFileRevisionRequest.class);
-        if (d.getId() == null || d.getTimeStamp() == null || d.getValue() == null)
-            return Response.status(400).build();
-        int id = TreeUtils.parseId(d.getId());
-        if (!idList.isFile(id))
-            return Response.status(400).build();
-        
-        if (!files.containsKey(id))
-            files.put(id, new TreeMap<Date, String>());
-        else {
-            Date old = idList.getFile(id).getTimeStamp();
-            String oldText = files.get(id).get(old);
-            if (oldText.hashCode() == d.getValue().hashCode())
-                return Response.status(304).build();
+        Revisions revisions = new Revisions(idList, files);
+        switch (revisions.addFileRevision(d)) {
+            case 0: return Response.ok().build();
+            case 400: return Response.status(400).build();
+            case 304: return Response.status(304).build();
+            default: return Response.status(500).build();
         }
-        try {
-            DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-            Date result = df.parse(d.getTimeStamp());
-            files.get(id).put(result, d.getValue());
-            idList.getFile(id).setTimeStamp(result);
-        } catch (ParseException ex) {
-            return Response.status(400).build();
-        }
-        return Response.ok().build();
     }
     
     @GET

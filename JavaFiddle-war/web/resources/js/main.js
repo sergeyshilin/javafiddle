@@ -15,11 +15,19 @@ $(document).ready(function(){
    $("body").click(function() {
        closeAllPopUps();
    });
+   setContentHeight();
 });
 
 $(window).resize(function() {
     setContentHeight();
 });
+
+window.onbeforeunload = function() {
+    if (isEmpty('modified'))
+        return;
+    addCurrentFileText();
+    return "ВНИМАНИЕ! В проекте есть несохраненные файлы. Когда сессия истечет, все несохраненные изменения будут потеряны!";
+};
 
 function setContentHeight() {
     var MINSCREENWIDTH = 600;
@@ -32,7 +40,7 @@ function setContentHeight() {
     $tree.height(height);
     $code.height(height);
     
-    javaEditor.setSize($code.width(), $code.height());
+    javaEditor.setSize(null, $code.height());
     
     /**
      * set position of tabpanel
@@ -77,7 +85,7 @@ function loadMainMenu() {
 
 function loadTabs() {
     var opened = getCurrentFileID();
-    var data = openedTabs();
+    var data = getListFromStorage('openedtabs');
     if (data === null)
         return;
     for(var i = 0; i < data.length; i++) {
@@ -116,26 +124,24 @@ function addTabToPanel(id, name, cl) {
 function selectTab(li) {
     var id = li.attr("id");
     
-    if (openedTabs().indexOf(id) == -1)
-        return false;
-    
-    $tabs = $("#tabpanel");
-    
-    if (id !== getCurrentFileID()) {
-        addCurrentFileText(getCurrentFileID());
-        setCurrentFileID(id);
+    if (isCurrent(id)) {
+        if ($("#tabpanel").find(".active") === li)
+            return false;
+        else
+            setCurrentFileID('');
     }
+        
     
-    javaEditor.clearHistory();
-    $tabs.find(".active").removeClass("active");
+    $("#tabpanel").find(".active").removeClass("active");
     li.addClass("active");
-    getCurrentFileText(id);
+    addCurrentFileText();
+    setCurrentFileID(id);
+    getCurrentFileText();
 }
 
 function closeTab(parent) {
     var id = parent.attr("id");
-    clearOpenedTab(id);
-    removeCurrentFileText(id);
+    closeTabInStorage(id);
     parent.remove();
     setCurrentFileID("");
     
@@ -766,14 +772,12 @@ function isRightClassName(name) {
 
 // FILE REVISIONS (SERVICES)
 
-function postFileRevision(id) {
-    if(arguments.length == 0) {
-        id = getCurrentFileID();
-        addCurrentFileText(id);
-    }
+function saveFile() {
+    addCurrentFileText();
+    
     var time = moment().format("DD.MM.YYYY HH:mm:ss");
     var dummy = {
-        id: id,
+        id: getCurrentFileID(),
         timeStamp: time,
         value: javaEditor.getValue()
     };
@@ -784,12 +788,39 @@ function postFileRevision(id) {
         contentType: "application/json",
         success: function() {
             document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
+            unModifiedTab();
+        }
+    });
+}
+
+function saveAllFiles() {
+    addCurrentFileText();
+    
+    var request = {files : []};
+    modifiedList().forEach(function(entry) {
+        var time = moment().format("DD.MM.YYYY HH:mm:ss");
+        var dummy = {
+            id: entry,
+            timeStamp: time,
+            value: getOpenedFileText(entry)
+        };
+        request.files.push(dummy);
+    });
+
+    $.ajax({
+        url: PATH + '/webapi/revisions',
+        type:'POST', 
+        data: JSON.stringify(request),
+        contentType: "application/json",
+        success: function() {
+            document.getElementById("latest_update").innerHTML = "Саксес хуле";
+            unModifiedTabs();
         }
     });
 }
 
 function getFileRevision(id) {
-    if(arguments.length == 0)
+    if(arguments.length === 0)
         id = getCurrentFileID();
     $.ajax({
         url: PATH + '/webapi/revisions',
@@ -807,15 +838,6 @@ function getFileRevision(id) {
             }
         }
     });
-}
-
-function savingTabs() {
-    var opened = getCurrentFileID();
-    var data = JSON.parse(getCookie('openedtabs'));
-    if (data === null)
-        return;
-    for(var i = 0; i < data.length; i++)
-        postFileRevision(data[i]);
 }
 
 

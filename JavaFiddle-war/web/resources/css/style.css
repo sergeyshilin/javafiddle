@@ -342,6 +342,7 @@ ul#tabpanel li div.close {
 }
 
 ul#tabpanel li.active{background-color: #fff !important}
+ul#tabpanel li.modified{font-weight: bold !important}
 ul#tabpanel li.class{background-image: url('images/idea-class.png')}
 ul#tabpanel li.interface{background-image: url('images/idea-class-interface.png')}
 ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
@@ -351,7 +352,10 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 */
 
 #content {
+    display: -webkit-box;
+    display: -moz-box;
     display: -ms-flexbox;
+    display: -webkit-flex;
     display: flex;
     background-color: #eee;
     padding: 0;
@@ -359,12 +363,20 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 }
 
 #content #treepanel {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
     flex: 1;
     overflow: auto;
     margin: 15px 0 15px 15px;
 }
 
 #content #codetext {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
     flex: 4;
     height: 100%;
     margin: 15px 15px 15px 15px;

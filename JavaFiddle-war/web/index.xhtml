@@ -54,7 +54,8 @@
                         <li>
                             <div class="link">Проект</div>
                             <ul>
-                                <li>Сохранить</li>
+                                <li onclick="saveFile();">Сохранить</li>
+                                <li onclick="saveAllFiles();">Сохранить все</li>
                                 <li>Переименовать</li>
                                 <li>Настройки</li>
                                 <li>Удалить</li>
@@ -62,21 +63,21 @@
                         </li>
                         <li><div class="link">Правка</div>
                             <ul>
-                                <li><a href="#" onclick="javaEditor.execCommand('undo');">Отменить</a></li>
-                                <li><a href="#" onclick="javaEditor.execCommand('redo');">Повторить</a></li>
+                                <li onclick="javaEditor.execCommand('undo');">Отменить</li>
+                                <li onclick="javaEditor.execCommand('redo');">Повторить</li>
                                 <div class="hr"></div>
                                 <li>Вырезать</li>
                                 <li>Копировать</li>
                                 <li>Вставить</li>
                                 <li>Удалить</li>
-                                <li><a href="#" onclick="javaEditor.execCommand('selectAll');">Выделить всё</a></li>
+                                <li onclick="javaEditor.execCommand('selectAll');">Выделить всё</li>
                                 <div class="hr"></div>
-                                <li><a href="#" onclick="javaEditor.execCommand('findPrev');">Найти ранее</a></li>
-                                <li><a href="#" onclick="javaEditor.execCommand('findNext');">Найти далее</a></li>
+                                <li onclick="javaEditor.execCommand('findPrev');">Найти ранее</li>
+                                <li onclick="javaEditor.execCommand('findNext');">Найти далее</li>
                                 <div class="hr"></div>
-                                <li><a href="#" onclick="javaEditor.execCommand('find');">Найти</a></li>
-                                <li><a href="#" onclick="javaEditor.execCommand('replace');">Заменить</a></li>
-                                <li><a href="#" onclick="javaEditor.execCommand('replaceAll');">Заменить всё</a></li>
+                                <li onclick="javaEditor.execCommand('find');">Найти</li>
+                                <li onclick="javaEditor.execCommand('replace');">Заменить</li>
+                                <li onclick="javaEditor.execCommand('replaceAll');">Заменить всё</li>
                             </ul>
                         </li>
                         <li><div class="link">Вид</div>
@@ -152,25 +153,32 @@
                     };
                     javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
                         lineNumbers: true,
-                        lineWrapping: false,
                         styleActiveLine: true,
                         theme: "idea",
                         indentWithTabs: true,
                         styleSelectedText: true,
-                        tabSize: 4,
                         indentUnit: 4,
+                        smartIndent: false,
                         mode: "text/x-java",
                         matchBrackets: true,
                         autoCloseBrackets: true,
                         extraKeys: {
                             "Ctrl-Q": function(cm){cm.foldCode(cm.getCursor());},
-                            "Ctrl-S": function(){postFileRevision();},
-                            "Ctrl-Space": "autocomplete"
+                            "Ctrl-S": function(){saveFile();},
+                            "Shift-Ctrl-S": function(){saveAllFiles();},
+                            "Ctrl-Space": "autocomplete",
+                            Tab: function(cm) {
+                                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                                cm.replaceSelection(spaces, "end", "+input");
+                            }
                         },
                         foldGutter: {
                             rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
                         },    
                         gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+                    });
+                    javaEditor.on("change", function() {
+                        pushModifiedTab();
                     });
                 //]]>
                 </script>

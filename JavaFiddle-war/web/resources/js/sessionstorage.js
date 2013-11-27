@@ -1,94 +1,127 @@
+// CURRENT FILE
+
+function setCurrentFileID(id) {
+    if (!supportsSessionStorage() || id === null || id === '') 
+        return false;
+    sessionStorage.setItem("currentFileID", id);
+    sessionStorage.setItem("currentFileIDChanged", "true");
+}
+
 function getCurrentFileID() {
-    if (!supportsSessionStorage()) { return false; }
+    if (!supportsSessionStorage())
+        return false;
     return sessionStorage.getItem("currentFileID");
 }
 
-function setCurrentFileID(id) {
-    if (!supportsSessionStorage()) { return false; }
-    sessionStorage.setItem("currentFileID", id);
-}
-
-function pushOpenedTab(id) {
-    if (!supportsSessionStorage()) { return false; }
-    var data = JSON.parse(sessionStorage.getItem('openedtabs'));
-    if (data === null)
-        data = [];
-    if (data.indexOf(id) == -1)
-        data.push(id);
-    
-    sessionStorage.setItem('openedtabs', JSON.stringify(data));
-}
-
-function getFirstOpenedTab() {
-    if (!supportsSessionStorage()) { return false; }
-    var data = JSON.parse(sessionStorage.getItem('openedtabs'));
-    if (data === null)
-        data = [""];
-    
-    return data[0];
-}
-
-function getLastOpenedTab() {
-    if (!supportsSessionStorage()) { return false; }
-    var data = JSON.parse(sessionStorage.getItem('openedtabs'));
-    if (data === null)
-        data = [""];
-    
-    return data[data.length-1];
-}
-
-function clearOpenedTab(id) {
-    if (!supportsSessionStorage()) { return false; }
-    var data = JSON.parse(sessionStorage.getItem('openedtabs'));
-    if (data === null)
-        return;
-    var index = data.indexOf(id);
-    if (index > -1) {
-        data.splice(index, 1);
-    }
-    
-    sessionStorage.setItem('openedtabs', JSON.stringify(data));
-}
-
-function openedTabs() {
-    if (!supportsSessionStorage()) { return false; }
-    return JSON.parse(sessionStorage.getItem('openedtabs'));    
-}
-
-function isOpened(id) {
-    if (!supportsSessionStorage()) { return false; }
-    var data = JSON.parse(sessionStorage.getItem('openedtabs'));
-    if (data === null)
-        return false;
-    if (data.indexOf(id) >= 0)
+function isCurrent(id) {
+    if (getCurrentFileID() === id)
         return true;
     return false;
 }
 
-function getCurrentFileText(id) {
-    if (!supportsSessionStorage()) { return false; }
-    var data = sessionStorage.getItem("javafiddle.openedtabs." + id);
-    var history = JSON.parse(sessionStorage.getItem("javafiddle.openedtabs." + id + "_history"));
-    if (data != null) {
-        javaEditor.setValue(data);
-        javaEditor.setHistory(history);
-    } else {
+
+// OPENED TABS
+
+function isOpened(id) {
+    return isExist('openedtabs', id);
+}
+
+function pushOpenedTab(id) {
+    return pushToList('openedtabs', id);
+}
+
+function getFirstOpenedTab() {
+    return getListFromStorage('openedtabs')[0];
+}
+
+function getLastOpenedTab() {
+    var data = getListFromStorage('openedtabs');
+    return data[data.length-1];
+}
+
+
+// CURRENT TEXT OF FILE BY ID
+
+function addCurrentFileText() {
+    if (!supportsSessionStorage())
+        return false;
+    var id = sessionStorage.getItem("currentFileID");
+    if (id === null || id === '')
+        return false;
+    sessionStorage.setItem("openedtabs." + id, javaEditor.getValue());
+    sessionStorage.setItem("openedtabs." + id + "_history", JSON.stringify(javaEditor.getHistory()));
+}
+
+function getCurrentFileText() {
+    if (!supportsSessionStorage())
+        return false;
+    var id = sessionStorage.getItem("currentFileID");
+    var text = sessionStorage.getItem("openedtabs." + id);
+    var history = JSON.parse(sessionStorage.getItem("openedtabs." + id + "_history"));
+    if (text !== null)
+        javaEditor.setValue(text);
+    else
         getFileRevision(id);
+    if (history !== null)
+        javaEditor.setHistory(history);
+    else
         javaEditor.clearHistory();
+}
+
+function getOpenedFileText(id) {
+    if (!supportsSessionStorage())
+        return false;
+    var text = sessionStorage.getItem("openedtabs." + id);
+    if (text !== null)
+        return text;
+    else
+        return false;
+}
+
+// MODIFIED
+
+function modifiedList() {
+    return getListFromStorage('modified');
+}
+
+function isModified(id) {
+    return isExist('modified', id);
+}
+
+function pushModifiedTab() {
+    if (!supportsSessionStorage())
+        return false;
+    if (sessionStorage.getItem("currentFileIDChanged") === "true")
+        sessionStorage.setItem("currentFileIDChanged", "false");
+    else {
+        pushToList('modified', getCurrentFileID());
+         $("#tabpanel").find(".active").addClass("modified");
     }
 }
 
-function addCurrentFileText(id) {
-    if (!supportsSessionStorage() || id == "" || id == null) { return false; }
-    sessionStorage.setItem("javafiddle.openedtabs." + id, javaEditor.getValue());
-    sessionStorage.setItem("javafiddle.openedtabs." + id + "_history", JSON.stringify(javaEditor.getHistory()));
+function unModifiedTab() {
+    removeTabFromList('modified', getCurrentFileID());
+    $("#tabpanel").find(".active").removeClass("modified");
 }
 
-function removeCurrentFileText(id) {
-    if (!supportsSessionStorage()) { return false; }
-    sessionStorage.removeItem("javafiddle.openedtabs." + id);
-    sessionStorage.removeItem("javafiddle.openedtabs." + id + "_history");
+function unModifiedTabs() {
+    if (!supportsSessionStorage())
+        return false;
+    sessionStorage.removeItem("modified");
 }
+
+
+// CLOSE TAB
+
+function closeTabInStorage(id) {
+    if (!supportsSessionStorage())
+        return false;
+    removeTabFromList("openedtabs", id);
+    sessionStorage.removeItem("openedtabs." + id);
+    sessionStorage.removeItem("openedtabs." + id + "_history");
+    removeTabFromList("modified", id); 
+}
+
 
 // UTILS
 
@@ -97,5 +130,45 @@ function supportsSessionStorage() {
         return 'sessionStorage' in window && window['sessionStorage'] !== null;
     } catch (e) {
         return false;
+    }
+}
+
+function getListFromStorage(key) {
+    if (!supportsSessionStorage())
+        return false;
+    var data = JSON.parse(sessionStorage.getItem(key));    
+    if (data === null) 
+        data = [];
+    return data;
+}
+
+function isExist(key, id) {
+    if (getListFromStorage(key).indexOf(id) > -1)
+        return true;
+    return false;
+} 
+
+function isEmpty(key) {
+    if (getListFromStorage(key).length === 0)
+        return true;
+    return false;
+}
+
+function pushToList(key, id) {
+    if (key === null || id === null)
+        return false;
+    var data = getListFromStorage(key);
+    if (data.indexOf(id) === -1) {
+        data.push(id);
+        sessionStorage.setItem(key, JSON.stringify(data));
+    }
+}
+
+function removeTabFromList(key, id) {
+    var data = getListFromStorage(key, id);
+    var index = data.indexOf(id);
+    if (index > -1) {
+        data.splice(index, 1);
+        sessionStorage.setItem(key, JSON.stringify(data));
     }
 }
