@@ -8,7 +8,6 @@ $(document).ready(function(){
    loadMainMenu();
    loadLiHarmonica();
    buildTree();
-   loadTreeOperation();
    loadTabs();
    loadToogles();
    $("body").click(function() {
@@ -207,8 +206,9 @@ function buildTree() {
             openedNodesList().forEach(function(entry) {
                 var $entry = $("#" + entry).children('a');
                 $entry.addClass('harOpen');
-                $entry.closest('li').addClass('open');
+                $entry.next('ul').stop(true).slideToggle(100);
             });
+            loadTreeOperation();
         }
     });
 }
