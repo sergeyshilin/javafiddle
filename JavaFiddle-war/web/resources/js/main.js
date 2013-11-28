@@ -1,7 +1,7 @@
 var PATH = "";
 var javaEditor;
 
-// LOADING PAGE
+// EVENTS
 
 $(document).ready(function(){
    setContentHeight();
@@ -11,7 +11,6 @@ $(document).ready(function(){
    loadTreeOperation();
    loadTabs();
    loadToogles();
-   moment.lang('ru');
    $("body").click(function() {
        closeAllPopUps();
    });
@@ -92,17 +91,16 @@ function loadMainMenu() {
 
 function loadTabs() {
     var opened = getCurrentFileID();
-    var data = getListFromStorage('openedtabs');
-    if (data === null)
-        return;
-    for(var i = 0; i < data.length; i++) {
-        var file = getFileDataById(data[i]);
+    openedTabs().forEach(function(entry) {
+        var file = getFileDataById(entry);
         var cl = file["type"];
         var name = file["name"];
-        var li = addTabToPanel(data[i], name, cl);
-        if (data[i] == opened)
+        var li = addTabToPanel(entry, name, cl);
+        if (entry == opened)
             selectTab(li);
-    }
+        if (isModified(entry))
+            $("#" + entry).addClass("modified");
+    });
 }
 
 function openTabFromTree($el) {
@@ -135,9 +133,8 @@ function selectTab(li) {
         return false;
     
     if (isCurrent(id) && $("#tabpanel").find(".active") === li)
-            return false;
+        return false;
 
-        
     if (openedTabs().indexOf($("#tabpanel").find(".active").attr("id")) > -1)
         addCurrentFileText();
     
@@ -145,6 +142,9 @@ function selectTab(li) {
     li.addClass("active");
     setCurrentFileID(id);
     getCurrentFileText();
+    changeLastUpdateLabel();
+    javaEditor.focus();
+
 }
 
 function closeTab(parent) {
@@ -157,6 +157,17 @@ function closeTab(parent) {
     var li = document.getElementById(id);
     li = $("#tabpanel").find(li);
     selectTab(li);
+}
+
+function changeLastUpdateLabel() {
+    var time = getCurrentFileTimeStamp();
+    if (time == "")
+        document.getElementById("latest_update").innerHTML = "Последнее изменение: еще не сохранялось";    
+    else {
+        moment.lang('ru');
+        var earlier = moment(time, "DD.MM.YYYY HH:mm:ss");
+        document.getElementById("latest_update").innerHTML = "Последнее изменение: " + earlier.from(moment());
+    }
 }
 
 
@@ -193,6 +204,11 @@ function buildTree() {
                     speed: 100
                 });
             });
+            openedNodesList().forEach(function(entry) {
+                var $entry = $("#" + entry).children('a');
+                $entry.addClass('harOpen');
+                $entry.closest('li').addClass('open');
+            });
         }
     });
 }
@@ -220,6 +236,9 @@ function loadTreeOperation() {
                     break;
                 case "package":
                     switch(event.which) {
+                        case 1:
+                            changeNodeState($(this));
+                            break;                        
                         case 3: 
                             showContextMenu($(this), event, "package");
                             break;
@@ -227,6 +246,9 @@ function loadTreeOperation() {
                     break;
                 case "root":
                     switch(event.which) {
+                        case 1:
+                            changeNodeState($(this));
+                            break;
                         case 3: 
                             showContextMenu($(this), event, "root");
                             break;
@@ -346,6 +368,7 @@ function removeFromProject(id) {
             $(removeId).remove();
             $("#context_menu").remove();
             $('#popup_bug').togglePopup(); 
+            closeTab($(removeId + "_tab"));
         }
     });     
 }
@@ -816,6 +839,7 @@ function saveFile() {
         success: function() {
             document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
             unModifiedTab();
+            addCurrentFileTimeStamp(time);
         }
     });
 }
@@ -857,12 +881,8 @@ function getFileRevision(id) {
         contentType: "application/json",
         success: function(data) {
             javaEditor.setValue(data.value);
-            if (data.timeStamp == "")
-                document.getElementById("latest_update").innerHTML = "Последнее изменение: еще не сохранялось";    
-            else {
-                var earlier = moment(data.timeStamp, "DD.MM.YYYY HH:mm:ss");
-                document.getElementById("latest_update").innerHTML = "Последнее изменение: " + earlier.from(moment());
-            }
+            javaEditor.clearHistory();
+            addCurrentFileTimeStamp(data.timeStamp);
         }
     });
 }

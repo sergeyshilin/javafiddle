@@ -61,15 +61,16 @@ function getCurrentFileText() {
         return false;
     var id = sessionStorage.getItem("currentFileID");
     var text = sessionStorage.getItem("openedtabs." + id);
-    var history = JSON.parse(sessionStorage.getItem("openedtabs." + id + "_history"));
-    if (text !== null)
+    if (text !== null) {
         javaEditor.setValue(text);
-    else
+        var history = JSON.parse(sessionStorage.getItem("openedtabs." + id + "_history"));
+        if (history !== null) {
+            javaEditor.setHistory(history);
+        } else {
+            javaEditor.clearHistory();
+        }
+    } else
         getFileRevision(id);
-    if (history !== null)
-        javaEditor.setHistory(history);
-    else
-        javaEditor.clearHistory();
 }
 
 function getOpenedFileText(id) {
@@ -115,15 +116,62 @@ function unModifiedTabs() {
 }
 
 
+// TIMESTAMP
+
+function addCurrentFileTimeStamp(timestamp) {
+    if (!supportsSessionStorage())
+        return false;
+    var id = sessionStorage.getItem("currentFileID");
+    if (id === null || id === '')
+        return false;
+    sessionStorage.setItem("timestamp." + id, timestamp);
+}
+
+function getCurrentFileTimeStamp() {
+    if (!supportsSessionStorage())
+        return false;
+    var id = sessionStorage.getItem("currentFileID");
+    var text = sessionStorage.getItem("timestamp." + id);
+    if (text !== null)
+        return text;
+    else
+        return "";
+}
+
+
 // CLOSE TAB
 
 function closeTabInStorage(id) {
     if (!supportsSessionStorage())
         return false;
     removeTabFromList("openedtabs", id);
+    sessionStorage.removeItem("timestamp." + id);
     sessionStorage.removeItem("openedtabs." + id);
     sessionStorage.removeItem("openedtabs." + id + "_history");
     removeTabFromList("modified", id); 
+}
+
+
+// TREE
+
+function openedNodesList() {
+     return getListFromStorage('openednodes');
+}  
+
+function changeNodeState($el) {
+    var id = $el.parent().attr("id");
+    var classList = $el[0].className.split(/\s+/);
+    var removed = false;
+    if (classList !== null) {
+        classList.forEach(function(entry) {
+            if (entry == "harOpen") {
+                removeTabFromList("openednodes", id);
+                removed = true;
+            }
+        });
+    }
+    if (removed === false)
+        pushToList("openednodes", id);
 }
 
 
@@ -159,6 +207,8 @@ function isEmpty(key) {
 }
 
 function pushToList(key, id) {
+    if (!supportsSessionStorage())
+        return false;
     if (key === null || id === null)
         return false;
     var data = getListFromStorage(key);
@@ -169,6 +219,8 @@ function pushToList(key, id) {
 }
 
 function removeTabFromList(key, id) {
+    if (!supportsSessionStorage())
+        return false;
     var data = getListFromStorage(key, id);
     var index = data.indexOf(id);
     if (index > -1) {
