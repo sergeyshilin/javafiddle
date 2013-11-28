@@ -208,6 +208,7 @@ function loadTreeOperation() {
                 case "exception": 
                 case "annotation": 
                 case "runnable":
+                case "enum":
                     switch(event.which) {
                         case 1:
                             openTabFromTree($(this));
@@ -317,8 +318,10 @@ function addFile(id) {
             type: 'POST',
             data: {package_id: id, name: name, type: type},
             contentType: "application/x-www-form-urlencoded",
-            success: function() {
+            success: function(data) {
                 $('#popup_bug').togglePopup(); 
+                var li = addTabToPanel("node_"+data, name, type);
+                selectTab(li);
                 buildTree();
             }
         });   
@@ -345,6 +348,21 @@ function removeFromProject(id) {
             $('#popup_bug').togglePopup(); 
         }
     });     
+}
+
+function closeProjectTreePanel($li) {
+    if($li.hasClass('closed')) {
+        $("#treepanel").css("display", "block");
+        setContentHeight();
+        $li.removeClass('closed');
+        $li.text("Скрыть дерево проекта");
+    } else {
+        $li.addClass('closed');
+        $("#treepanel").css("display", "none");
+        $("#codetext").width($(window).width() - 30);
+        $li.text("Отобразить дерево проекта");
+    }
+    
 }
 
 
@@ -635,6 +653,7 @@ function drawAddFileWindow(id) {
     $typelist.append("<li class='class' onclick=\"setFileType('class')\">Class</li>");
     $typelist.append("<li class='interface' onclick=\"setFileType('interface')\">Interface</li>");
     $typelist.append("<li class='runnable' onclick=\"setFileType('runnable')\">Runnable class</li>");
+    $typelist.append("<li class='enum' onclick=\"setFileType('enum')\">Enumeration</li>");
     $typelist.append("<li class='annotation' onclick=\"setFileType('annotation')\">Annotation</li>");
     $typelist.append("<li class='exception' onclick=\"setFileType('exception')\">Exception</li>");
     

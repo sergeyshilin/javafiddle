@@ -104,7 +104,6 @@ html, body {
     padding: 0 5px;
     float: left;
     position: relative;
-    z-index: 10;
 }
 
 #main_menu li {
@@ -346,6 +345,9 @@ ul#tabpanel li.modified{font-weight: bold !important}
 ul#tabpanel li.class{background-image: url('images/idea-class.png')}
 ul#tabpanel li.interface{background-image: url('images/idea-class-interface.png')}
 ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
+ul#tabpanel li.exception{background-image: url('images/idea-class-exception.png')}
+ul#tabpanel li.enum{background-image: url('images/idea-class-enum.png')}
+ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.png')}
 
 /**
 * Content
@@ -447,6 +449,7 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 .project a.class {background-image: url('images/idea-class.png')}
 .project a.interface {background-image: url('images/idea-class-interface.png')}
 .project a.exception {background-image: url('images/idea-class-exception.png')}
+.project a.enum {background-image: url('images/idea-class-enum.png')}
 .project a.annotation {background-image: url('images/idea-class-annotation.png')}
 
 .project a:before {
@@ -680,12 +683,14 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 #addfile #filetype.runnable {background: url('images/idea-class-runnable.png') no-repeat 50% 50%}
 #addfile #filetype.annotation {background: url('images/idea-class-annotation.png') no-repeat 50% 50%}
 #addfile #filetype.exception {background: url('images/idea-class-exception.png') no-repeat 50% 50%}
+#addfile #filetype.enum {background: url('images/idea-class-enum.png') no-repeat 50% 50%}
 
 #addfile #typelist li.class {background: url('images/idea-class.png') no-repeat 5% 50%}
 #addfile #typelist li.interface {background: url('images/idea-class-interface.png') no-repeat 5% 50%}
 #addfile #typelist li.runnable {background: url('images/idea-class-runnable.png') no-repeat 5% 50%}
 #addfile #typelist li.annotation {background: url('images/idea-class-annotation.png') no-repeat 5% 50%}
 #addfile #typelist li.exception {background: url('images/idea-class-exception.png') no-repeat 5% 50%}
+#addfile #typelist li.enum {background: url('images/idea-class-enum.png') no-repeat 5% 50%}
 
 /**
 * Context menu

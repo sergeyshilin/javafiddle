@@ -28,10 +28,12 @@
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/selection/mark-selection.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/show-hint.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/anyword-hint.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/display/fullscreen.js"></script>
          
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/fold/fold.css"></link>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/dialog/dialog.css"></link>
         <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/hint/show-hint.css"></link>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/display/fullscreen.css"></link>
         <!-- End of editor scripts -->
         <style media="all" type="text/css">
             @import url("#{request.contextPath}/resources/css/osans.css");
@@ -83,8 +85,8 @@
                         <li><div class="link">Вид</div>
                             <ul>
                                 <li>Отобразить консоль</li>
-                                <li>Скрыть дерево проекта</li>
-                                <li>Полноэкранный режим</li>
+                                <li onclick="closeProjectTreePanel($(this));">Скрыть дерево проекта</li>
+                                <li onclick='javaEditor.setOption("fullScreen", false);'>Полноэкранный режим</li>
                             </ul>
                         </li>
                         <li><div class="link">Выполнение</div>
@@ -158,7 +160,7 @@
                         indentWithTabs: true,
                         styleSelectedText: true,
                         indentUnit: 4,
-                        smartIndent: false,
+                        smartIndent: true,
                         mode: "text/x-java",
                         matchBrackets: true,
                         autoCloseBrackets: true,
@@ -167,6 +169,12 @@
                             "Ctrl-S": function(){saveFile();},
                             "Shift-Ctrl-S": function(){saveAllFiles();},
                             "Ctrl-Space": "autocomplete",
+                            "F11": function(cm) {
+                                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                            },
+                            "Esc": function(cm) {
+                                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                            },
                             Tab: function(cm) {
                                 var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
                                 cm.replaceSelection(spaces, "end", "+input");

@@ -7,6 +7,7 @@ import com.javafiddle.web.services.utils.AddFileRevisionRequest;
 import com.javafiddle.web.services.utils.FileRevision;
 import com.javafiddle.web.services.utils.SaveAllFilesRequest;
 import com.javafiddle.web.services.utils.TreeUtils;
+import com.javafiddle.web.templates.ClassTemplate;
 import com.javafiddle.web.tree.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -120,10 +121,13 @@ public class TreeService implements Serializable {
             ) {
         if (idString == null || name == null || type == null)
             return Response.status(400).build();
+        Gson gson = new GsonBuilder().create();
         int id = TreeUtils.parseId(idString);
         TreePackage tp = idList.getPackage(id);
-        tp.addFile(idList, type, name + ".java");
-        return Response.ok().build();
+        TreeFile file = tp.addFile(idList, type, name + ".java");
+        Revisions revisions = new Revisions(idList, files);
+        revisions.addFileRevision(file, idList);
+        return Response.ok(gson.toJson(file.getId()), MediaType.APPLICATION_JSON).build();
      }
     
     @POST
@@ -197,24 +201,13 @@ public class TreeService implements Serializable {
     }
        
     private void addExampleTree() {
-        TreeProject tpr = tree.getProjectInstance(idList, "NewProject");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.beans.death");
-        TreePackage tp = tpr.getPackageInstance(idList, "com.javafiddle.web.projecttree.a.b.c.d.e.f.g.h.i");
-        tp.addFile(idList, "class", "Reflections.java");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.beans");
-        tp.addFile(idList, "class", "CommonBean.java");
-        tp.addFile(idList, "interface", "Example.txt");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror"); 
-        tp.addFile(idList, "class", "Dummy.java");
-        tp.addFile(idList, "class", "FileEditions.java");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror.gui.core");  
-        tp.addFile(idList, "class", "ProjectEditions.java");
-        tp = tpr.getPackageInstance(idList, "com.javafiddle.web.codemirror.gui.core.adding");  
-        tp.addFile(idList, "class", "Tree.java");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.appl");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
-        tpr.getPackageInstance(idList, "com.javafiddle.web.acore.cpp");
+        TreeProject tpr = tree.getProjectInstance(idList, "MyFirstProject");
+        TreePackage tp = tpr.getPackageInstance(idList, "com.myfirstproject.web");
+        TreeFile main = tp.addFile(idList, "runnable", "Main.java");
+        
+        Revisions revisions = new Revisions(idList, files);
+        revisions.addFileRevision(main, idList);
+        
     }
     
     // ex ProjectRevisionsService
