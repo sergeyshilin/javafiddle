@@ -7,7 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class TreePackage implements Comparable<TreePackage>, Serializable {
+public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializable {
+    private final IdNodeType nodeType = IdNodeType.PACKAGE;
     private String name;
     private int id;
     private int parentId;
@@ -19,10 +20,27 @@ public class TreePackage implements Comparable<TreePackage>, Serializable {
         this.name = name;
     }
 
+    @Override
+    public IdNodeType getNodeType() {
+        return nodeType;
+    }
+    
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -33,14 +51,6 @@ public class TreePackage implements Comparable<TreePackage>, Serializable {
 
     public void setParentId(int parentId) {
         this.parentId = parentId;
-    }
-    
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
     
     public int getParents() {
@@ -70,7 +80,7 @@ public class TreePackage implements Comparable<TreePackage>, Serializable {
     public TreeFile addFile(IdList idList, String type, String name) {
         TreeFile tf = new TreeFile(name, type);
         files.add(tf);
-        tf.setId(idList.addId(tf));
+        tf.setId(idList.add(tf));
         tf.setPackageId(id);
         Collections.sort(files);
         return tf;
@@ -78,7 +88,7 @@ public class TreePackage implements Comparable<TreePackage>, Serializable {
         
     public void deleteFile(IdList idList, int fileId) {
         files.remove(idList.getFile(fileId));
-        idList.removeId(fileId);
+        idList.remove(fileId);
     }
     
     @Override

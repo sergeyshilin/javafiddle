@@ -3,20 +3,20 @@ package com.javafiddle.web.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.javafiddle.revisions.Revisions;
-import com.javafiddle.web.services.utils.AddFileRevisionRequest;
-import com.javafiddle.web.services.utils.FileRevision;
-import com.javafiddle.web.services.utils.SaveAllFilesRequest;
-import com.javafiddle.web.services.utils.TreeUtils;
-import com.javafiddle.web.templates.ClassTemplate;
+import com.javafiddle.saving.SavingProjectRevision;
+import com.javafiddle.web.services.utils.*;
 import com.javafiddle.web.tree.*;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TreeMap;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,17 +26,29 @@ import javax.ws.rs.core.*;
 @Path("")
 @SessionScoped
 public class TreeService implements Serializable {
+    private static final Logger log = Logger.getLogger(TreeService.class.getName());
+    FileHandler fh;
+
     Tree tree;
     IdList idList;
     ArrayList<String> packages;
     
-    TreeMap<Integer, TreeMap<Date, TreeProject>> projects = new TreeMap<>();
+    TreeMap<Date, Tree> projects = new TreeMap<>();
     TreeMap<Integer, TreeMap<Date, String>> files = new TreeMap<>();
         
     public TreeService() {
         idList = new IdList();
         tree = new Tree();
         packages = new ArrayList<>();
+        
+        try {
+            fh = new FileHandler("C:/JavaFiddle/logging/TreeService.log"); 
+            log.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();  
+            fh.setFormatter(formatter);  
+        } catch (IOException | SecurityException ex) {
+            Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @GET
@@ -62,7 +74,9 @@ public class TreeService implements Serializable {
             return Response.status(400).build();
         Gson gson = new GsonBuilder().create();
         int id = TreeUtils.parseId(idString);
-        
+        TreeFile tf = idList.getFile(id);
+        if (tf == null)
+            return Response.status(410).build();
         return Response.ok(gson.toJson(idList.getFile(id)), MediaType.APPLICATION_JSON).build();
     }
      
@@ -262,30 +276,12 @@ public class TreeService implements Serializable {
     @POST
     @Path("revisions/project")
     public Response saveProjectRevision (
-            @Context HttpServletRequest request,
-            @QueryParam("id") String idString,
-            @QueryParam("timeStamp") String timeStamp     
-            ) {
-        if (idString == null)
-            return Response.status(400).build();
-        int id = TreeUtils.parseId(idString);
-        if (!idList.isProject(id))
-            return Response.status(400).build();
-        
-        TreeProject tp = idList.getProject(id);
-        if (!projects.containsKey(id))
-            projects.put(id, new TreeMap<Date, TreeProject>());
-        else {
-            if (tp.equals(projects.lastEntry().getValue()))
-                return Response.status(304).build();
-        }
-        try {
-            DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-            Date result = df.parse(timeStamp);
-            projects.get(id).put(result, tp);
-        } catch (ParseException ex) {
-            return Response.status(400).build();
-        }
+            @Context HttpServletRequest request
+            ) throws InterruptedException {
+        projects.put(new Date(), tree);
+        SavingProjectRevision spr = new SavingProjectRevision(tree, idList, files);
+        spr.SaveCurrent();
+        Thread.sleep(10000);
         return Response.ok().build();
     }
     
@@ -336,10 +332,22 @@ public class TreeService implements Serializable {
             return Response.status(400).build();
         AddFileRevisionRequest d = new Gson().fromJson(data, AddFileRevisionRequest.class);
         Revisions revisions = new Revisions(idList, files);
-        switch (revisions.addFileRevision(d)) {
-            case 400: return Response.status(400).build();
-            default: return Response.ok().build();
+        int addResult = revisions.addFileRevision(d);
+        switch (addResult) {
+            case 304: 
+                log.log(Level.INFO, "{0}\tnot modified", d.getId());
+                break;
+            case 400:
+                log.log(Level.INFO, "{0}\tbad request", d.getId());
+                break;
+            case 0:
+                log.log(Level.INFO, "{0}\tsaved", d.getId());
+                break;
+            default:
+                log.log(Level.INFO, "{0}\tresult: {1}", new Object[]{d.getId(), addResult});      
+                break;
         }
+        return Response.status(addResult == 304 ? 200 : addResult).build();
     }
     
     @GET

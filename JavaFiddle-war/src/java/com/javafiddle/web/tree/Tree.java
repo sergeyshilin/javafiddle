@@ -14,6 +14,10 @@ public class Tree implements Serializable {
     public boolean isEmpty() {
         return projects.isEmpty();
     }
+
+    public List<TreeProject> getProjects() {
+        return projects;
+    }
     
     public TreeProject addProject(IdList idList, String projectName) {
         for (TreeProject temp : projects)
@@ -21,7 +25,7 @@ public class Tree implements Serializable {
                 return null;
         TreeProject tpr = new TreeProject(projectName);
         projects.add(tpr);
-        tpr.setId(idList.addId(tpr));
+        tpr.setId(idList.add(tpr));
         Collections.sort(projects);
         
         return tpr;
@@ -33,7 +37,7 @@ public class Tree implements Serializable {
                 return temp;
         TreeProject tpr = new TreeProject(projectName);
         projects.add(tpr);
-        tpr.setId(idList.addId(tpr));
+        tpr.setId(idList.add(tpr));
         
         return tpr;
     }
@@ -42,12 +46,12 @@ public class Tree implements Serializable {
         TreeProject tpr = idList.getProject(projectId);
         for (TreePackage temp : tpr.getPackages()) {
             for (TreeFile tempFile : temp.getFiles())
-                idList.removeId(tempFile.getId());
-            idList.removeId(temp.getId());
+                idList.remove(tempFile.getId());
+            idList.remove(temp.getId());
         }
         
         projects.remove(tpr);
-        idList.removeId(projectId);
+        idList.remove(projectId);
     }
 
     public static ArrayList<String> getPackagesNames(List packages) {

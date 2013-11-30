@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.text.Collator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
-public class TreeFile implements Comparable<TreeFile>, Serializable { 
+public class TreeFile implements TreeNode, Comparable<TreeFile>, Serializable { 
+    private final IdNodeType nodeType = IdNodeType.FILE;
     private int id;
     private int packageId;
     private String name;
@@ -17,10 +19,27 @@ public class TreeFile implements Comparable<TreeFile>, Serializable {
         this.type = type;
     }
 
+    @Override
+    public IdNodeType getNodeType() {
+        return nodeType;
+    }
+    
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -33,13 +52,7 @@ public class TreeFile implements Comparable<TreeFile>, Serializable {
         this.packageId = packageId;
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
     
     public String getType() {
         return type;

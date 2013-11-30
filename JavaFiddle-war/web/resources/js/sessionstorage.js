@@ -104,9 +104,13 @@ function pushModifiedTab() {
     }
 }
 
-function unModifiedTab() {
-    removeTabFromList('modified', getCurrentFileID());
-    $("#tabpanel").find(".active").removeClass("modified");
+function unModifiedTab(id) {
+    if(arguments.length === 0) {
+        id = getCurrentFileID();
+    }
+    
+    removeTabFromList('modified', id);
+    $("#" + id).removeClass("modified");
 }
 
 function unModifiedTabs() {
@@ -227,4 +231,10 @@ function removeTabFromList(key, id) {
         data.splice(index, 1);
         sessionStorage.setItem(key, JSON.stringify(data));
     }
+}
+
+function invalidateSession() {
+    if (!supportsSessionStorage())
+        return false;
+    sessionStorage.clear();
 }

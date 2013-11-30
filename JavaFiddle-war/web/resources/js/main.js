@@ -982,14 +982,18 @@ function isRightProjectName(name) {
 
 // FILE REVISIONS (SERVICES)
 
-function saveFile() {
-    addCurrentFileText();
+function saveFile(id) {
+    if(arguments.length === 0) {
+        id = getCurrentFileID();
+        addCurrentFileText();
+        document.getElementById("latest_update").innerHTML = "Идет сохранение...";
+    }
     
     var time = moment().format("DD.MM.YYYY HH:mm:ss");
     var dummy = {
-        id: getCurrentFileID(),
+        id: id,
         timeStamp: time,
-        value: javaEditor.getValue()
+        value: getOpenedFileText(id)
     };
     $.ajax({
         url: PATH + '/webapi/revisions',
@@ -997,9 +1001,9 @@ function saveFile() {
         data: JSON.stringify(dummy),
         contentType: "application/json",
         success: function() {
-            document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
-            unModifiedTab();
+            unModifiedTab(id);
             addCurrentFileTimeStamp(time);
+            if (isCurrent(id)) document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
         }
     });
 }
@@ -1007,25 +1011,24 @@ function saveFile() {
 function saveAllFiles() {
     addCurrentFileText();
     
-    var request = {files : []};
+    document.getElementById("latest_update").innerHTML = "Идет сохранение...";
+    
     modifiedList().forEach(function(entry) {
-        var time = moment().format("DD.MM.YYYY HH:mm:ss");
-        var dummy = {
-            id: entry,
-            timeStamp: time,
-            value: getOpenedFileText(entry)
-        };
-        request.files.push(dummy);
+        saveFile(entry);
     });
+    
+    document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
+}
 
+function saveProject() {
+    saveAllFiles();
+    
     $.ajax({
-        url: PATH + '/webapi/revisions',
+        url: PATH + '/webapi/revisions/project',
         type:'POST', 
-        data: JSON.stringify(request),
         contentType: "application/json",
         success: function() {
-            document.getElementById("latest_update").innerHTML = "Саксес хуле";
-            unModifiedTabs();
+            document.getElementById("latest_update").innerHTML = "Проект сохранен";
         }
     });
 }
@@ -1065,6 +1068,11 @@ function getFileDataById(id) {
         async: false,
         success: function(data) {
             filedata = data;
+        },
+        error: function(jqXHR) {
+            if (jqXHR.status === 410)
+                invalidateSession();
+            filedata = "";
         }
     }); 
     

@@ -4,82 +4,68 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IdList implements Serializable {
-    private Map<Integer, IdListElement> idList = new HashMap<>();
+public class IdList extends HashMap<Integer, TreeNode> implements Serializable {
     private int count = 0;
-    
-    protected int addId(TreeProject project) {
-        return addObject(IdNodeType.PROJECT, project);
-    }
-    
-    protected int addId(TreePackage pack) {
-        return addObject(IdNodeType.PACKAGE, pack);
-    }
-        
-    protected int addId(TreeFile file) {
-        return addObject(IdNodeType.FILE, file);
-    }
-    
-    protected int addObject(IdNodeType type, Object object) {
-        IdListElement ile = new IdListElement(type, object);
-        if (idList.containsValue(ile))
-            return -1;
-        idList.put(count++, ile);
+
+    protected int add(TreeNode treeNode) {
+        put(count++, treeNode);
         return count-1;              
     }
     
-    protected void removeId(int id) {
-        idList.remove(id);
-    }
-    
     public boolean isExist(int id) {
-        if (idList.get(id) == null)
+        if (get(id) == null)
             return false;
         return true;   
     }
     
     public IdNodeType getType(int id) {
-        return idList.get(id).getIdNodeType();
-    }
-    
-    public boolean contains(int id) {
-        return idList.containsKey(id);
+        return get(id).getNodeType();
     }
     
     public boolean isProject(int id) {
-        if (contains(id))
+        if (containsKey(id))
             return getType(id) == IdNodeType.PROJECT;
         return false;
     } 
     
     public boolean isPackage(int id) {
-        if (contains(id))
+        if (containsKey(id))
             return getType(id) == IdNodeType.PACKAGE;
         return false;
     } 
     
     public boolean isFile(int id) {
-        if (contains(id))
+        if (containsKey(id))
             return getType(id) == IdNodeType.FILE;
         return false;
     } 
     
     public TreeProject getProject(int id) {
         if (isProject(id))
-            return (TreeProject)idList.get(id).getObject();
+            return (TreeProject)get(id);
         return null;
     }
     
     public TreePackage getPackage(int id) {
         if (isPackage(id))
-            return (TreePackage)idList.get(id).getObject();
+            return (TreePackage)get(id);
         return null;
     }
     
     public TreeFile getFile(int id) {
         if (isFile(id))
-            return (TreeFile)idList.get(id).getObject();
+            return (TreeFile)get(id);
         return null;
     } 
+    
+    public String toJson() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for (Map.Entry<Integer, TreeNode> entry : entrySet())
+            sb.append(entry.getKey()).append(":").append(entry.getValue().getName()).append(", ");
+        sb.delete(sb.length()-2, sb.length());
+        sb.append("}");
+        return sb.toString();
+    }
 }
 

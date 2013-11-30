@@ -7,7 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class TreeProject implements Comparable<TreeProject>, Serializable {
+public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializable {
+    private final IdNodeType nodeType = IdNodeType.PROJECT;
     private String name;
     private int id;
     private List<TreePackage> packages = new ArrayList<>();
@@ -16,20 +17,29 @@ public class TreeProject implements Comparable<TreeProject>, Serializable {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public IdNodeType getNodeType() {
+        return nodeType;
     }
         
-    public void setName(String name) {
-        this.name = name;
-    }
-        
+    @Override
     public int getId() {
         return id;
     }
 
+    @Override
     public void setId(int id) {
         this.id = id;
+    }
+    
+    @Override
+    public String getName() {
+        return name;
+    }
+        
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<TreePackage> getPackages() {
@@ -57,7 +67,7 @@ public class TreeProject implements Comparable<TreeProject>, Serializable {
                     return null;
         TreePackage tp = new TreePackage(name);
         packages.add(tp);
-        tp.setId(idList.addId(tp));
+        tp.setId(idList.add(tp));
         tp.setProjectId(id);
         calcParents();
 
@@ -75,10 +85,10 @@ public class TreeProject implements Comparable<TreeProject>, Serializable {
             deletePackage(idList, temp.getId());
         
         for (TreeFile temp : tp.getFiles())
-            idList.removeId(temp.getId());
+            idList.remove(temp.getId());
         
         packages.remove(tp);
-        idList.removeId(packageId);
+        idList.remove(packageId);
     }
     
     private void calcParents() {

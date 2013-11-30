@@ -1,5 +1,6 @@
 package com.javafiddle.revisions;
 
+import com.javafiddle.saving.SavingFile;
 import com.javafiddle.web.services.utils.AddFileRevisionRequest;
 import com.javafiddle.web.services.utils.TreeUtils;
 import com.javafiddle.web.templates.ClassTemplate;
@@ -57,7 +58,7 @@ public class Revisions {
         } catch (ParseException ex) {
             return 400;
         }
-        return 0;
+        return 200;
     }
     
     public int saveAllFiles(List<AddFileRevisionRequest> d) {
@@ -65,6 +66,6 @@ public class Revisions {
             if (addFileRevision(temp) == 400)
                 return 400;
         }
-        return 0;
+        return 200;
     }
 }
