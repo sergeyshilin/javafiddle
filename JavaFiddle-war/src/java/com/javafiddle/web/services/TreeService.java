@@ -13,10 +13,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TreeMap;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,9 +22,6 @@ import javax.ws.rs.core.*;
 @Path("")
 @SessionScoped
 public class TreeService implements Serializable {
-    private static final Logger log = Logger.getLogger(TreeService.class.getName());
-    FileHandler fh;
-
     Tree tree;
     IdList idList;
     ArrayList<String> packages;
@@ -40,15 +33,6 @@ public class TreeService implements Serializable {
         idList = new IdList();
         tree = new Tree();
         packages = new ArrayList<>();
-        
-        try {
-            fh = new FileHandler("C:/JavaFiddle/logging/TreeService.log"); 
-            log.addHandler(fh);
-            SimpleFormatter formatter = new SimpleFormatter();  
-            fh.setFormatter(formatter);  
-        } catch (IOException | SecurityException ex) {
-            Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     @GET
@@ -58,28 +42,11 @@ public class TreeService implements Serializable {
             @Context HttpServletRequest request
             ) {
         if(tree.isEmpty())
-            addExampleTree();
+            TreeUtils.addExampleTree(tree, idList, files);
         Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(tree), MediaType.APPLICATION_JSON).build();
     }
     
-    @GET
-    @Path("tree/filedata")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getFileData(
-            @Context HttpServletRequest request,
-            @QueryParam("id") String idString
-            ) {
-        if (idString == null)
-            return Response.status(400).build();
-        Gson gson = new GsonBuilder().create();
-        int id = TreeUtils.parseId(idString);
-        TreeFile tf = idList.getFile(id);
-        if (tf == null)
-            return Response.status(410).build();
-        return Response.ok(gson.toJson(idList.getFile(id)), MediaType.APPLICATION_JSON).build();
-    }
-     
     @POST
     @Path("tree/addProject")
     @Consumes({"application/x-www-form-urlencoded"})
@@ -111,10 +78,31 @@ public class TreeService implements Serializable {
         return Response.ok().build();
     }
     
+    @POST
+    @Path("tree/addFile")
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response addFile(
+            @Context HttpServletResponse response,
+            @FormParam("package_id") String idString,
+            @FormParam("name") String name,
+            @FormParam("type") String type
+            ) {
+        if (idString == null || name == null || type == null)
+            return Response.status(400).build();
+        Gson gson = new GsonBuilder().create();
+        int id = TreeUtils.parseId(idString);
+        TreePackage tp = idList.getPackage(id);
+        TreeFile file = tp.addFile(idList, type, name + ".java");
+        Revisions revisions = new Revisions(idList, files);
+        revisions.addFileRevision(file, idList);
+        return Response.ok(gson.toJson(file.getId()), MediaType.APPLICATION_JSON).build();
+     }
+        
     @GET
-    @Path("tree/classname")
+    @Path("tree/rightprojectname")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response isRightClassName(
+    public Response isRightProjectName(
             @Context HttpServletRequest request,
             @QueryParam("name") String name
             ) {
@@ -129,7 +117,7 @@ public class TreeService implements Serializable {
     @GET
     @Path("tree/packagename")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response isRightPackage(
+    public Response isRightPackageName(
             @Context HttpServletRequest request,
             @QueryParam("name") String name,
             @QueryParam("project_id") String id
@@ -152,9 +140,9 @@ public class TreeService implements Serializable {
     }
     
     @GET
-    @Path("tree/rightprojectname")
+    @Path("tree/classname")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response isRightProjectName(
+    public Response isRightClassName(
             @Context HttpServletRequest request,
             @QueryParam("name") String name
             ) {
@@ -165,7 +153,7 @@ public class TreeService implements Serializable {
         }
         return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
-    
+           
     @POST
     @Path("tree/rename")
     @Produces(MediaType.TEXT_HTML)
@@ -195,27 +183,6 @@ public class TreeService implements Serializable {
         return Response.ok().build();
     }
        
-    @POST
-    @Path("tree/addFile")
-    @Produces(MediaType.TEXT_HTML)
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response addFile(
-            @Context HttpServletResponse response,
-            @FormParam("package_id") String idString,
-            @FormParam("name") String name,
-            @FormParam("type") String type
-            ) {
-        if (idString == null || name == null || type == null)
-            return Response.status(400).build();
-        Gson gson = new GsonBuilder().create();
-        int id = TreeUtils.parseId(idString);
-        TreePackage tp = idList.getPackage(id);
-        TreeFile file = tp.addFile(idList, type, name + ".java");
-        Revisions revisions = new Revisions(idList, files);
-        revisions.addFileRevision(file, idList);
-        return Response.ok(gson.toJson(file.getId()), MediaType.APPLICATION_JSON).build();
-     }
-    
     @POST
     @Path("tree/remove")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -261,14 +228,21 @@ public class TreeService implements Serializable {
         return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
        
-    private void addExampleTree() {
-        TreeProject tpr = tree.getProjectInstance(idList, "MyFirstProject");
-        TreePackage tp = tpr.getPackageInstance(idList, "com.myfirstproject.web");
-        TreeFile main = tp.addFile(idList, "runnable", "Main.java");
-        
-        Revisions revisions = new Revisions(idList, files);
-        revisions.addFileRevision(main, idList);
-        
+    @GET
+    @Path("tree/filedata")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFileData(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String idString
+            ) {
+        if (idString == null)
+            return Response.status(400).build();
+        Gson gson = new GsonBuilder().create();
+        int id = TreeUtils.parseId(idString);
+        TreeFile tf = idList.getFile(id);
+        if (tf == null)
+            return Response.status(410).build();
+        return Response.ok(gson.toJson(idList.getFile(id)), MediaType.APPLICATION_JSON).build();
     }
     
     // ex ProjectRevisionsService
@@ -277,11 +251,17 @@ public class TreeService implements Serializable {
     @Path("revisions/project")
     public Response saveProjectRevision (
             @Context HttpServletRequest request
-            ) throws InterruptedException {
+            ) {
         projects.put(new Date(), tree);
-        SavingProjectRevision spr = new SavingProjectRevision(tree, idList, files);
-        spr.SaveCurrent();
-        Thread.sleep(10000);
+        SavingProjectRevision spr = new SavingProjectRevision(tree, idList, files);			
+
+        Thread savingProject = new Thread(spr);	//Создание потока "myThready"
+        savingProject.start();	
+        try {
+            savingProject.join();
+        } catch (InterruptedException ex) {
+            
+        }
         return Response.ok().build();
     }
     
@@ -304,49 +284,19 @@ public class TreeService implements Serializable {
     // ex DocumentRevisionsSrevice
     //
     @POST
-    @Path("revisions/saveAllFiles")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveAllFiles(
-            @Context HttpServletRequest request,
-            String data
-            ) {
-        if (data == null)
-            return Response.status(400).build();
-        SaveAllFilesRequest d = new Gson().fromJson(data, SaveAllFilesRequest.class);
-        Revisions revisions = new Revisions(idList, files);
-        switch (revisions.saveAllFiles(d.getFiles())) {
-            case 0: return Response.ok().build();
-            case 400: return Response.status(400).build();
-            default: return Response.status(500).build();
-        }
-    }
-        
-    @POST
     @Path("revisions")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response saveFile(
             @Context HttpServletRequest request,
-            String data
+            @FormParam("id") String idString,
+            @FormParam("timeStamp") String timeStamp,
+            @FormParam("value") String value
             ) {
-        if (data == null)
+        if (idString == null || timeStamp == null || value == null)
             return Response.status(400).build();
-        AddFileRevisionRequest d = new Gson().fromJson(data, AddFileRevisionRequest.class);
+        int id = TreeUtils.parseId(idString);
         Revisions revisions = new Revisions(idList, files);
-        int addResult = revisions.addFileRevision(d);
-        switch (addResult) {
-            case 304: 
-                log.log(Level.INFO, "{0}\tnot modified", d.getId());
-                break;
-            case 400:
-                log.log(Level.INFO, "{0}\tbad request", d.getId());
-                break;
-            case 0:
-                log.log(Level.INFO, "{0}\tsaved", d.getId());
-                break;
-            default:
-                log.log(Level.INFO, "{0}\tresult: {1}", new Object[]{d.getId(), addResult});      
-                break;
-        }
+        int addResult = revisions.addFileRevision(id, timeStamp, value);
         return Response.status(addResult == 304 ? 200 : addResult).build();
     }
     

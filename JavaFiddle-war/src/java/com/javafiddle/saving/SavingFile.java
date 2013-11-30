@@ -2,36 +2,20 @@ package com.javafiddle.saving;
 
 import com.javafiddle.web.services.TreeService;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 public class SavingFile {
-    private static final String prefix = "C:\\JavaFiddle\\user\\guest\\";
-    private static final Logger log = Logger.getLogger(SavingFile.class.getName());
-    FileHandler fh;
+    private static final String sep = File.separator;
+    private static final String prefix = "C:" + sep + "user" + sep + "guest";
     String projectId;
     
     public SavingFile(String projectId) {
         this.projectId = projectId;
-        try {
-            fh = new FileHandler("C:/JavaFiddle/logging/SavingFile.log"); 
-            log.addHandler(fh);
-            SimpleFormatter formatter = new SimpleFormatter();  
-            fh.setFormatter(formatter);  
-        } catch (IOException | SecurityException ex) {
-            Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void crearSrc() {
-        deleteDirectory(new File(prefix + "src"));
     }
     
     public void saveRevision(int fileId, Date timeStamp, String text) {
@@ -41,23 +25,23 @@ public class SavingFile {
     public void saveRevision(String fileId, Date timeStamp, String text) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         String time = df.format(timeStamp);
-        String path = prefix + "\\" + projectId + "\\revisions\\" + fileId + "\\" + time;
+        String path = prefix + sep + projectId + sep + "revisions" + sep + fileId + sep + time;
         writeFile(path, text);
     }
       
-    public void saveCurrent(String fileName, String packageName, String text) {
-        String path = prefix + "\\" + projectId + "\\src\\" + packageName.replace(".", "\\") + "\\" + fileName;
+    public void saveSrc(String fileName, String packageName, String text) {
+        String path = prefix + sep + projectId + sep + "src" + sep + packageName.replace(".", sep) + sep + fileName;
         writeFile(path, text); 
     }
     
     private void writeFile(String path, String text) {
         try {
             File file = new File(path);
-            if (!file.exists()) {
+            if (!file.getParentFile().exists()) {
                 try {
                     file.getParentFile().mkdirs();
                 } catch (NullPointerException e) {
-                    log.log(Level.WARNING, "NullPointerException");
+                    
                 }
                 file.createNewFile();
             }
@@ -65,22 +49,23 @@ public class SavingFile {
                 writer.println(text);
             }
         } catch (IOException e) {
-            log.log(Level.WARNING, "IOException");
+            
         }
     }
     
-public void deleteDirectory(File file)
-  {
-    if(!file.exists())
-        return;
-    if(file.isDirectory()) {
-        for(File f : file.listFiles())
-            deleteDirectory(f);
-        file.delete();
-        log.log(Level.INFO, "delete directory {0}", file.getName());
-    } else {
-      file.delete();
-      log.log(Level.INFO, "delete file {0}", file.getName());
+    public void crearSrc() {
+        deleteDirectory(new File(prefix + sep + projectId + sep + "src"));
     }
-  }
+    
+    public void deleteDirectory(File file) {
+        if(!file.exists())
+            return;
+        if(file.isDirectory()) {
+            for(File f : file.listFiles())
+                deleteDirectory(f);
+            file.delete();
+        } else {
+          file.delete();
+        }
+    }
 }

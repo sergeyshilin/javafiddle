@@ -990,16 +990,10 @@ function saveFile(id) {
     }
     
     var time = moment().format("DD.MM.YYYY HH:mm:ss");
-    var dummy = {
-        id: id,
-        timeStamp: time,
-        value: getOpenedFileText(id)
-    };
     $.ajax({
         url: PATH + '/webapi/revisions',
         type:'POST', 
-        data: JSON.stringify(dummy),
-        contentType: "application/json",
+        data: {id: id, timeStamp: time, value: getOpenedFileText(id)},
         success: function() {
             unModifiedTab(id);
             addCurrentFileTimeStamp(time);

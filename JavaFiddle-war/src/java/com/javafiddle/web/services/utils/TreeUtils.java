@@ -1,5 +1,10 @@
 package com.javafiddle.web.services.utils;
 
+import com.javafiddle.revisions.Revisions;
+import com.javafiddle.web.tree.*;
+import java.util.Date;
+import java.util.TreeMap;
+
 public class TreeUtils {
     public static int parseId(String idString) {
         if(isInteger(idString))
@@ -21,5 +26,14 @@ public class TreeUtils {
         }
         
         return true;
+    }
+
+    public static void addExampleTree(Tree tree, IdList idList, TreeMap<Integer, TreeMap<Date, String>> files) {
+        TreeProject tpr = tree.getProjectInstance(idList, "MyFirstProject");
+        TreePackage tp = tpr.getPackageInstance(idList, "com.myfirstproject.web");
+        TreeFile main = tp.addFile(idList, "runnable", "Main.java");
+        
+        Revisions revisions = new Revisions(idList, files);
+        revisions.addFileRevision(main, idList);
     }
 }

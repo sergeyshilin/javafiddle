@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class SavingProjectRevision {
+public class SavingProjectRevision implements Runnable {
     private static final String prefix = "C:\\JavaFiddle\\";
     Tree tree;
     IdList idList;
@@ -24,7 +24,7 @@ public class SavingProjectRevision {
         this.files = files;
     }
     
-    public void SaveCurrent() {
+    public void run() {
         SavingFile savingFile = new SavingFile("TestProject");
         
         savingFile.crearSrc();
@@ -44,7 +44,7 @@ public class SavingProjectRevision {
                 savingFile.saveRevision(id, time, files.get(id).get(time));
                 if (idList.get(tf.getPackageId()).getNodeType() == IdNodeType.PACKAGE) {
                     tp = (TreePackage)idList.get(tf.getPackageId());
-                    savingFile.saveCurrent(tf.getName(), tp.getName(), files.get(id).get(tf.getTimeStamp()));
+                    savingFile.saveSrc(tf.getName(), tp.getName(), files.get(id).get(tf.getTimeStamp()));
                 }
             }
         }
