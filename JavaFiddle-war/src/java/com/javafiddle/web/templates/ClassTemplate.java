@@ -1,6 +1,5 @@
 package com.javafiddle.web.templates;
 
-import com.javafiddle.web.services.utils.TreeUtils;
 import com.javafiddle.web.tree.IdList;
 import com.javafiddle.web.tree.TreeFile;
 import java.text.DateFormat;
@@ -27,8 +26,7 @@ public class ClassTemplate {
     }
     
     private String getClassDefinition() {
-        String def = null;
-        def = "public ";
+        String def = "public ";
         
         switch (type) {
             case "class": case "exception": case "runnable":

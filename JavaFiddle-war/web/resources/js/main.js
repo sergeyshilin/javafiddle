@@ -244,11 +244,21 @@ function loadTreeOperation() {
                             break;
                     }
                     break;
+                case "sources":
+                    switch(event.which) {  
+                        case 1:
+                            changeNodeState($(this));
+                            break;   
+                        case 3: 
+                            showContextMenu($(this), event, "sources");
+                            break;
+                    }
+                    break;
                 case "root":
                     switch(event.which) {
                         case 1:
                             changeNodeState($(this));
-                            break;
+                            break;   
                         case 3: 
                             showContextMenu($(this), event, "root");
                             break;
@@ -304,13 +314,13 @@ function loadLiHarmonica() {
 function addPackage(id) {
     $input = $("#addpackage input");
     var name = $input.val().toLowerCase();
-    var dotname;
+    var dotname = name;
     
     if(!name.endsWith(".")) {
         dotname = name + ".";
     }
     
-    if(checkAddPackageInputName(dotname, id)) {
+    if(isRightPackageName(dotname, id)) {
         $.ajax({
             url: PATH + '/webapi/tree/addPackage',
             type: 'POST',
@@ -342,18 +352,54 @@ function addFile(id) {
             contentType: "application/x-www-form-urlencoded",
             success: function(data) {
                 $('#popup_bug').togglePopup(); 
-                var li = addTabToPanel("node_"+data, name, type);
+                var li = addTabToPanel("node_"+data+"_tab", (name.endsWith(".java") ? name  : name + ".java"), type);
                 selectTab(li);
                 buildTree();
             }
         });   
-    } else {
-        $("#addfile #result-msg").text("Неверное название класса. \n\
-                            Допустимы лишь латинские символы и цифры. \n\
-                            Название класса не должно начинаться с цифры.");
-        $("#addfile #result-msg").css("color", "red");
-        $("#addfile #result-msg").css("font-size", "13px");
     }
+}
+
+function renameElement(id, type) {
+    var name = $("#rename input").val();
+    alert(id + " " + type + " " + name);
+    $input = $("#rename input");
+    var name = name;
+    $input.val(name);
+    var correct = false;
+    
+    switch (type) {
+        case "file":
+            correct = isRightClassName(name, id);
+            break;
+        case "package":
+            var name = $input.val().toLowerCase();
+            var dotname = name;
+            if(!name.endsWith(".")) {
+                dotname = name + ".";
+            }
+            correct = isRightPackageName(dotname, id);
+            break;
+        case "root":
+            correct = isRightProjectName(name);
+            break;
+        default:
+            break;
+    }
+    
+    if(correct) {
+        $.ajax({
+            url: PATH + '/webapi/tree/rename',
+            type: 'POST',
+            data: {id: id, name: name, type: type},
+            contentType: "application/x-www-form-urlencoded",
+            success: function() {
+                $('#popup_bug').togglePopup(); 
+                buildTree();
+            }
+        }); 
+    }
+ 
 }
 
 function removeFromProject(id) {
@@ -469,7 +515,12 @@ function showContextMenu($el, event, classname) {
             });
             $li.appendTo($ul);
             
-            $('<li/>', {text: 'Переименовать'}).appendTo($ul);
+            $li = $('<li/>', {text: 'Переименовать'});
+            $li.click(function() {
+                showRenameWindow(id, classname, elementname);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
             
             $li = $('<li/>', {text: 'Удалить'});
             $li.click(function() {
@@ -485,7 +536,13 @@ function showContextMenu($el, event, classname) {
                 $ul.remove();
             });
             $li.appendTo($ul);
-            $('<li/>', {text: 'Переименовать'}).appendTo($ul);
+            
+            $li = $('<li/>', {text: 'Переименовать'});
+            $li.click(function() {
+                showRenameWindow(id, classname, elementname);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
             
             $li = $('<li/>', {text: 'Удалить'});
             $li.click(function() {
@@ -494,9 +551,23 @@ function showContextMenu($el, event, classname) {
             });
             $li.appendTo($ul);
             break;
+        case "sources":
+            var project_id = id.substring(0, id.length - 10);
+            $li = $('<li/>', {text: 'Добавить пакет'});
+            $li.click(function() {
+                showAddPackageWindow(project_id); 
+                $ul.remove();
+            });
+            $li.appendTo($ul);
+            break;
         case "root":
             $('<li/>', {text: 'Запустить'}).appendTo($ul);
-            $('<li/>', {text: 'Переименовать'}).appendTo($ul);
+            $li = $('<li/>', {text: 'Переименовать'});
+            $li.click(function() {
+                showRenameWindow(id, classname, elementname);
+                $ul.remove();
+            });
+            $li.appendTo($ul);
             $li = $('<li/>', {text: 'Добавить пакет'});
             $li.click(function() {
                 showAddPackageWindow(id); 
@@ -588,6 +659,15 @@ function showAddPackageWindow(project_id) {
     showPopup($div, params);
 }
 
+function showRenameWindow(id, type, name) {
+    $div = drawRenameWindow(id, type, name);
+    var params = {
+        width: 500,
+        height: 180
+    };
+    showPopup($div, params);
+}
+
 function showAddFileWindow(package_id) {
     $div = drawAddFileWindow(package_id);
     var params = {
@@ -607,7 +687,7 @@ function drawAddPackageWindow(id) {
         value: ""
     });
     $(document).on('input', "#addpackage input", function() {
-        checkAddPackageInputName($("#addpackage input").val(), id);
+        isRightPackageName($("#addpackage input").val(), id);
         var val = $("#addpackage input").val();
         $("#addpackage input").val(val.toLowerCase());
     });
@@ -747,6 +827,53 @@ function drawAddFileWindow(id) {
     return $div;
 }
 
+function drawRenameWindow(id, type, name) {
+    $div = $('<div/>', {
+        id: "rename" 
+    });
+    
+    $input = $('<input/>', {
+        type: "text",
+        value: name
+    });
+       
+    var rename;
+    
+    $(document).on('input', "#rename input", function() {
+        rename = $("#rename input").val();
+    });
+    
+    $div.append("<div class='inputname'>Название:</div>");
+    $div.append($input);
+    $div.append("<div id='result-msg'></div>");
+    
+    $buttons = $('<div/>', {
+        id: "confirm-buttons"
+    });
+    
+    $confirm = $('<div/>', {
+        text: "Изменить",
+        id: "confirm",
+        class: "button"
+    });
+    $confirm.attr( "onclick", "renameElement('"+ id +"', '"+ type +"')");
+    
+    $decline = $('<div/>', {
+        text: "Отменить",
+        id: "decline",
+        class: "button"
+    });
+    $decline.attr("onclick", "$('#popup_bug').togglePopup();");
+    
+    $buttons.css("margin-top", "18px");
+    $buttons.append($confirm);
+    $buttons.append($decline);
+    
+    $div.append($buttons);
+    
+    return $div;
+}
+
 function setFileType(classname) {
     $("#addfile div#filetype").removeClass();
     $("#addfile div#filetype").addClass(classname);
@@ -761,11 +888,11 @@ function showTypesList() {
     }
 }
 
-function checkAddPackageInputName(name, id) {
+function isRightPackageName(name, id) {
     var result = false;
     if(name.endsWith(".")) {      
         $.ajax({
-            url: PATH + '/webapi/tree/package',
+            url: PATH + '/webapi/tree/packagename',
             type: 'GET',
             dataType: "json",
             async: false,
@@ -802,11 +929,11 @@ function checkAddPackageInputName(name, id) {
     return result;
 }
 
-function isRightClassName(name) {
+function isRightClassName(name, id) {
     var result = false;
     
     $.ajax({
-        url: PATH + '/webapi/tree/classfile',
+        url: PATH + '/webapi/tree/classname',
         type: 'GET',
         data: {name: name},
         dataType: "json",
@@ -814,7 +941,40 @@ function isRightClassName(name) {
         success: function(data) {
             result = data;
         }
-    });  
+    }); 
+    
+    if(!result) {
+        $("#result-msg").text("Неверное название класса. \n\
+                            Допустимы лишь латинские символы и цифры. \n\
+                            Название пакета не должно начинаться с цифры.");
+        $("#result-msg").css("font-size", "13px"); 
+        $("#result-msg").css("color", "red");
+    }
+    
+    return result;
+}
+
+function isRightProjectName(name) {
+    var result = false;
+    
+    $.ajax({
+        url: PATH + '/webapi/tree/rightprojectname',
+        type: 'GET',
+        data: {name: name},
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    }); 
+    
+    if(!result) {
+        $("#result-msg").text("Неверное название проекта. \n\
+                            Допустимы лишь латинские символы и цифры. \n\
+                            Название пакета не должно начинаться с цифры.");
+        $("#result-msg").css("font-size", "13px"); 
+        $("#result-msg").css("color", "red");
+    }
     
     return result;
 }

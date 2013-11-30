@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.TreeMap;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
@@ -80,9 +81,10 @@ public class TreeService implements Serializable {
     
     @POST
     @Path("tree/addPackage")
-    @Consumes({"application/x-www-form-urlencoded"})
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response addPackage(
-            @Context HttpServletRequest request,
+            @Context HttpServletResponse response,
             @FormParam("project_id") String idString,
             @FormParam("name") String name
             ) {
@@ -96,7 +98,7 @@ public class TreeService implements Serializable {
     }
     
     @GET
-    @Path("tree/classfile")
+    @Path("tree/classname")
     @Produces(MediaType.APPLICATION_JSON)
     public Response isRightClassName(
             @Context HttpServletRequest request,
@@ -109,12 +111,82 @@ public class TreeService implements Serializable {
         }
         return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
+    
+    @GET
+    @Path("tree/packagename")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response isRightPackage(
+            @Context HttpServletRequest request,
+            @QueryParam("name") String name,
+            @QueryParam("project_id") String id
+            ) {
+        Gson gson = new GsonBuilder().create();
+        String result = "unknown";
+        if(packages.isEmpty() && idList.isProject(TreeUtils.parseId(id))) {
+            packages.addAll(Tree.getPackagesNames(idList.getProject(TreeUtils.parseId(id)).getPackages()));
+        }
+        
+        if(!name.matches("(([a-zA-Z][a-zA-Z0-9]*)(\\.)?)+")) {
+            result = "wrongname";
+        } else if(packages.contains(name)) {
+            result = "used";
+        } else {
+            result = "ok";
+        }
+        
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+    }
+    
+    @GET
+    @Path("tree/rightprojectname")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response isRightProjectName(
+            @Context HttpServletRequest request,
+            @QueryParam("name") String name
+            ) {
+        Gson gson = new GsonBuilder().create();
+        boolean result = false;
+        if(name.matches("([a-zA-Z][a-zA-Z0-9_]*)")){
+            result = !result;
+        }
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+    }
+    
+    @POST
+    @Path("tree/rename")
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response renameElement(
+            @Context HttpServletResponse response,
+            @FormParam("id") String idString,
+            @FormParam("name") String name,
+            @FormParam("type") String type
+            ) {
+        if (idString == null || name == null || type == null)
+            return Response.status(400).build();
+        int id = TreeUtils.parseId(idString);
+        switch(type) {
+            case "file":
+                idList.getFile(id).setName(name + ".java");
+                break;
+            case "package":
+                idList.getPackage(id).setName(name);
+                break;
+            case "root":
+                idList.getProject(id).setName(name);
+                break;
+            default:
+                break;
+        }
+        return Response.ok().build();
+    }
        
     @POST
     @Path("tree/addFile")
-    @Consumes({"application/x-www-form-urlencoded"})
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response addFile(
-            @Context HttpServletRequest request,
+            @Context HttpServletResponse response,
             @FormParam("package_id") String idString,
             @FormParam("name") String name,
             @FormParam("type") String type
@@ -160,31 +232,6 @@ public class TreeService implements Serializable {
                 break;
         }
         return Response.ok().build();
-    }
-    
-    @GET
-    @Path("tree/package")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response isRightPackage(
-            @Context HttpServletRequest request,
-            @QueryParam("name") String name,
-            @QueryParam("project_id") String id
-            ) {
-        Gson gson = new GsonBuilder().create();
-        String result = "unknown";
-        if(packages.isEmpty()) {
-            packages.addAll(Tree.getPackagesNames(idList.getProject(TreeUtils.parseId(id)).getPackages()));
-        }
-        
-        if(!name.matches("(([a-zA-Z][a-zA-Z0-9]*)(\\.)?)+")) {
-            result = "wrongname";
-        } else if(packages.contains(name)) {
-            result = "used";
-        } else {
-            result = "ok";
-        }
-        
-        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
     
     @GET

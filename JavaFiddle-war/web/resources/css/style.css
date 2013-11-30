@@ -568,7 +568,7 @@ ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.pn
     float: right;
 }
 
-#addpackage, #addfile {
+#addpackage, #addfile, #rename {
     text-align: center;
     color: #0e0e0e;
     font-size: 15px;
@@ -578,7 +578,7 @@ ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.pn
     padding: 15px;
 }
 
-#addpackage .inputname, #addfile .inputname {
+#addpackage .inputname, #addfile .inputname, #rename .inputname {
     font-size: 18px;
     color: #0e0e0e;
     position: absolute;
@@ -586,7 +586,7 @@ ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.pn
     z-index: 50;
 }
 
-#addpackage input, #addfile input {
+#addpackage input, #addfile input, #rename input {
     font-family: 'Open Sans';
     font-weight: bold;
     font-style: normal;
@@ -603,7 +603,7 @@ ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.pn
     background-color: #ececec;
 }
 
-#addpackage #result-msg, #addfile #result-msg {
+#addpackage #result-msg, #addfile #result-msg, #rename #result-msg {
     position: relative;
     margin: 0 auto;
     margin-top: 10px;
@@ -614,7 +614,7 @@ ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.pn
     /*display: none;*/
 }
 
-#addpackage input:focus, #addfile input:focus {
+#addpackage input:focus, #addfile input:focus, #rename input:focus {
     color: #0e0e0e;
     border: 1px solid rgba(0,0,0,.222);
 }
