@@ -3,10 +3,10 @@ package com.javafiddle.web.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.javafiddle.revisions.Revisions;
+import com.javafiddle.saving.GetProjectRevision;
 import com.javafiddle.saving.SavingProjectRevision;
 import com.javafiddle.web.services.utils.*;
 import com.javafiddle.web.tree.*;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.text.DateFormat;
@@ -26,7 +26,7 @@ public class TreeService implements Serializable {
     IdList idList;
     ArrayList<String> packages;
     
-    TreeMap<Date, Tree> projects = new TreeMap<>();
+    TreeMap<Date, Tree> projectRevisions = new TreeMap<>();
     TreeMap<Integer, TreeMap<Date, String>> files = new TreeMap<>();
         
     public TreeService() {
@@ -35,6 +35,18 @@ public class TreeService implements Serializable {
         packages = new ArrayList<>();
     }
 
+    // for example, http://localhost:8080/JavaFiddle-war/webapi/503E1DC0CC57D63C3ACA97C9F4B2376E
+    @GET
+    @Path("{hash}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProjects(
+            @Context HttpServletRequest request,
+            @PathParam("hash") String hash 
+            ) {
+        GetProjectRevision gpr = new GetProjectRevision();
+        return Response.ok(gpr.readFile(hash), MediaType.APPLICATION_JSON).build();
+    }
+        
     @GET
     @Path("tree")
     @Produces(MediaType.APPLICATION_JSON)
@@ -43,8 +55,7 @@ public class TreeService implements Serializable {
             ) {
         if(tree.isEmpty())
             TreeUtils.addExampleTree(tree, idList, files);
-        Gson gson = new GsonBuilder().create();
-        return Response.ok(gson.toJson(tree), MediaType.APPLICATION_JSON).build();
+        return Response.ok(tree.toJSON(), MediaType.APPLICATION_JSON).build();
     }
     
     @POST
@@ -239,7 +250,7 @@ public class TreeService implements Serializable {
     public Response saveProjectRevision (
             @Context HttpServletRequest request
             ) {
-        projects.put(new Date(), tree);
+        projectRevisions.put(new Date(), tree);
         SavingProjectRevision spr = new SavingProjectRevision(tree, idList, files);			
 
         Thread savingProject = new Thread(spr);

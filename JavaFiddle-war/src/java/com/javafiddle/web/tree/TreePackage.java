@@ -103,4 +103,18 @@ public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializa
             return 1;
     }
 
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"id\"").append(":").append(id).append(", ");
+        sb.append("\"name\"").append(":\"").append(name).append("\", ");   
+        sb.append("\"parentId\"").append(":\"").append(parentId).append("\", ");    
+        sb.append("\"files\"").append(":").append("[");
+        for (TreeFile entry : files)
+            sb.append(entry.toJSON()).append(", ");
+        sb.delete(sb.length()-2, sb.length());
+        sb.append("]").append("}");
+        return sb.toString();
+    }
 }

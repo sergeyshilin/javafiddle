@@ -8,12 +8,16 @@ import com.javafiddle.web.tree.Tree;
 import com.javafiddle.web.tree.TreeFile;
 import com.javafiddle.web.tree.TreeNode;
 import com.javafiddle.web.tree.TreePackage;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SavingProjectRevision implements Runnable {
-    private static final String prefix = "C:\\JavaFiddle\\";
     Tree tree;
     IdList idList;
     TreeMap<Integer, TreeMap<Date, String>> files;
@@ -24,8 +28,23 @@ public class SavingProjectRevision implements Runnable {
         this.files = files;
     }
     
+    @Override
     public void run() {
-        SavingFile savingFile = new SavingFile("TestProject");
+        if (tree.getProjectHash() == null) {
+            try {
+                String raw = tree.getProjects().get(0).getName() + new Date().toString();
+                byte[] bytesOfMessage = raw.getBytes("UTF-8");
+
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] hash = md.digest(bytesOfMessage);
+                tree.setProjectHash(bytesToHex(hash));
+            } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+                Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
+                return;
+            }
+        }
+        
+        SavingFile savingFile = new SavingFile(tree.getProjectHash());
         
         savingFile.crearSrc();
                 
@@ -48,5 +67,17 @@ public class SavingProjectRevision implements Runnable {
                 }
             }
         }
+    }
+    
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        int v;
+        for ( int j = 0; j < bytes.length; j++ ) {
+            v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }

@@ -75,4 +75,15 @@ public class TreeFile implements TreeNode, Comparable<TreeFile>, Serializable {
         Collator collator = Collator.getInstance(new Locale("en", "US"));
         return collator.compare(name, compareObject.name);
     }
+    
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"id\"").append(":").append(id).append(", ");
+        sb.append("\"name\"").append(":\"").append(name).append("\", ");      
+        sb.append("\"type\"").append(":\"").append(type).append("\"");
+        sb.append("}");
+        return sb.toString();
+    }
 }

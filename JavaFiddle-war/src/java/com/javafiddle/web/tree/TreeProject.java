@@ -114,4 +114,18 @@ public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializa
         Collator collator = Collator.getInstance(new Locale("en", "US"));
         return collator.compare(name, compareObject.name);
     }
+    
+    @Override
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"id\"").append(":").append(id).append(", ");
+        sb.append("\"name\"").append(":\"").append(name).append("\", ");      
+        sb.append("\"packages\"").append(":").append("[");
+        for (TreePackage entry : packages)
+            sb.append(entry.toJSON()).append(", ");
+        sb.delete(sb.length()-2, sb.length());
+        sb.append("]").append("}");
+        return sb.toString();
+    }
 }

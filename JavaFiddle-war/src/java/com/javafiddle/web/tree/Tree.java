@@ -8,8 +8,16 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Tree implements Serializable {
-
+    private String projectHash;
     private List<TreeProject> projects = new ArrayList<>();
+
+    public String getProjectHash() {
+        return projectHash;
+    }
+
+    public void setProjectHash(String projectHash) {
+        this.projectHash = projectHash;
+    }
     
     public boolean isEmpty() {
         return projects.isEmpty();
@@ -74,4 +82,14 @@ public class Tree implements Serializable {
         return list;
     }
 
+    public String toJSON() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");  
+        sb.append("\"projects\"").append(":").append("[");
+        for (TreeProject entry : projects)
+            sb.append(entry.toJSON()).append(", ");
+        sb.delete(sb.length()-2, sb.length());
+        sb.append("]").append("}");
+        return sb.toString();
+    }
 }
