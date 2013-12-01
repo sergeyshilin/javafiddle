@@ -1,5 +1,6 @@
 package com.javafiddle.revisions;
 
+import com.javafiddle.web.templates.ClassTemplate;
 import com.javafiddle.web.tree.IdList;
 import com.javafiddle.web.tree.TreeFile;
 import java.text.DateFormat;
@@ -18,11 +19,10 @@ public class Revisions {
     }
     
     public void addFileRevision(TreeFile file, IdList idList) {
-        String id = new Integer(file.getId()).toString();
+        addFileRevision(file.getId(), null, new ClassTemplate(file, idList).getValue());
     }
     
     public int addFileRevision(int id, String timeStamp, String value) {
-
         if (!idList.isFile(id))
             return 400;
         

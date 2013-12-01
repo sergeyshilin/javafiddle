@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class SavingFile {
     private static final String sep = File.separator;
-    private static final String prefix = "C:" + sep + "user" + sep + "guest";
+    private static final String prefix = System.getProperty("user.home") + sep + "user" + sep + "guest";
     String projectId;
     
     public SavingFile(String projectId) {

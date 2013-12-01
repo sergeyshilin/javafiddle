@@ -48,19 +48,6 @@ public class TreeService implements Serializable {
     }
     
     @POST
-    @Path("tree/addProject")
-    @Consumes({"application/x-www-form-urlencoded"})
-    public Response addProject(
-            @Context HttpServletRequest request,
-            @FormParam("name") String name
-            ) {
-        if (name == null)
-            return Response.status(400).build();
-        tree.addProject(idList, name);
-        return Response.ok().build();
-    }
-    
-    @POST
     @Path("tree/addPackage")
     @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -77,7 +64,7 @@ public class TreeService implements Serializable {
         packages.add(name);
         return Response.ok().build();
     }
-    
+     
     @POST
     @Path("tree/addFile")
     @Produces(MediaType.TEXT_HTML)
@@ -235,7 +222,7 @@ public class TreeService implements Serializable {
             @Context HttpServletRequest request,
             @QueryParam("id") String idString
             ) {
-        if (idString == null)
+        if (idString == null) 
             return Response.status(400).build();
         Gson gson = new GsonBuilder().create();
         int id = TreeUtils.parseId(idString);
@@ -255,7 +242,7 @@ public class TreeService implements Serializable {
         projects.put(new Date(), tree);
         SavingProjectRevision spr = new SavingProjectRevision(tree, idList, files);			
 
-        Thread savingProject = new Thread(spr);	//Создание потока "myThready"
+        Thread savingProject = new Thread(spr);
         savingProject.start();	
         try {
             savingProject.join();

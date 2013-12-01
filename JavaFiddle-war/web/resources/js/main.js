@@ -91,14 +91,23 @@ function loadMainMenu() {
 function loadTabs() {
     var opened = getCurrentFileID();
     openedTabs().forEach(function(entry) {
-        var file = getFileDataById(entry);
-        var cl = file["type"];
-        var name = file["name"];
-        var li = addTabToPanel(entry, name, cl);
-        if (entry == opened)
-            selectTab(li);
-        if (isModified(entry))
-            $("#" + entry).addClass("modified");
+        var file;
+        if ((file = getFileDataById(entry)) !== false) {
+            var cl = file["type"];
+            var name = file["name"];
+            var li = addTabToPanel(entry, name, cl);
+            if (entry == opened)
+                selectTab(li);
+            if (isModified(entry))
+                $("#" + entry).addClass("modified");
+        } else {
+            var cl = "notfound";
+            var name = "not_found";
+            var li = addTabToPanel(entry, name, cl);
+            if (entry == opened)
+                selectTab(li);
+        }
+            
     });
 }
 
@@ -143,7 +152,6 @@ function selectTab(li) {
     getCurrentFileText();
     changeLastUpdateLabel();
     javaEditor.focus();
-
 }
 
 function closeTab(parent) {
@@ -1064,9 +1072,9 @@ function getFileDataById(id) {
             filedata = data;
         },
         error: function(jqXHR) {
-            if (jqXHR.status === 410)
-                invalidateSession();
-            filedata = "";
+          /*  if (jqXHR.status === 410)
+                invalidateSession(); */
+            filedata = false;
         }
     }); 
     

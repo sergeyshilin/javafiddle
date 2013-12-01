@@ -348,6 +348,7 @@ ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
 ul#tabpanel li.exception{background-image: url('images/idea-class-exception.png')}
 ul#tabpanel li.enum{background-image: url('images/idea-class-enum.png')}
 ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.png')}
+ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 
 /**
 * Content
