@@ -9,6 +9,8 @@ import com.javafiddle.web.tree.TreeFile;
 import com.javafiddle.web.tree.TreeNode;
 import com.javafiddle.web.tree.TreePackage;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -31,17 +33,10 @@ public class SavingProjectRevision implements Runnable {
     @Override
     public void run() {
         if (tree.getProjectHash() == null) {
-            try {
-                String raw = tree.getProjects().get(0).getName() + new Date().toString();
-                byte[] bytesOfMessage = raw.getBytes("UTF-8");
-
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                byte[] hash = md.digest(bytesOfMessage);
-                tree.setProjectHash(bytesToHex(hash));
-            } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-                Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
+            String hash = getHash(tree.getProjects().get(0).getName() + new Date().toString());
+            if (hash == null)
                 return;
-            }
+            tree.setProjectHash(hash);
         }
         
         SavingFile savingFile = new SavingFile(tree.getProjectHash());
@@ -69,15 +64,28 @@ public class SavingProjectRevision implements Runnable {
         }
     }
     
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    private static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        int v;
-        for ( int j = 0; j < bytes.length; j++ ) {
-            v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    private String getHash(String raw) {
+        try {
+            byte[] bytesOfMessage = raw.getBytes("UTF-8");
+
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] byteHash = md.digest(bytesOfMessage);
+            BigInteger bigInt = new BigInteger(1, byteHash);
+            String numberHash = bigInt.toString().substring(0, 18);
+            Long longHash = Long.parseLong(numberHash);
+            StringBuilder charHash = new StringBuilder();
+            for (int i = 0; i < 11; i++) {
+                int chr = (int)(longHash%52);
+                if (chr < 26) {
+                    charHash.append((char)(chr + 'a'));
+                } else {
+                    charHash.append((char)(chr - 26 + 'A'));
+                }
+                longHash /= 52;
+            }
+            return charHash.toString();
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+            return null;
         }
-        return new String(hexChars);
     }
 }

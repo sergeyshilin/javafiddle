@@ -60,6 +60,7 @@ public class Tree implements Serializable {
         
         projects.remove(tpr);
         idList.remove(projectId);
+        setProjectHash(null);
     }
 
     public static ArrayList<String> getPackagesNames(List packages) {

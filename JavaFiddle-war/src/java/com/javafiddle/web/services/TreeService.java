@@ -260,7 +260,9 @@ public class TreeService implements Serializable {
         } catch (InterruptedException ex) {
             
         }
-        return Response.ok().build();
+        Gson gson = new GsonBuilder().create();
+        String hash = tree.getProjectHash();
+        return Response.ok(hash, MediaType.TEXT_PLAIN).build();
     }
     
     @GET

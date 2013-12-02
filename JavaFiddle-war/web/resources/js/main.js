@@ -1029,8 +1029,8 @@ function saveProject() {
         url: PATH + '/webapi/revisions/project',
         type:'POST', 
         contentType: "application/json",
-        success: function() {
-            document.getElementById("latest_update").innerHTML = "Проект сохранен";
+        success: function(data) {
+            document.getElementById("latest_update").innerHTML = "Проект сохранен c хешем " + data;
         }
     });
 }
