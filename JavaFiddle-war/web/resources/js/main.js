@@ -685,6 +685,23 @@ function showAddFileWindow(package_id) {
     showPopup($div, params);
 }
 
+function showProjectSettings() {
+    $div = drawProjectSettings();
+    var params = {
+        width: 600,
+        height: 180
+    };
+    showPopup($div, params); 
+}
+
+function drawProjectSettings() {
+    $div = $("<div/>", {
+        
+    });
+    
+    return $div;
+}
+
 function drawAddPackageWindow(id) {
     $div = $('<div/>', {
         id: "addpackage" 
