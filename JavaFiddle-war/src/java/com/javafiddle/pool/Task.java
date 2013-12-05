@@ -1,0 +1,59 @@
+package com.javafiddle.pool;
+
+import com.javafiddle.runner.Launcher;
+import java.io.InputStream;
+
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.Queue;
+
+/**
+ * Classfile for project JavaFiddleCompiler
+ * Author: Sergey Shilin
+ * Email: sergey.shilin@phystech.edu
+ * Date: 24.11.13
+ */
+public class Task extends Thread {
+
+    private String id = null;
+    private TaskStatus status = TaskStatus.STARTING;
+    private TaskType type = null;
+    private Date startDate = null;
+    private Date startCompilationDate = null;
+    private Date endDate = null;
+    private Launcher process;
+
+    public Task(TaskType type, Launcher process) {
+        this.type = type;
+        this.process = process;
+        this.startDate = new Date();
+    }
+
+    @Override
+    public void run() {
+        startCompilationDate = new Date();
+        status = TaskStatus.LAUNCHED;
+        try {
+            process.run();
+        } catch (Exception e) {
+            status = TaskStatus.ERROR;
+            e.printStackTrace();
+        }
+        finally {
+            endDate = new Date();
+        }
+    }
+
+    public void kill() {
+        process.destroy();
+    }
+
+    public String getInputStream() {
+        return process.getInputStream();
+    }
+
+    public InputStream getErrorStream() {
+        return process.getErrorStream();
+    }
+
+}

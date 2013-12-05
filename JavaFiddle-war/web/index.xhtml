@@ -85,15 +85,15 @@
                         </li>
                         <li><div class="link">Вид</div>
                             <ul>
-                                <li>Отобразить консоль</li>
+                                <li onclick="showConsoleWindow();">Отобразить консоль</li>
                                 <li onclick="closeProjectTreePanel($(this));">Скрыть дерево проекта</li>
                                 <li onclick='javaEditor.setOption("fullScreen", false);'>Полноэкранный режим</li>
                             </ul>
                         </li>
                         <li><div class="link">Выполнение</div>
                             <ul>
-                                <li>Компилировать</li>
-                                <li>Выполнить</li>
+                                <li onclick="compile();">Компилировать</li>
+                                <li onclick="execute();">Выполнить</li>
                                 <li onclick="showProjectSettings();">Настройки</li>
                             </ul>
                         </li>
@@ -131,8 +131,8 @@
                     <li><h:commandButton value="" type="button" id="paste" title="Вставить" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><h:commandButton value="" type="button" id="compile" title="Компиляция"/></li>
-                    <li><h:commandButton value="" type="button" id="run" onclick="addFiles();" title="Выполнение"/></li>
+                    <li><h:commandButton value="" type="button" id="compile" onclick="compile();" title="Компиляция"/></li>
+                    <li><h:commandButton value="" type="button" id="run" onclick="execute();" title="Выполнение"/></li>
                 </ul>  
                 <ul id="tabpanel">
                 </ul>
@@ -140,11 +140,11 @@
             </div>
         </div>
         <div id="content">
-            <h:panelGroup layout="block" id="treepanel" class="mainblock">
+            <div id="treepanel" class="mainblock">
                 <div id="tree" class="project">
 
                 </div>
-            </h:panelGroup>
+            </div>
 
             <div id="codetext" class="mainblock">
                 <h:inputTextarea id="textarea"/>
@@ -191,6 +191,9 @@
                     });
                 //]]>
                 </script>
+            </div>
+            
+            <div id="compilation-window" class="mainblock closed">
             </div>
         </div>
     </h:body>

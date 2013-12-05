@@ -34,6 +34,7 @@ function setContentHeight() {
     var $code = $("#codetext");
     var $codearea = $("#textarea");
     var $tabpanel = $("#tabpanel");
+    var $compilation = $("#compilation-window");
     var height = $(window).height() - $header.height();
     var width = $(window).width();
     
@@ -42,8 +43,13 @@ function setContentHeight() {
     
     $tree.height(height - 30);
     
-    $code.height(height - 30);
+    if ($compilation.height() > 0)
+        $code.height(height -$compilation.height() - 47);
+    else 
+        $code.height(height -$compilation.height() - 30);
     $code.width(width - $tree.width() - 50);
+    
+    $compilation.width(width - $tree.width() - 50);
     
     $codearea.height($code.height() - 20);
     $codearea.width($code.width() - 20);
@@ -428,6 +434,7 @@ function removeFromProject(id) {
 }
 
 function closeProjectTreePanel($li) {
+    closeAllPopUps();
     if($li.hasClass('closed')) {
         $("#treepanel").css("display", "block");
         setContentHeight();
@@ -437,6 +444,7 @@ function closeProjectTreePanel($li) {
         $li.addClass('closed');
         $("#treepanel").css("display", "none");
         $("#codetext").width($(window).width() - 30);
+        $("#compilation-window").width($(window).width() - 30);
         $li.text("Отобразить дерево проекта");
     }
     
@@ -686,12 +694,35 @@ function showAddFileWindow(package_id) {
 }
 
 function showProjectSettings() {
+    closeAllPopUps();
     $div = drawProjectSettings();
     var params = {
-        width: 600,
+        width: 400,
         height: 180
     };
     showPopup($div, params); 
+}
+
+function showConsoleWindow() {
+    closeAllPopUps();
+    $compilation = $("#compilation-window");
+    if($compilation.hasClass("closed")) {
+        $compilation.height(130);
+        setContentHeight();
+        $("#compilation-window").css("display", "block");
+        $compilation.removeClass("closed");
+    } else {
+        $compilation.addClass("closed");
+        $compilation.height(0);
+        $("#compilation-window").css("display", "none");
+        setContentHeight();
+    }
+}
+
+function isConsoleOpened() {
+    if($("#compilation-window").hasClass("closed"))
+        return false;
+    return true;
 }
 
 function drawProjectSettings() {
@@ -1111,4 +1142,68 @@ function getProjectName(id) {
         }
     }); 
     return name;
+}
+
+/**
+ * Compilation and Executing
+ */
+
+function compile() {
+    if(!isConsoleOpened()) {
+        showConsoleWindow();
+    }
+    
+    saveProject();
+    
+    $.ajax({
+        url: PATH + '/webapi/run/compile',
+        type: 'POST',
+        contentType: "application/x-www-form-urlencoded",
+        success: function() {
+        }
+    });  
+    
+    $("#compilation-window").text("");
+       
+    (function poll(){
+        setTimeout(function(){
+            $.ajax({ url: "webapi/run/output", success: function(data){
+                if(data != null && data.localeCompare("#END_OF_STREAM#") == 0) {
+                    return 0;
+                }
+                if(data != null)
+                    $("#compilation-window").append(data).append("</br>");
+                poll();
+            }, contentType: "application/json" });
+        }, 300);
+    })();
+}
+
+function execute() {
+    if(!isConsoleOpened()) {
+        showConsoleWindow();
+    }
+    
+    $.ajax({
+        url: PATH + '/webapi/run/execute',
+        type: 'POST',
+        contentType: "application/x-www-form-urlencoded",
+        success: function() {
+        }
+    });  
+    
+    $("#compilation-window").text("");
+       
+    (function poll(){
+        setTimeout(function(){
+            $.ajax({ url: "webapi/run/output", success: function(data){
+                if(data != null && data.localeCompare("#END_OF_STREAM#") == 0) {
+                    return 0;
+                }
+                if(data != null)
+                    $("#compilation-window").append(data).append("</br>");
+                poll();
+            }, contentType: "application/json" });
+        }, 300);
+    })();
 }

@@ -2,17 +2,31 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.javafiddle.pool.Task;
+import com.javafiddle.pool.TaskPool;
+import com.javafiddle.pool.TaskType;
 import com.javafiddle.revisions.Revisions;
+import com.javafiddle.runner.Compilation;
+import com.javafiddle.runner.Execution;
+import com.javafiddle.runner.LaunchPermissions;
 import com.javafiddle.saving.GetProjectRevision;
 import com.javafiddle.saving.SavingProjectRevision;
 import com.javafiddle.web.services.utils.*;
 import com.javafiddle.web.tree.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +39,7 @@ public class TreeService implements Serializable {
     Tree tree;
     IdList idList;
     ArrayList<String> packages;
+    TaskPool pool;
     
     TreeMap<Date, Tree> projectRevisions = new TreeMap<>();
     TreeMap<Integer, TreeMap<Date, String>> files = new TreeMap<>();
@@ -33,6 +48,7 @@ public class TreeService implements Serializable {
         idList = new IdList();
         tree = new Tree();
         packages = new ArrayList<>();
+        pool = new TaskPool();
     }
 
     // for example, http://localhost:8080/JavaFiddle-war/webapi/503E1DC0CC57D63C3ACA97C9F4B2376E
@@ -323,4 +339,74 @@ public class TreeService implements Serializable {
         }     
         return Response.ok(gson.toJson(fr), MediaType.APPLICATION_JSON).build();
     }
+    
+    /**
+     * Compile && Executing
+     */
+    
+    @POST
+    @Path("run/compile")
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response compile(
+            @Context HttpServletRequest request
+            ) {
+        AccessController.doPrivileged(new PrivilegedAction() {
+            @Override
+            public Object run() {
+                Task task = new Task(TaskType.COMPILATION, new Compilation("/home/snape/user/guest/" + tree.getProjectHash() + "/src/com/myfirstproject/web/Main.java"));
+                pool.add(task);
+                task.start();
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                task.kill();
+
+                return null;
+            }
+        }, LaunchPermissions.getSecureContext());
+        return Response.ok().build();
+    }
+    
+    @POST
+    @Path("run/execute")
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response execute(
+            @Context HttpServletRequest request
+            ) {
+        AccessController.doPrivileged(new PrivilegedAction() {
+            @Override
+            public Object run() {
+                Task task = new Task(TaskType.EXECUTION, new Execution("-classpath /home/snape/user/guest/" + tree.getProjectHash() + "/src/", "com.myfirstproject.web.Main"));
+                pool.add(task);
+                task.start();
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                task.kill();
+
+                return null;
+            }
+        }, LaunchPermissions.getSecureContext());
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("run/output")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOutput(
+            @Context HttpServletRequest request
+            ){
+            Gson gson = new GsonBuilder().create();
+            
+            String result = pool.get(pool.size()-1).getInputStream();
+          
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+    }
+    
 }
