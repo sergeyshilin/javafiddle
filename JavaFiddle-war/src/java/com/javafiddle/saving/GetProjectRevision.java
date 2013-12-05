@@ -1,34 +1,94 @@
 package com.javafiddle.saving;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.javafiddle.web.services.utils.Hashes;
+import com.javafiddle.web.services.utils.Utility;
+import com.javafiddle.web.tree.Tree;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class GetProjectRevision {
     private static final String sep = File.separator;
     private static final String prefix = System.getProperty("user.home") + sep + "user" + sep + "guest";
-    
-    public String readFile(String hash) {
-        File file = new File(prefix + sep + hash);
-        if (!file.exists())
-            return "not exists, sorry";
-        return viewAll(file);
+    private String branchHash;
+    private String treeHash;
+
+    public GetProjectRevision(String hash) {
+        branchHash = hash.substring(0, Hashes.branchHashLength);
+        treeHash = hash.substring(Hashes.branchHashLength, Hashes.branchHashLength + Hashes.treeHashLength);
     }
 
-    public String viewAll(File file) {
-        StringBuilder sb = new StringBuilder();
+    public GetProjectRevision(Hashes hashes) {
+        branchHash = hashes.getBranchHash();
+        treeHash = hashes.getTreeHash();
+    }
+    
+    public boolean treeExists() {
+        String path = prefix + sep + branchHash + sep + "revisions" + sep + "tree" + sep + treeHash;
+        File file = new File(path);
+        if (!file.exists())
+            return false;
+        return true;
+    }
+    
+    public Tree getTree() {
+         return getTree(treeHash);
+    }
+    
+    public Tree getTree(String treeHash) {
+        String path = prefix + sep + branchHash + sep + "revisions" + sep + "tree" + sep + treeHash;
+        String treejson = readFile(path);
+        Gson gson = new GsonBuilder().create();
         
-        if(!file.exists())
-            return "";
-        if(file.isDirectory()) {
-            sb.append(file.getName()).append("\n");
-            for(File f : file.listFiles())
-                sb.append(viewAll(f)).append("\n");
-        } else {
-          sb.append(file.getName());
+        return gson.fromJson(treejson, Tree.class);
+    }
+    
+    public String getFile(String pack, int id, Date date) {
+        String path = prefix + sep + branchHash + sep + "revisions" + sep + id + sep + Utility.DateToString(date);
+        String file = readFile(path);
+        
+        return file;
+    }
+    
+    public ArrayList<Tree> findParents(Tree tree) {
+        ArrayList<Tree> treeList = new ArrayList<>();
+        Tree current = tree;
+        if (current == null)
+            return null;
+        treeList.add(current);
+        int i = 0;
+        while (current.hashes.getParentTreeHash() != null && i < 50) {
+            current = getTree(current.hashes.getParentTreeHash());
+            if (current == null)
+                break;
+            treeList.add(current); 
+            i++;
         }
-        return sb.toString().replace("\n", "\n ");
-        
+
+        return treeList;
+    } 
+    
+    static String readFile(String path) {
+        StringBuilder text = new StringBuilder();
+        try {
+            try (BufferedReader reader = new BufferedReader(
+		   new InputStreamReader(
+                      new FileInputStream(path), "UTF8"))) {
+                String line;
+                while ((line = reader.readLine()) != null)
+                    text.append(line).append("\n");
+            }
+        } catch(IOException e) {
+            System.out.println("I/O Exception while reading file");
+        }
+
+        return text.toString();
     }
 }

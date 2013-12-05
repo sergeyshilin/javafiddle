@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeMap;
 
 public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializable {
     private final IdNodeType nodeType = IdNodeType.PROJECT;
@@ -124,8 +125,18 @@ public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializa
         sb.append("\"packages\"").append(":").append("[");
         for (TreePackage entry : packages)
             sb.append(entry.toJSON()).append(", ");
-        sb.delete(sb.length()-2, sb.length());
+        if (!packages.isEmpty())
+            sb.delete(sb.length()-2, sb.length());
         sb.append("]").append("}");
         return sb.toString();
+    }
+    
+    public TreeMap<Integer, TreeNode> getIdList() {
+        TreeMap<Integer, TreeNode> idList = new TreeMap<>();
+        for (TreePackage entry : packages) {
+            idList.put(entry.getId(), entry);
+            idList.putAll(entry.getIdList());
+        }
+        return idList;
     }
 }

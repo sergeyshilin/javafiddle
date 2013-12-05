@@ -1,10 +1,10 @@
 package com.javafiddle.saving;
 
+import com.javafiddle.web.services.utils.Utility;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class SavingFile {
@@ -16,14 +16,23 @@ public class SavingFile {
         this.projectId = projectId;
     }
     
-    public void saveRevision(int fileId, Date timeStamp, String text) {
-        saveRevision(String.valueOf(fileId), timeStamp, text);
+    public void saveRevisionsList(ArrayList<Date> dateList) {
+        String path = prefix + sep + projectId + sep + "revisions" + sep + "list";
+        StringBuilder sb = new StringBuilder();
+        for (Date temp : dateList)
+            sb.append(Utility.DateToString(temp)).append(", ");
+        if (!dateList.isEmpty())
+            sb.delete(sb.length()-2, sb.length());
+        writeFile(path, sb.toString());
     }
-     
-    public void saveRevision(String fileId, Date timeStamp, String text) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        String time = df.format(timeStamp);
-        String path = prefix + sep + projectId + sep + "revisions" + sep + fileId + sep + time;
+    
+    public void saveTree(String hash, String text) {
+        String path = prefix + sep + projectId + sep + "revisions" + sep + "tree" + sep + hash;
+        writeFile(path, text); 
+    }
+    
+    public void saveRevision(int fileId, Date timeStamp, String text) {
+        String path = prefix + sep + projectId + sep + "revisions" + sep + fileId + sep + Utility.DateToString(timeStamp);
         writeFile(path, text);
     }
       

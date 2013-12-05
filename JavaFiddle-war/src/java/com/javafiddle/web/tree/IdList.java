@@ -8,8 +8,14 @@ public class IdList extends HashMap<Integer, TreeNode> implements Serializable {
     private int count = 0;
 
     protected int add(TreeNode treeNode) {
-        put(count++, treeNode);
-        return count-1;              
+        super.put(count++, treeNode);
+        return count-1;  
+    }
+    
+    @Override
+    public TreeNode put(Integer key, TreeNode value) {
+        add(value);
+        return null;
     }
     
     public boolean isExist(int id) {
@@ -58,14 +64,12 @@ public class IdList extends HashMap<Integer, TreeNode> implements Serializable {
         return null;
     } 
     
-    public String toJson() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        for (Map.Entry<Integer, TreeNode> entry : entrySet())
-            sb.append(entry.getKey()).append(":").append(entry.getValue().getName()).append(", ");
-        sb.delete(sb.length()-2, sb.length());
-        sb.append("}");
-        return sb.toString();
+    public HashMap<Integer, TreeFile> getFileList() {
+        HashMap<Integer, TreeFile> fileList = new HashMap<>();
+        for (int id : this.keySet())
+            if (isFile(id))
+                fileList.put(id, getFile(id));
+        return fileList;
     }
 }
 
