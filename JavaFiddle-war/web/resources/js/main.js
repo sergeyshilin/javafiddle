@@ -381,7 +381,6 @@ function addFile(id) {
 
 function renameElement(id, type) {
     var name = $("#rename input").val();
-    alert(id + " " + type + " " + name);
     $input = $("#rename input");
     var name = name;
     $input.val(name);
@@ -577,6 +576,12 @@ function showContextMenu($el, event, classname) {
             $li = $('<li/>', {text: 'Добавить пакет'});
             $li.click(function() {
                 showAddPackageWindow(project_id); 
+                $ul.remove();
+            });
+            $li.appendTo($ul);
+            $li = $('<li/>', {text: 'Добавить файл'});
+            $li.click(function() {
+                showAddFileWindow(project_id); 
                 $ul.remove();
             });
             $li.appendTo($ul);
@@ -1180,7 +1185,7 @@ function compile() {
                     $("#stdout").append(data).append("</br>");
                 poll();
             }, contentType: "application/json" });
-        }, 100);
+        }, 5000);
     })();
 }
 

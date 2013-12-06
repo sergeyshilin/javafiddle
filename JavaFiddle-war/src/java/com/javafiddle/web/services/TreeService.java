@@ -353,23 +353,25 @@ public class TreeService implements Serializable {
     public Response compile(
             @Context HttpServletRequest request
             ) {
-        AccessController.doPrivileged(new PrivilegedAction() {
-            @Override
-            public Object run() {
-                String sep = File.separator;
-                Task task = new Task(TaskType.COMPILATION, new Compilation(System.getProperty("user.home") + sep + "user" + sep + "guest" + sep + tree.getProjectHash() + "/src/com/myfirstproject/web/Main.java"));
-                pool.add(task);
-                task.start();
-//                try {
-//                    task.sleep(15000);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                task.kill();
+        if(true) {         
+            AccessController.doPrivileged(new PrivilegedAction() {
+                @Override
+                public Object run() {
+                    String sep = File.separator;
+                    Task task = new Task(TaskType.COMPILATION, new Compilation(System.getProperty("user.home") + sep + "user" + sep + "guest" + sep + tree.getProjectHash() + "/src/com/myfirstproject/web/Main.java"));
+                    pool.add(task);
+                    task.start();
+    //                try {
+    //                    task.sleep(15000);
+    //                } catch (InterruptedException ex) {
+    //                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+    //                }
+    //                task.kill();
 
-                return null;
-            }
-        }, LaunchPermissions.getSecureContext());
+                    return null;
+                }
+            }, LaunchPermissions.getSecureContext());
+        }
         return Response.ok().build();
     }
     
