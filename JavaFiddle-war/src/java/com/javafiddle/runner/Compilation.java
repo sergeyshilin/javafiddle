@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -36,6 +37,17 @@ public class Compilation implements Launcher {
     public Compilation(String pathtofile) {
         this.stream = new LinkedList<>();
         this.filepath = pathtofile;
+    }
+    
+    public Compilation(ArrayList<String> filespath) {
+        StringBuilder result = new StringBuilder();
+        for(int i = 0; i < filespath.size(); i++) {
+            result.append(filespath.get(i)).append(" ");
+        }
+        result.deleteCharAt(result.length() - 1);
+        
+        this.stream = new LinkedList<>();
+        this.filepath = result.toString();
     }
 
     @Override
