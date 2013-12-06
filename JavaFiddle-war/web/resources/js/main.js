@@ -35,6 +35,8 @@ function setContentHeight() {
     var $codearea = $("#textarea");
     var $tabpanel = $("#tabpanel");
     var $compilation = $("#compilation-window");
+    var $stdout = $("#stdout");
+    var $stdin = $("#stdin");
     var height = $(window).height() - $header.height();
     var width = $(window).width();
     
@@ -50,6 +52,9 @@ function setContentHeight() {
     $code.width(width - $tree.width() - 50);
     
     $compilation.width(width - $tree.width() - 50);
+    $stdout.height($compilation.height() - $stdin.height() - 11);    
+    $stdout.width($compilation.width() - 10);
+    $("#stdinput").width($compilation.width() - 90);
     
     $codearea.height($code.height() - 20);
     $codearea.width($code.width() - 20);
@@ -1163,7 +1168,7 @@ function compile() {
         }
     });  
     
-    $("#compilation-window").text("");
+    $("#stdout").text("");
        
     (function poll(){
         setTimeout(function(){
@@ -1172,10 +1177,10 @@ function compile() {
                     return 0;
                 }
                 if(data != null)
-                    $("#compilation-window").append(data).append("</br>");
+                    $("#stdout").append(data).append("</br>");
                 poll();
             }, contentType: "application/json" });
-        }, 300);
+        }, 100);
     })();
 }
 
@@ -1192,7 +1197,7 @@ function execute() {
         }
     });  
     
-    $("#compilation-window").text("");
+    $("#stdout").text("");
        
     (function poll(){
         setTimeout(function(){
@@ -1201,9 +1206,23 @@ function execute() {
                     return 0;
                 }
                 if(data != null)
-                    $("#compilation-window").append(data).append("</br>");
+                    $("#stdout").append(data).append("</br>");
                 poll();
             }, contentType: "application/json" });
         }, 300);
     })();
+}
+
+function sendInput() {
+    var input = $("#stdinput").val();
+    $.ajax({
+        url: PATH + '/webapi/run/send',
+        type: 'POST',
+        contentType: "application/x-www-form-urlencoded",
+        data: {input: input},
+        success: function() {
+            $("#stdinput").val("");
+            return false;
+        }
+    }); 
 }

@@ -2,6 +2,7 @@ package com.javafiddle.pool;
 
 import com.javafiddle.runner.Launcher;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -41,6 +42,7 @@ public class Task extends Thread {
         }
         finally {
             endDate = new Date();
+            status = TaskStatus.COMPLETED;
         }
     }
 
@@ -48,12 +50,38 @@ public class Task extends Thread {
         process.destroy();
     }
 
-    public String getInputStream() {
-        return process.getInputStream();
+    public String getOutputStream() {
+        return process.getOutputStream();
     }
 
     public InputStream getErrorStream() {
         return process.getErrorStream();
+    }
+    
+    public Boolean isCompleted() {
+        if(status == TaskStatus.COMPLETED)
+            return true;
+        return false;
+    }
+
+    public Boolean streamIsEmpty() {
+        return process.streamIsEmpty();
+    }
+    
+    public Date getStartTime() {
+        return startCompilationDate;
+    }
+    
+    public Date getEndTime() {
+        return endDate;
+    }
+
+    public OutputStream getInputStream() {
+        return process.getInputStream();
+    }
+
+    public Launcher getProcess() {
+        return process;
     }
 
 }

@@ -4,9 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Classfile for project JavaFiddleCompiler
@@ -40,7 +44,7 @@ public class Compilation implements Launcher {
             String command = "javac " + args + " " + filepath;
             process = Runtime.getRuntime().exec(command);
             printLines(" stdout:", process.getInputStream());
-            printLines(" stderr:", process.getErrorStream());
+            printLines(" <span style='color:red'>stderr:</span>", process.getErrorStream());
             process.waitFor();
             stream.add(" exitValue() " + process.exitValue());
             stream.add("#END_OF_STREAM#");
@@ -89,12 +93,31 @@ public class Compilation implements Launcher {
     }
 
     @Override
-    public String getInputStream() {
+    public String getOutputStream() {
         return stream.poll();
+    }
+    
+    @Override
+    public OutputStream getInputStream() {
+        return process.getOutputStream();
     }
     
     @Override
     public InputStream getErrorStream() {
         return process.getErrorStream();
+    }
+
+    @Override
+    public Boolean streamIsEmpty() {
+        return stream.isEmpty();
+    }
+
+    @Override
+    public void send(String input) {
+        try {
+            process.getOutputStream().write(input.getBytes(Charset.forName("UTF-8")));
+        } catch (IOException ex) {
+            Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

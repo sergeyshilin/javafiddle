@@ -14,9 +14,11 @@ import com.javafiddle.saving.SavingProjectRevision;
 import com.javafiddle.web.services.utils.*;
 import com.javafiddle.web.tree.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -354,15 +356,16 @@ public class TreeService implements Serializable {
         AccessController.doPrivileged(new PrivilegedAction() {
             @Override
             public Object run() {
-                Task task = new Task(TaskType.COMPILATION, new Compilation("/home/snape/user/guest/" + tree.getProjectHash() + "/src/com/myfirstproject/web/Main.java"));
+                String sep = File.separator;
+                Task task = new Task(TaskType.COMPILATION, new Compilation(System.getProperty("user.home") + sep + "user" + sep + "guest" + sep + tree.getProjectHash() + "/src/com/myfirstproject/web/Main.java"));
                 pool.add(task);
                 task.start();
-                try {
-                    Thread.sleep(15000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                task.kill();
+//                try {
+//                    task.sleep(15000);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                task.kill();
 
                 return null;
             }
@@ -380,15 +383,16 @@ public class TreeService implements Serializable {
         AccessController.doPrivileged(new PrivilegedAction() {
             @Override
             public Object run() {
-                Task task = new Task(TaskType.EXECUTION, new Execution("-classpath /home/snape/user/guest/" + tree.getProjectHash() + "/src/", "com.myfirstproject.web.Main"));
+                String sep = File.separator;
+                Task task = new Task(TaskType.EXECUTION, new Execution("-classpath " + System.getProperty("user.home") + sep + "user" + sep + "guest" + sep + tree.getProjectHash() + sep + "src" + sep, "com.myfirstproject.web.Main"));
                 pool.add(task);
                 task.start();
-                try {
-                    Thread.sleep(15000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                task.kill();
+//                try {
+//                    Thread.sleep(15000);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                task.kill();
 
                 return null;
             }
@@ -404,9 +408,40 @@ public class TreeService implements Serializable {
             ){
             Gson gson = new GsonBuilder().create();
             
-            String result = pool.get(pool.size()-1).getInputStream();
-          
-        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+            Task task = pool.get(pool.size()-1);
+            
+            String result = task.getOutputStream();
+            
+//            if(!task.isCompleted()) {
+//                long seconds = (task.getStartTime().getTime() - task.getEndTime().getTime()) / 1000;
+//                if(seconds > 15) {
+//                    task.kill();
+//                    return Response.status(400).build();
+//                }
+//            }
+            
+            return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+     
+    }
+    
+    @POST
+    @Path("run/send")
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response setInput(
+            @Context HttpServletRequest request,
+            @FormParam("input") String input
+            ) {
+            
+            Task task = pool.get(pool.size()-1);
+            OutputStream stream = task.getInputStream();
+//        try {
+//            stream.write(new String(input + "\n").getBytes());
+//        } catch (IOException ex) {
+//            Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+            task.getProcess().send(input + "\n");
+        return Response.ok().build();
     }
     
 }

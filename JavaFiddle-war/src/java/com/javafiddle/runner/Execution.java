@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -84,14 +85,29 @@ public class Execution implements Launcher {
         }
     }
 
-    @Override
-    public String getInputStream() {
+     @Override
+    public String getOutputStream() {
         return stream.poll();
+    }
+    
+    @Override
+    public OutputStream getInputStream() {
+        return process.getOutputStream();
     }
     
     @Override
     public InputStream getErrorStream() {
         return process.getErrorStream();
+    }
+
+    @Override
+    public Boolean streamIsEmpty() {
+        return stream.isEmpty();
+    }
+
+    @Override
+    public void send(String input) {
+        
     }
 
 }
