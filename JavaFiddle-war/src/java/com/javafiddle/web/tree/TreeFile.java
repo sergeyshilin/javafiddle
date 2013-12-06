@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.text.Collator;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 
 public class TreeFile implements TreeNode, Comparable<TreeFile>, Serializable { 
     private final IdNodeType nodeType = IdNodeType.FILE;

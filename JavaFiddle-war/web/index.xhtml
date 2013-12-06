@@ -1,43 +1,40 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
         <title>Java Fiddle</title>
-        <h:outputStylesheet library="css" name="style.css" />
-        <h:outputScript library="js" name="jquery-1.10.2.min.js" target="head"/>
-        <h:outputScript library="js" name="main.js" target="head"/>
-        <h:outputScript library="js" name="sessionstorage.js" target="head"/>
-        <h:outputScript library="js" name="moment-with-langs.min.js" target="head"/>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/lib/codemirror.js"></script>
-        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/lib/codemirror.css"></link>
-        <link rel="stylesheet" href="#{request.contextPath}/resources/cm/theme/idea.css"/>
-        <!-- Start of editor scripts -->
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/mode/java.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/matchbrackets.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/edit/closebrackets.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/brace-fold.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/comment-fold.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/foldcode.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/foldgutter.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/fold/indent-fold.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/dialog/dialog.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/search/searchcursor.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/search/search.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/selection/active-line.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/selection/mark-selection.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/show-hint.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/hint/anyword-hint.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/cm/addon/display/fullscreen.js"></script>
-         
-        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/fold/fold.css"></link>
-        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/dialog/dialog.css"></link>
-        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/hint/show-hint.css"></link>
-        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/cm/addon/display/fullscreen.css"></link>
-        <!-- End of editor scripts -->
-        <style media="all" type="text/css">
-            @import url("#{request.contextPath}/resources/css/osans.css");
-        </style>
+        <h:outputScript library="js" name="jquery-1.10.2.min.js"/>
+        <h:outputScript library="js" name="moment-with-langs.min.js"/>
+        <h:outputScript library="js" name="main.js"/>
+        <h:outputScript library="js" name="sessionstorage.js"/>
+       
+        <h:outputScript library="cm" name="lib/codemirror.js"/>
+        <h:outputScript library="cm" name="mode/java.js"/>
+        <h:outputScript library="cm" name="addon/edit/matchbrackets.js"/>
+        <h:outputScript library="cm" name="addon/edit/closebrackets.js"/>
+        <h:outputScript library="cm" name="addon/fold/brace-fold.js"/>
+        <h:outputScript library="cm" name="addon/fold/comment-fold.js"/>
+        <h:outputScript library="cm" name="addon/fold/foldcode.js"/>
+        <h:outputScript library="cm" name="addon/fold/foldgutter.js"/>
+        <h:outputScript library="cm" name="addon/fold/indent-fold.js"/>
+        <h:outputScript library="cm" name="addon/dialog/dialog.js"/>
+        <h:outputScript library="cm" name="addon/search/searchcursor.js"/>
+        <h:outputScript library="cm" name="addon/search/search.js"/>
+        <h:outputScript library="cm" name="addon/selection/active-line.js"/>
+        <h:outputScript library="cm" name="addon/selection/mark-selection.js"/>
+        <h:outputScript library="cm" name="addon/hint/show-hint.js"/>
+        <h:outputScript library="cm" name="addon/hint/anyword-hint.js"/>
+        <h:outputScript library="cm" name="addon/display/fullscreen.js"/>
+        
+        <h:outputStylesheet library="css" name="style.css"/>
+        <h:outputStylesheet library="css" name="osans.css"/>
+
+        <h:outputStylesheet library="cm" name="lib/codemirror.css"/>
+        <h:outputStylesheet library="cm" name="theme/idea.css"/> 
+        <h:outputStylesheet library="cm" name="addon/fold/fold.css"/>
+        <h:outputStylesheet library="cm" name="addon/dialog/dialog.css"/>
+        <h:outputStylesheet library="cm" name="addon/hint/show-hint.css"/>
+        <h:outputStylesheet library="cm" name="addon/display/fullscreen.css"/>
     </h:head>
     <h:body>
         <div id="header">
@@ -150,7 +147,24 @@
                 <h:inputTextarea id="textarea"/>
                 <script type="text/javascript">
                 //<![CDATA[
-                    PATH = "#{request.contextPath}";
+                    $(document).ready(function(){
+                        PATH = "#{request.contextPath}";
+                        setContentHeight();
+                        loadMainMenu();
+                        loadLiHarmonica();
+                        var projecthash = "#{param['project']}";
+                        if(projecthash !== "") {
+                            getProject(projecthash);
+                            invalidateSession();
+                        }
+                        buildTree();
+                        loadTabs();
+                        loadToogles();
+                        $("body").click(function() {
+                            closeAllPopUps();
+                        });
+                    });                
+                    
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
                     };

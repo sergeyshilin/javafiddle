@@ -2,29 +2,16 @@ var PATH = "";
 var javaEditor;
 
 // EVENTS
-
-$(document).ready(function(){
-   setContentHeight();
-   loadMainMenu();
-   loadLiHarmonica();
-   buildTree();
-   loadTabs();
-   loadToogles();
-   $("body").click(function() {
-       closeAllPopUps();
-   });
-});
-
 $(window).resize(function() {
     setContentHeight();
 });
 
-window.onbeforeunload = function() {
+window.onbeforeunload = (function() {
     if (isEmpty('modified'))
         return;
     addCurrentFileText();
     return "ВНИМАНИЕ! В проекте есть несохраненные файлы. Когда сессия истечет, все несохраненные изменения будут потеряны!";
-};
+});
 
 function setContentHeight() {
     var MINSCREENWIDTH = 600;
@@ -102,8 +89,8 @@ function loadMainMenu() {
 function loadTabs() {
     var opened = getCurrentFileID();
     openedTabs().forEach(function(entry) {
-        var file;
-        if ((file = getFileDataById(entry)) !== false) {
+        var file = getFileDataById(entry);
+        if (file !== false) {
             var cl = file["type"];
             var name = file["name"];
             var li = addTabToPanel(entry, name, cl);
@@ -1089,6 +1076,20 @@ function saveProject() {
         contentType: "application/json",
         success: function(data) {
             document.getElementById("latest_update").innerHTML = "Проект сохранен c хешем " + data;
+        }
+    });
+}
+
+function getProject(projecthash) {
+    $.ajax({
+        url: PATH + '/webapi/revisions/project',
+        type:'GET',
+        async: false,
+        data: {projecthash : projecthash},
+        dataType: "json",
+        contentType: "application/json",
+        success: function(data) {
+            
         }
     });
 }

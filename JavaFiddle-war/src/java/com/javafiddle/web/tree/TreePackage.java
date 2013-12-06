@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeMap;
 
 public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializable {
     private final IdNodeType nodeType = IdNodeType.PACKAGE;
@@ -113,8 +114,16 @@ public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializa
         sb.append("\"files\"").append(":").append("[");
         for (TreeFile entry : files)
             sb.append(entry.toJSON()).append(", ");
-        sb.delete(sb.length()-2, sb.length());
+        if (!files.isEmpty())
+            sb.delete(sb.length()-2, sb.length());
         sb.append("]").append("}");
         return sb.toString();
+    }
+    
+    public TreeMap<Integer, TreeNode> getIdList() {
+        TreeMap<Integer, TreeNode> idList = new TreeMap<>();
+        for (TreeFile entry : files)
+            idList.put(entry.getId(), entry);
+        return idList;
     }
 }

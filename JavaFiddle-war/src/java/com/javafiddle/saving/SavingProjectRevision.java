@@ -2,6 +2,8 @@ package com.javafiddle.saving;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.javafiddle.web.services.utils.Hashes;
+import com.javafiddle.web.services.utils.Utility;
 import com.javafiddle.web.tree.IdList;
 import com.javafiddle.web.tree.IdNodeType;
 import com.javafiddle.web.tree.Tree;
@@ -10,41 +12,47 @@ import com.javafiddle.web.tree.TreeNode;
 import com.javafiddle.web.tree.TreePackage;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class SavingProjectRevision implements Runnable {
+public class SavingProjectRevision {
+    ArrayList projectRevisions;
     Tree tree;
     IdList idList;
     TreeMap<Integer, TreeMap<Date, String>> files;
     
-    public SavingProjectRevision(Tree tree, IdList idList, TreeMap<Integer, TreeMap<Date, String>> files) {
+    public SavingProjectRevision(ArrayList projectRevisions, Tree tree, IdList idList, TreeMap<Integer, TreeMap<Date, String>> files) {
+        this.projectRevisions = projectRevisions;
         this.tree = tree;
         this.idList = idList;
         this.files = files;
     }
     
-    @Override
-    public void run() {
-        if (tree.getProjectHash() == null) {
-            String hash = getHash(tree.getProjects().get(0).getName() + new Date().toString());
+    public void saveProject() {
+        if (tree.hashes.getBranchHash() == null) {
+            String hash = getHash(tree.getProjects().get(0).getName() + new Date().toString() + System.currentTimeMillis(), Hashes.branchHashLength);
             if (hash == null)
                 return;
-            tree.setProjectHash(hash);
+            tree.hashes.setBranchHash(hash);
         }
         
-        SavingFile savingFile = new SavingFile(tree.getProjectHash());
+        SavingFile savingFile = new SavingFile(tree.hashes.getBranchHash());
         
         savingFile.crearSrc();
-                
+               
         Gson gson = new GsonBuilder().create();
-        savingFile.saveRevision("tree", new Date(), gson.toJson(tree));
+        
+        // saving revisions list
+        savingFile.saveRevisionsList(projectRevisions);
+        
+        // saving tree
+        tree.hashes.setParentTreeHash(tree.hashes.getTreeHash());
+        tree.hashes.setTreeHash(getHash(new Date().toString() + System.currentTimeMillis(), Hashes.treeHashLength));
+        savingFile.saveTree(tree.hashes.getTreeHash(), gson.toJson(tree));
         
         int id;
         TreeFile tf;
@@ -64,7 +72,7 @@ public class SavingProjectRevision implements Runnable {
         }
     }
     
-    private String getHash(String raw) {
+    private static String getHash(String raw, int length) {
         try {
             byte[] bytesOfMessage = raw.getBytes("UTF-8");
 
@@ -74,7 +82,7 @@ public class SavingProjectRevision implements Runnable {
             String numberHash = bigInt.toString().substring(0, 18);
             Long longHash = Long.parseLong(numberHash);
             StringBuilder charHash = new StringBuilder();
-            for (int i = 0; i < 11; i++) {
+            for (int i = 0; i < length; i++) {
                 int chr = (int)(longHash%52);
                 if (chr < 26) {
                     charHash.append((char)(chr + 'a'));
