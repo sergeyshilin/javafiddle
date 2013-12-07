@@ -1220,7 +1220,7 @@ function sendInput() {
         success: function() {
             $("#stdinput").val("");
             $("#stdout").append("stdin: ").append(input).append("<br>");
-            return false;
         }
     }); 
+    return false;
 }

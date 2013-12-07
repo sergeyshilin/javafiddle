@@ -10,7 +10,7 @@ import com.javafiddle.runner.Compilation;
 import com.javafiddle.runner.Execution;
 import com.javafiddle.runner.LaunchPermissions;
 import com.javafiddle.saving.GetProjectRevision;
-import com.javafiddle.saving.SavingProjectRevision;
+import com.javafiddle.saving.ProjectRevisionSaver;
 import com.javafiddle.web.services.utils.*;
 import com.javafiddle.web.tree.*;
 import java.io.File;
@@ -262,7 +262,7 @@ public class TreeService implements Serializable {
             @Context HttpServletRequest request
             ) {
         projectRevisions.add(new Date());
-        SavingProjectRevision spr = new SavingProjectRevision(projectRevisions, tree, idList, files);			
+        ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);			
         spr.saveRevision();	
         String hash = tree.hashes.getBranchHash() + tree.hashes.getTreeHash();
         
@@ -367,7 +367,7 @@ public class TreeService implements Serializable {
     public Response compile(
             @Context HttpServletRequest request
             ) {
-        SavingProjectRevision spr = new SavingProjectRevision(projectRevisions, tree, idList, files);
+        ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);
         srcHash = spr.saveSrc(srcHash);
         if (srcHash == null)
             return Response.status(404).build();

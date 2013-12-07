@@ -31,7 +31,7 @@ public class GetProjectRevision {
     }
     
     public boolean treeExists() {
-        String path = prefix + sep + branchHash + sep + "revisions" + sep + "tree" + sep + treeHash;
+        String path = prefix + sep + branchHash + sep + "tree" + sep + treeHash;
         File file = new File(path);
         if (!file.exists())
             return false;
@@ -43,7 +43,7 @@ public class GetProjectRevision {
     }
     
     public Tree getTree(String treeHash) {
-        String path = prefix + sep + branchHash + sep + "revisions" + sep + "tree" + sep + treeHash;
+        String path = prefix + sep + branchHash + sep + "tree" + sep + treeHash;
         String treejson = readFile(path);
         Gson gson = new GsonBuilder().create();
         
@@ -51,7 +51,7 @@ public class GetProjectRevision {
     }
     
     public String getFile(String pack, int id, Date date) {
-        String path = prefix + sep + branchHash + sep + "revisions" + sep + id + sep + Utility.DateToString(date);
+        String path = prefix + sep + branchHash + sep + id + sep + Utility.DateToString(date);
         String file = readFile(path);
         
         return file;

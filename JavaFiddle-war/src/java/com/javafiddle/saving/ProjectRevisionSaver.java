@@ -24,13 +24,13 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SavingProjectRevision {
+public class ProjectRevisionSaver {
     ArrayList projectRevisions;
     Tree tree;
     IdList idList;
     TreeMap<Integer, TreeMap<Date, String>> files;
     
-    public SavingProjectRevision(ArrayList projectRevisions, Tree tree, IdList idList, TreeMap<Integer, TreeMap<Date, String>> files) {
+    public ProjectRevisionSaver(ArrayList projectRevisions, Tree tree, IdList idList, TreeMap<Integer, TreeMap<Date, String>> files) {
         this.projectRevisions = projectRevisions;
         this.tree = tree;
         this.idList = idList;
@@ -45,7 +45,7 @@ public class SavingProjectRevision {
                 String hash = getHash(rawHash.toString(), Hashes.branchHashLength);
                 tree.hashes.setBranchHash(hash);
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-                Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);
                 return;
             }
         }
@@ -61,7 +61,7 @@ public class SavingProjectRevision {
             tree.hashes.setTreeHash(getHash(rawHash.toString(), Hashes.treeHashLength));
             savingFile.saveTree(tree.hashes.getTreeHash(), gson.toJson(tree));
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);
             return;
         }
         
@@ -83,7 +83,7 @@ public class SavingProjectRevision {
                 String hash = getHash(rawHash.toString(), Hashes.branchHashLength);
                 srcHash = hash;
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-                Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);
                 return null;
             }
         }
