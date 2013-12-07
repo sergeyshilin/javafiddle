@@ -2,10 +2,12 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.javafiddle.core.ejb.ProjectManagerLocal;
 import com.javafiddle.core.ejb.UserManagerLocal;
 import com.javafiddle.core.ejb.util.IdGenerator;
 import com.javafiddle.core.ejb.util.IdGeneratorLocal;
 import com.javafiddle.core.jpa.Project;
+import com.javafiddle.core.jpa.Revision;
 import com.javafiddle.pool.Task;
 import com.javafiddle.pool.TaskPool;
 import com.javafiddle.pool.TaskType;
@@ -55,9 +57,10 @@ public class TreeService implements Serializable {
     
     @Inject
     private UserManagerLocal um;
-    
     @Inject
     private IdGeneratorLocal idGenerator;
+    @Inject
+    private ProjectManagerLocal pm;
     
     public TreeService() {
         resetData();
@@ -280,20 +283,19 @@ public class TreeService implements Serializable {
         Long currentUserId = SessionUtils.getUserId(session);
         
         // save project to disk
-        projectRevisions.add(new Date());
+        Date date = new Date();
+        projectRevisions.add(date);
         ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);			
         spr.saveRevision();	
         
         // save project meta info
         if (project == null) {
-            //project = pm.createProject(currentUserId, tree.hashes.getBranchHash(), "MyProject", null);
+            project = pm.createProject(currentUserId, tree.hashes.getBranchHash(), "MyProject", null);
         } 
-        
-       // pm.createTree(project, tree.hashes.getTreeHash(), tree.hashes, null);
+        Revision parentRevision = pm.findTreeByHashcode(tree.hashes.getParentTreeHash());
+        pm.addTree(project.getId(), parentRevision==null?null:parentRevision.getId(), tree.hashes.getTreeHash(), date, null);
         
         String hash = tree.hashes.getBranchHash() + tree.hashes.getTreeHash();
-        
-        
         
         return Response.ok(hash, MediaType.TEXT_PLAIN).build();
     }
