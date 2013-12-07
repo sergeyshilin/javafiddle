@@ -60,14 +60,7 @@ public class Compilation implements Launcher {
             stream.add(" exitValue() " + process.exitValue());
             stream.add("#END_OF_STREAM#");
         } catch (IOException | InterruptedException ex) {
-            if(killed) {
-                stream.add("<----------------------------------------------------->");
-                stream.add("<------ Compilation was stopped for enforcement ------>");
-                stream.add("<----------------------------------------------------->");
-                stream.add("#END_OF_STREAM#");
-            } else {
                 Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
         finally {
             makeClassFilePath();
@@ -130,5 +123,20 @@ public class Compilation implements Launcher {
         } catch (IOException ex) {
             Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public int getExitCode() {
+        return process.exitValue();
+    }
+
+    @Override
+    public int waitFor() {
+        try {
+            return process.waitFor();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
     }
 }

@@ -40,8 +40,9 @@ public class Task extends Thread implements Serializable {
             e.printStackTrace();
         }
         finally {
+            process.waitFor();
             endDate = new Date();
-            status = TaskStatus.COMPLETED;
+            status = process.getExitCode() == 0 ? TaskStatus.COMPLETED : TaskStatus.ERROR;
         }
     }
 
@@ -59,6 +60,12 @@ public class Task extends Thread implements Serializable {
     
     public Boolean isCompleted() {
         if(status == TaskStatus.COMPLETED)
+            return true;
+        return false;
+    }
+    
+    public Boolean isError() {
+        if(status == TaskStatus.ERROR)
             return true;
         return false;
     }

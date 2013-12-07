@@ -290,6 +290,7 @@ html, body {
 
 #editor_buttons li #open {background-image: url('images/folder_open.ico')}
 #editor_buttons li #save {background-image: url('images/save.ico')}
+#editor_buttons li #saveall {background-image: url('images/saveall.ico')}
 #editor_buttons li #reload {background-image: url('images/playback_reload.ico')}
 #editor_buttons li #undo {background-image: url('images/undo.ico')}
 #editor_buttons li #redo {background-image: url('images/redo.ico')}
@@ -298,16 +299,16 @@ html, body {
 #editor_buttons li #paste {background-image: url('images/paste.ico')}
 #editor_buttons li #run {background-image: url('images/playback_play.ico')}
 #editor_buttons li #compile {background-image: url('images/compile.ico')}
+#editor_buttons li #compileandrun {background-image: url('images/compileandrun.ico')}
 
 #header-bottom #tabpanel {
-    width: 70%;
     height: auto;
-    min-height: 37px;
+    min-height: 34px;
     list-style: none;
     border-left: 1px solid #999;
     position: relative;
     float: left;
-    padding: 0 0 3px 5px;
+    padding: 0 5px 3px 5px;
     margin: 0;
 }
 
@@ -320,7 +321,7 @@ ul#tabpanel li {
     font-style: normal;
     padding: 3px 0 3px 22px;
     margin-right: 5px !important;
-    margin-top: 3px !important;
+    margin-top: 5px !important;
     background-repeat: no-repeat;
     background-position-x: 5px !important; 
     background-position-y: 4px !important;
@@ -357,13 +358,14 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 #content {    
     background-color: #eee;
     height: 30px;
+    padding: 15px;
 }
 
 
 #content #treepanel { 
     float: left;
     width: 20%;
-    margin: 15px 0 15px 15px;
+    margin: 0;
     resize: none;
     overflow: auto;
 }
@@ -371,7 +373,7 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 #content #codetext {  
     float: right;
     resize: none;
-    margin: 15px 15px 15px 15px;
+    margin: 0;
 }
 
 #codetext #textarea {
@@ -399,12 +401,11 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 }
 
 #compilation-window {
+    margin-top: 15px;
     resize: none;
     height: 0;
     display: none;
-    float: left;
-    margin-left: 15px;
-    overflow: auto;
+    float: right;
     font-size: 13px;
     font-family: 'Open Sans';
     font-weight: normal;
@@ -412,11 +413,13 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 }
 
 #compilation-window #stdout {
+    overflow: auto;
+    height: 91px;
     padding: 5px;
-    /*border: 1px solid red;*/
 }
 
 #compilation-window #stdin {
+    position: fixed;
     width: 100%;
     height: 27px;
     border-top: 1px solid #ccc;

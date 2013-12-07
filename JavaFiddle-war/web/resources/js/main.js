@@ -3,7 +3,7 @@ var javaEditor;
 
 // EVENTS
 $(window).resize(function() {
-    setContentHeight();
+    setObjectsSize();
 });
 
 window.onbeforeunload = (function() {
@@ -13,47 +13,65 @@ window.onbeforeunload = (function() {
     return "ВНИМАНИЕ! В проекте есть несохраненные файлы. Когда сессия истечет, все несохраненные изменения будут потеряны!";
 });
 
-function setContentHeight() {
-    var MINSCREENWIDTH = 600;
-    var $header = $('#header');
+function setObjectsSize() { 
+    setContentSize();
+    setCompilationSize();
+    setTabPanelSize();
+}
+
+function setContentSize() {
+    var $header = $("#header");
     var $content = $("#content");
     var $tree = $("#treepanel");
     var $code = $("#codetext");
-    var $codearea = $("#textarea");
-    var $tabpanel = $("#tabpanel");
     var $compilation = $("#compilation-window");
-    var $stdout = $("#stdout");
-    var $stdin = $("#stdin");
+    var $codearea = $("#textarea");
     var height = $(window).height() - $header.height();
     var width = $(window).width();
+    var padding = 30;    
     
-    $content.height(height);
-    $content.width(width); 
+    $content.height(height - padding);
+    $content.width(width - padding); 
     
-    $tree.height(height - 30);
+    $tree.height($content.height());
     
     if ($compilation.height() > 0)
-        $code.height(height -$compilation.height() - 47);
+        $code.height($content.height() -$compilation.height() - 17);
     else 
-        $code.height(height -$compilation.height() - 30);
-    $code.width(width - $tree.width() - 50);
+        $code.height($content.height() -$compilation.height());
     
-    $compilation.width(width - $tree.width() - 50);
-    $stdout.height($compilation.height() - $stdin.height() - 11);    
-    $stdout.width($compilation.width() - 10);
-    $("#stdinput").width($compilation.width() - 90);
+    if($tree.width() > 0) {
+        $code.width($content.width() - $tree.width() - 20);
+        $compilation.width($content.width() - $tree.width() - 20);
+    } else {
+        $code.width(width - $tree.width() - 30);
+        $compilation.width(width - $tree.width() - 30);
+    } 
     
     $codearea.height($code.height() - 20);
     $codearea.width($code.width() - 20);
     $codearea.css("margin", "10px 0 0 10px");
-    
     javaEditor.setSize(null, $code.height());
-    var sizer = parseInt($(".CodeMirror-sizer").css("margin-left"));
-    var margin = ($(window).width()) < MINSCREENWIDTH ? 340 : (33 + $tree.width() + sizer);
-    $tabpanel.css("margin-left", (margin - 340) + "px");
-    $tabpanel.width($(window).width() - margin - 50);
 }
 
+function setCompilationSize() {
+    var $compilation = $("#compilation-window");
+    var $stdout = $("#stdout");
+    var $stdin = $("#stdin");
+    var $stdinput = $("#stdinput");
+    
+    $stdout.width($compilation.width() - 10);
+    $stdin.width($compilation.width());
+    $stdinput.width($stdin.width() - 90);
+}
+
+function setTabPanelSize() {
+    var $header = $("#header-bottom");
+    var $tabpanel = $("#tabpanel");
+    var $menu = $("#main_menu");
+    
+    $tabpanel.width($header.width() - $menu.width() - 10);
+}
 
 // MENU
 
@@ -424,27 +442,27 @@ function removeFromProject(id) {
     });     
 }
 
-function closeProjectTreePanel($li) {
+function toggleProjectTreePanel($li) {
     closeAllPopUps();
     if($li.hasClass('closed')) {
+        $("#treepanel").css("width", "20%");
         $("#treepanel").css("display", "block");
-        setContentHeight();
         $li.removeClass('closed');
         $li.text("Скрыть дерево проекта");
+        setObjectsSize();
     } else {
         $li.addClass('closed');
+        $("#treepanel").width(0);
         $("#treepanel").css("display", "none");
-        $("#codetext").width($(window).width() - 30);
-        $("#compilation-window").width($(window).width() - 30);
         $li.text("Отобразить дерево проекта");
-    }
-    
+    }  
+    setObjectsSize();
 }
 
 
 // TOGGLES
 
-function loadToogles() {
+function loadToggles() {
     $.fn.alignCenter = function() {
        var marginLeft =  - $(this).width()/2 + 'px';
        var marginTop =  - $(this).height()/2 + 'px';
@@ -700,19 +718,19 @@ function showProjectSettings() {
     showPopup($div, params); 
 }
 
-function showConsoleWindow() {
+function toggleConsoleWindow() {
     closeAllPopUps();
     $compilation = $("#compilation-window");
     if($compilation.hasClass("closed")) {
         $compilation.height(130);
-        setContentHeight();
+        setObjectsSize();
         $("#compilation-window").css("display", "block");
         $compilation.removeClass("closed");
     } else {
         $compilation.addClass("closed");
         $compilation.height(0);
         $("#compilation-window").css("display", "none");
-        setContentHeight();
+        setObjectsSize();
     }
 }
 
@@ -1158,7 +1176,7 @@ function getProjectName(id) {
 
 function compile() {
     if(!isConsoleOpened()) {
-        showConsoleWindow();
+        toggleConsoleWindow();
     }
     
     $.ajax({
@@ -1174,7 +1192,7 @@ function compile() {
 
 function execute() {
     if(!isConsoleOpened()) {
-        showConsoleWindow();
+        toggleConsoleWindow();
     }
     
     $.ajax({
@@ -1210,6 +1228,23 @@ function poll() {
     });
 }    
 
+function compileAndRun() {
+    
+    if(!isConsoleOpened()) {
+        toggleConsoleWindow();
+    }
+    
+    $.ajax({
+        url: PATH + '/webapi/run/compilerun',
+        type: 'POST',
+        contentType: "application/x-www-form-urlencoded",
+        success: function() {
+            $("#stdout").text("");
+            poll();
+        }
+    });  
+}
+
 function sendInput() {
     var input = $("#stdinput").val();
     $.ajax({
@@ -1224,3 +1259,7 @@ function sendInput() {
     }); 
     return false;
 }
+
+/**
+ * Menu events
+ */

@@ -82,8 +82,8 @@
                         </li>
                         <li><div class="link">Вид</div>
                             <ul>
-                                <li onclick="showConsoleWindow();">Отобразить консоль</li>
-                                <li onclick="closeProjectTreePanel($(this));">Скрыть дерево проекта</li>
+                                <li onclick="toggleConsoleWindow();">Отобразить консоль</li>
+                                <li onclick="toggleProjectTreePanel($(this));">Скрыть дерево проекта</li>
                                 <li onclick='javaEditor.setOption("fullScreen", false);'>Полноэкранный режим</li>
                             </ul>
                         </li>
@@ -114,9 +114,8 @@
             </div>
             <div id="header-bottom">
                 <ul id="editor_buttons">
-                    <li><h:commandButton value="" type="button" id="open" title="Открыть проект" /></li>
-                    <li><h:commandButton value="" type="button" id="save" onclick="postFileRevision();" title="Сохранить проект" /></li>
-                    <li><h:commandButton value="" type="button" id="reload" onclick="getFileRevision('current');" title="Обновить" /></li>
+                    <li><h:commandButton value="" type="button" id="save" onclick="saveFile();" title="Сохранить файл" /></li>
+                    <li><h:commandButton value="" type="button" id="saveall" onclick="saveAllFiles();" title="Сохранить все файлы" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><h:commandButton value="" type="button" id="undo" onclick="getFileRevision('prev');" title="Отменить действие" /></li>
@@ -125,11 +124,12 @@
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><h:commandButton value="" type="button" id="cut" title="Вырезать" /></li>
                     <li><h:commandButton value="" type="button" id="copy" title="Копировать" /></li>
-                    <li><h:commandButton value="" type="button" id="paste" title="Вставить" /></li>
+                    <li><h:commandButton value="" type="button" id="paste" onclick="paste();" title="Вставить" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><h:commandButton value="" type="button" id="compile" onclick="compile();" title="Компиляция"/></li>
-                    <li><h:commandButton value="" type="button" id="run" onclick="execute();" title="Выполнение"/></li>
+                    <li><h:commandButton value="" type="button" id="compile" onclick="compile();" title="Компилировать"/></li>
+                    <li><h:commandButton value="" type="button" id="run" onclick="execute();" title="Выполнить"/></li>
+                    <li><h:commandButton value="" type="button" id="compileandrun" onclick="compileAndRun();" title="Компилировать и выполнить"/></li>
                 </ul>  
                 <ul id="tabpanel">
                 </ul>
@@ -149,7 +149,7 @@
                 //<![CDATA[
                     $(document).ready(function(){
                         PATH = "#{request.contextPath}";
-                        setContentHeight();
+                        setObjectsSize();
                         loadMainMenu();
                         loadLiHarmonica();
                         var projecthash = "#{param['project']}";
@@ -159,7 +159,7 @@
                         }
                         buildTree();
                         loadTabs();
-                        loadToogles();
+                        loadToggles();
                         $("body").click(function() {
                             closeAllPopUps();
                         });

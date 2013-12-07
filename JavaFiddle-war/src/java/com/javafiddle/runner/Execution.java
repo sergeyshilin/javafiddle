@@ -103,4 +103,19 @@ public class Execution implements Launcher {
         
     }
 
+    @Override
+    public int getExitCode() {
+        return process.exitValue();
+    }
+    
+    @Override
+    public int waitFor() {
+        try {
+            return process.waitFor();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
+    }
+
 }

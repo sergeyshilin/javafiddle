@@ -427,6 +427,68 @@ public class TreeService implements Serializable {
         
         return Response.ok().build();
     }
+    
+    @POST
+    @Path("run/compilerun")
+    @Produces(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response compileAndRun(
+            @Context HttpServletRequest request
+            ) {
+        ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);
+        srcHash = spr.saveSrc(srcHash);
+        if (srcHash == null)
+            return Response.status(404).build();
+        
+        AccessController.doPrivileged(new PrivilegedAction() {
+            @Override
+            public Object run() {
+                
+                ArrayList<String> paths = new ArrayList<>();
+                StringBuilder executepath = new StringBuilder();
+                String packageName = null;
+                String runnableName = null;
+                
+                for (TreeFile file : idList.getFileList().values()) {
+                    StringBuilder path = new StringBuilder();
+                    path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(idList.getPackage(file.getPackageId()).getName().replace(".", sep)).append(sep).append(file.getName());
+                    paths.add(path.toString());
+                   
+                    if (file.getType().equals("runnable")) {
+                        runnableName = file.getName();
+                        if (file.getName().endsWith(".java"))
+                            runnableName = runnableName.substring(0, runnableName.length() - ".java".length());
+                        packageName = idList.getPackage(file.getPackageId()).getName();
+                        executepath.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep);
+                        break;
+                    }
+                }
+                
+                if (runnableName == null || packageName == null)
+                    return null;
+                
+                Task task1 = new Task(TaskType.COMPILATION, new Compilation(paths));
+                pool.add(task1);
+                task1.start();
+
+                try{
+                    task1.join();
+                } 
+                catch (InterruptedException ex) {
+                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+                    if(!task1.isError()) {
+                        Task task2 = new Task(TaskType.EXECUTION, new Execution("-classpath " + executepath.toString(), packageName + "." + runnableName));
+                        pool.add(task2);
+                        task2.start();
+                    }
+                }
+                return null;
+            }
+        }, LaunchPermissions.getSecureContext());   
+        
+        return Response.ok().build();
+    }
 
     @GET
     @Path("run/output")
