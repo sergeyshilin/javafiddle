@@ -2,6 +2,10 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.javafiddle.core.ejb.UserManagerLocal;
+import com.javafiddle.core.ejb.util.IdGenerator;
+import com.javafiddle.core.ejb.util.IdGeneratorLocal;
+import com.javafiddle.core.jpa.Project;
 import com.javafiddle.pool.Task;
 import com.javafiddle.pool.TaskPool;
 import com.javafiddle.pool.TaskType;
@@ -13,6 +17,7 @@ import com.javafiddle.saving.GetProjectRevision;
 import com.javafiddle.saving.ProjectRevisionSaver;
 import com.javafiddle.web.services.utils.*;
 import com.javafiddle.web.tree.*;
+import com.javafiddle.web.utils.SessionUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,8 +30,10 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
@@ -44,7 +51,14 @@ public class TreeService implements Serializable {
     ArrayList<Date> projectRevisions;
     TreeMap<Integer, TreeMap<Date, String>> files;
     String srcHash;
-
+    Project project;
+    
+    @Inject
+    private UserManagerLocal um;
+    
+    @Inject
+    private IdGeneratorLocal idGenerator;
+    
     public TreeService() {
         resetData();
     }
@@ -55,7 +69,8 @@ public class TreeService implements Serializable {
         packages = new ArrayList<>();
         pool = new TaskPool();
         projectRevisions = new ArrayList<>();
-        files = new TreeMap<>();  
+        files = new TreeMap<>();
+        project = null;
     }
     
     @GET
@@ -261,10 +276,24 @@ public class TreeService implements Serializable {
     public Response saveProjectRevision (
             @Context HttpServletRequest request
             ) {
+        HttpSession session = SessionUtils.getSession(request, true);
+        Long currentUserId = SessionUtils.getUserId(session);
+        
+        // save project to disk
         projectRevisions.add(new Date());
         ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);			
         spr.saveRevision();	
+        
+        // save project meta info
+        if (project == null) {
+            //project = pm.createProject(currentUserId, tree.hashes.getBranchHash(), "MyProject", null);
+        } 
+        
+       // pm.createTree(project, tree.hashes.getTreeHash(), tree.hashes, null);
+        
         String hash = tree.hashes.getBranchHash() + tree.hashes.getTreeHash();
+        
+        
         
         return Response.ok(hash, MediaType.TEXT_PLAIN).build();
     }

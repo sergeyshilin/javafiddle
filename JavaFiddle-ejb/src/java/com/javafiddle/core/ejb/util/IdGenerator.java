@@ -16,11 +16,11 @@ public class IdGenerator implements IdGeneratorLocal {
     private EntityManager em;
     
     @Override
-    public Long getNextId() {
+    public long getNextId() {
         LocalIdGenerator idGenerator = new LocalIdGenerator();
         em.persist(idGenerator);
         //Long id = (Long) em.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(idGenerator);
-        Long id = idGenerator.getId();
+        long id = idGenerator.getId();
         em.remove(idGenerator);
         return id;
     }

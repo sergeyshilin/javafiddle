@@ -1,14 +1,15 @@
 package com.javafiddle.core.ejb.util;
 
 import javax.ejb.Local;
+import javax.inject.Named;
 
 /**
  * Local interface for IdGenerator EJB.
  * @author danon
  */
 @Local
-interface IdGeneratorLocal {
+public interface IdGeneratorLocal {
     
-    Long getNextId();
+    long getNextId();
     
 }
