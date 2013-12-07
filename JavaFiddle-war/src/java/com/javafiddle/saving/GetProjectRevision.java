@@ -8,7 +8,6 @@ import com.javafiddle.web.tree.Tree;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -16,7 +15,8 @@ import java.util.Date;
 
 public class GetProjectRevision {
     private static final String sep = File.separator;
-    private static final String prefix = System.getProperty("user.home") + sep + "user" + sep + "guest";
+    private static final String prefix = System.getProperty("user.home") + sep + "javafiddle_data" + sep + "user" + sep + "guest";
+
     private String branchHash;
     private String treeHash;
 

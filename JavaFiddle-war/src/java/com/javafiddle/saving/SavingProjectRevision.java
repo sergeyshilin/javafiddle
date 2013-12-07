@@ -12,12 +12,17 @@ import com.javafiddle.web.tree.TreeNode;
 import com.javafiddle.web.tree.TreePackage;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SavingProjectRevision {
     ArrayList projectRevisions;
@@ -32,68 +37,91 @@ public class SavingProjectRevision {
         this.files = files;
     }
     
-    public void saveProject() {
+    public void saveRevision() {
         if (tree.hashes.getBranchHash() == null) {
-            String hash = getHash(tree.getProjects().get(0).getName() + new Date().toString() + System.currentTimeMillis(), Hashes.branchHashLength);
-            if (hash == null)
+            try {
+                StringBuilder rawHash = new StringBuilder();
+                rawHash.append(tree.getProjects().get(0).getName()).append(new Date().toString()).append(System.currentTimeMillis());
+                String hash = getHash(rawHash.toString(), Hashes.branchHashLength);
+                tree.hashes.setBranchHash(hash);
+            } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+                Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
                 return;
-            tree.hashes.setBranchHash(hash);
+            }
         }
         
         SavingFile savingFile = new SavingFile(tree.hashes.getBranchHash());
         
-        savingFile.crearSrc();
-               
-        Gson gson = new GsonBuilder().create();
-        
-        // saving revisions list
-        savingFile.saveRevisionsList(projectRevisions);
-        
         // saving tree
-        tree.hashes.setParentTreeHash(tree.hashes.getTreeHash());
-        tree.hashes.setTreeHash(getHash(new Date().toString() + System.currentTimeMillis(), Hashes.treeHashLength));
-        savingFile.saveTree(tree.hashes.getTreeHash(), gson.toJson(tree));
+        try {
+            Gson gson = new GsonBuilder().create();
+            tree.hashes.setParentTreeHash(tree.hashes.getTreeHash());
+            StringBuilder rawHash = new StringBuilder();
+            rawHash.append(new Date().toString()).append(System.currentTimeMillis());
+            tree.hashes.setTreeHash(getHash(rawHash.toString(), Hashes.treeHashLength));
+            savingFile.saveTree(tree.hashes.getTreeHash(), gson.toJson(tree));
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+            Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
         
-        int id;
-        TreeFile tf;
-        Date time;
-        TreePackage tp;
-        for (Map.Entry<Integer, TreeNode> entry : idList.entrySet()){
-            id = entry.getKey();
-            if (entry.getValue().getNodeType() == IdNodeType.FILE) {
-                tf = (TreeFile)entry.getValue();
-                time = tf.getTimeStamp();
-                savingFile.saveRevision(id, time, files.get(id).get(time));
-                if (idList.get(tf.getPackageId()).getNodeType() == IdNodeType.PACKAGE) {
-                    tp = (TreePackage)idList.get(tf.getPackageId());
-                    savingFile.saveSrc(tf.getName(), tp.getName(), files.get(id).get(tf.getTimeStamp()));
-                }
-            }
+        // saving files
+        ArrayList<TreeFile> filesList = new ArrayList<>();
+        filesList.addAll(idList.getFileList().values());
+        for (TreeFile tf : filesList) {
+            int id = tf.getId();
+            Date time = tf.getTimeStamp();
+            savingFile.saveFileRevision(id, time, files.get(id).get(time));
         }
     }
     
-    private static String getHash(String raw, int length) {
-        try {
-            byte[] bytesOfMessage = raw.getBytes("UTF-8");
-
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] byteHash = md.digest(bytesOfMessage);
-            BigInteger bigInt = new BigInteger(1, byteHash);
-            String numberHash = bigInt.toString().substring(0, 18);
-            Long longHash = Long.parseLong(numberHash);
-            StringBuilder charHash = new StringBuilder();
-            for (int i = 0; i < length; i++) {
-                int chr = (int)(longHash%52);
-                if (chr < 26) {
-                    charHash.append((char)(chr + 'a'));
-                } else {
-                    charHash.append((char)(chr - 26 + 'A'));
-                }
-                longHash /= 52;
+    public String saveSrc(String srcHash) {
+        if (srcHash == null) {
+            try {
+                StringBuilder rawHash = new StringBuilder();
+                rawHash.append(tree.getProjects().get(0).getName()).append(new Date().toString()).append(System.currentTimeMillis());
+                String hash = getHash(rawHash.toString(), Hashes.branchHashLength);
+                srcHash = hash;
+            } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+                Logger.getLogger(SavingProjectRevision.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
             }
-            return charHash.toString();
-        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            return null;
         }
+        
+        SavingFile savingFile = new SavingFile(srcHash);
+        
+        savingFile.crearSrc();
+               
+         // saving files
+        ArrayList<TreeFile> filesList = new ArrayList<>();
+        filesList.addAll(idList.getFileList().values());
+        for (TreeFile tf : filesList) {
+            int id = tf.getId();
+            TreePackage tp;
+            if ((tp = idList.getPackage(tf.getPackageId())) != null)
+                savingFile.saveSrcFile(tf.getName(), tp.getName(), files.get(id).get(tf.getTimeStamp()));
+        }
+        
+        return srcHash;
+    }
+        
+    private static String getHash(String raw, int length) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        byte[] bytesOfMessage = raw.getBytes("UTF-8");
+
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] byteHash = md.digest(bytesOfMessage);
+        ByteBuffer bb = ByteBuffer.wrap(Arrays.copyOfRange(byteHash, 0, 8));
+        long longHash = Math.abs(bb.getLong());
+        StringBuilder charHash = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int chr = (int)(longHash%52);
+            if (chr < 26) {
+                charHash.append((char)(chr + 'a'));
+            } else {
+                charHash.append((char)(chr - 26 + 'A'));
+            }
+            longHash /= 52;
+        }
+        return charHash.toString();
     }
 }

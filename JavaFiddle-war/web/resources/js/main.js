@@ -1087,10 +1087,7 @@ function getProject(projecthash) {
         async: false,
         data: {projecthash : projecthash},
         dataType: "json",
-        contentType: "application/json",
-        success: function(data) {
-            
-        }
+        contentType: "application/json"
     });
 }
 
@@ -1164,30 +1161,15 @@ function compile() {
         showConsoleWindow();
     }
     
-    saveProject();
-    
     $.ajax({
         url: PATH + '/webapi/run/compile',
         type: 'POST',
         contentType: "application/x-www-form-urlencoded",
         success: function() {
+            $("#stdout").text("");
+            poll();
         }
     });  
-    
-    $("#stdout").text("");
-       
-    (function poll(){
-        setTimeout(function(){
-            $.ajax({ url: "webapi/run/output", success: function(data){
-                if(data != null && data.localeCompare("#END_OF_STREAM#") == 0) {
-                    return 0;
-                }
-                if(data != null)
-                    $("#stdout").append(data).append("</br>");
-                poll();
-            }, contentType: "application/json" });
-        }, 5000);
-    })();
 }
 
 function execute() {
@@ -1200,24 +1182,33 @@ function execute() {
         type: 'POST',
         contentType: "application/x-www-form-urlencoded",
         success: function() {
+            $("#stdout").text("");
+            poll();
         }
     });  
-    
-    $("#stdout").text("");
-       
-    (function poll(){
-        setTimeout(function(){
-            $.ajax({ url: "webapi/run/output", success: function(data){
-                if(data != null && data.localeCompare("#END_OF_STREAM#") == 0) {
-                    return 0;
-                }
-                if(data != null)
-                    $("#stdout").append(data).append("</br>");
-                poll();
-            }, contentType: "application/json" });
-        }, 300);
-    })();
 }
+
+function poll() {
+    $.ajax({
+        url: "webapi/run/output",
+        contentType: "application/json",
+        success: function(data){
+            var result = 1;
+            if (data != null && $.isArray(data))
+                data.forEach(function(entry) {
+                    if(entry != null) {
+                        if(entry.localeCompare("#END_OF_STREAM#") == 0) {
+                            result = 0;
+                            return;
+                        }
+                        $("#stdout").append(entry).append("<br>");
+                    }
+                });
+            if (result == 1)
+                poll();
+        }
+    });
+}    
 
 function sendInput() {
     var input = $("#stdinput").val();
@@ -1228,6 +1219,7 @@ function sendInput() {
         data: {input: input},
         success: function() {
             $("#stdinput").val("");
+            $("#stdout").append("stdin: ").append(input).append("<br>");
             return false;
         }
     }); 

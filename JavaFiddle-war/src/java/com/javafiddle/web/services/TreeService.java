@@ -13,11 +13,8 @@ import com.javafiddle.saving.GetProjectRevision;
 import com.javafiddle.saving.SavingProjectRevision;
 import com.javafiddle.web.services.utils.*;
 import com.javafiddle.web.tree.*;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.AccessController;
@@ -36,13 +33,18 @@ import javax.ws.rs.core.*;
 @Path("")
 @SessionScoped
 public class TreeService implements Serializable {
+    private static final String sep = File.separator;
+    private static final String prefix = System.getProperty("user.home") + sep + "javafiddle_data";
+    private static final String build = prefix + sep + "build";
+    
     Tree tree;
     IdList idList;
     ArrayList<String> packages;
     TaskPool pool;
     ArrayList<Date> projectRevisions;
     TreeMap<Integer, TreeMap<Date, String>> files;
-        
+    String srcHash;
+
     public TreeService() {
         resetData();
     }
@@ -261,18 +263,16 @@ public class TreeService implements Serializable {
             ) {
         projectRevisions.add(new Date());
         SavingProjectRevision spr = new SavingProjectRevision(projectRevisions, tree, idList, files);			
-
-        spr.saveProject();	
-
-        Gson gson = new GsonBuilder().create();
+        spr.saveRevision();	
         String hash = tree.hashes.getBranchHash() + tree.hashes.getTreeHash();
+        
         return Response.ok(hash, MediaType.TEXT_PLAIN).build();
     }
     
     @GET
     @Path("revisions/project")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getProjects(
+    public Response getProject(
             @Context HttpServletRequest request,
             @QueryParam("projecthash") String hash
             ) {
@@ -367,25 +367,28 @@ public class TreeService implements Serializable {
     public Response compile(
             @Context HttpServletRequest request
             ) {
-        if(true) {         
-            AccessController.doPrivileged(new PrivilegedAction() {
-                @Override
-                public Object run() {
-                    ArrayList<String> paths = null;
-                    Task task = new Task(TaskType.COMPILATION, new Compilation(paths));
-                    pool.add(task);
-                    task.start();
-    //                try {
-    //                    task.sleep(15000);
-    //                } catch (InterruptedException ex) {
-    //                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-    //                }
-    //                task.kill();
-
-                    return null;
+        SavingProjectRevision spr = new SavingProjectRevision(projectRevisions, tree, idList, files);
+        srcHash = spr.saveSrc(srcHash);
+        if (srcHash == null)
+            return Response.status(404).build();
+        
+        AccessController.doPrivileged(new PrivilegedAction() {
+            @Override
+            public Object run() {
+                ArrayList<String> paths = new ArrayList<>();
+                for (TreeFile tf : idList.getFileList().values()) {
+                    StringBuilder path = new StringBuilder();
+                    path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(idList.getPackage(tf.getPackageId()).getName().replace(".", sep)).append(sep).append(tf.getName());
+                    paths.add(path.toString());
                 }
-            }, LaunchPermissions.getSecureContext());
-        }
+                
+                Task task = new Task(TaskType.COMPILATION, new Compilation(paths));
+                pool.add(task);
+                task.start();
+
+                return null;
+            }
+        }, LaunchPermissions.getSecureContext());
         return Response.ok().build();
     }
     
@@ -399,20 +402,29 @@ public class TreeService implements Serializable {
         AccessController.doPrivileged(new PrivilegedAction() {
             @Override
             public Object run() {
-                String sep = File.separator;
-                Task task = new Task(TaskType.EXECUTION, new Execution("-classpath " + "path to this pack", "com.myfirstproject.web.Main"));
+                StringBuilder path = new StringBuilder();
+                String packageName = null;
+                String runnableName = null;
+                for (TreeFile tf : idList.getFileList().values())
+                    if (tf.getType().equals("runnable")) {
+                        runnableName = tf.getName();
+                        if (tf.getName().endsWith(".java"))
+                            runnableName = runnableName.substring(0, runnableName.length() - ".java".length());
+                        packageName = idList.getPackage(tf.getPackageId()).getName();
+                        path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep);
+                        break;
+                    }
+                if (runnableName == null || packageName == null)
+                    return null;
+
+                Task task = new Task(TaskType.EXECUTION, new Execution("-classpath " + path.toString(), packageName + "." + runnableName));
                 pool.add(task);
                 task.start();
-//                try {
-//                    Thread.sleep(15000);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                task.kill();
 
                 return null;
             }
         }, LaunchPermissions.getSecureContext());
+        
         return Response.ok().build();
     }
 
@@ -422,22 +434,41 @@ public class TreeService implements Serializable {
     public Response getOutput(
             @Context HttpServletRequest request
             ){
+        Task task = pool.get(pool.size()-1);
+        if (task == null)
+            return Response.status(404).build();
+
+        for (int i = 0; i < 20; i++) {
+            try {
+                String result;
+                if ((result = task.getOutputStream()) == null) 
+                    Thread.sleep(100);
+                else {
+                    ArrayList<String> list = new ArrayList<>();
+                    list.add(result);
+                    Logger.getLogger(Execution.class.getName()).log(Level.SEVERE, null, result);
+                    while ((result = task.getOutputStream()) != null) {
+                        list.add(result);
+                        Logger.getLogger(Execution.class.getName()).log(Level.SEVERE, null, result);
+                    }
+                    Gson gson = new GsonBuilder().create();
+                    return Response.ok(gson.toJson(list), MediaType.APPLICATION_JSON).build();
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        double seconds = (new Date().getTime() - task.getStartTime().getTime()) / 1000;
+        if(seconds > 15) {
+            task.kill();
+            ArrayList<String> list = new ArrayList<>();
+            list.add("<------ Execution was stopped for enforcement ------>");
+            list.add("#END_OF_STREAM#");
             Gson gson = new GsonBuilder().create();
-            
-            Task task = pool.get(pool.size()-1);
-            
-            String result = task.getOutputStream();
-            
-//            if(!task.isCompleted()) {
-//                long seconds = (task.getStartTime().getTime() - task.getEndTime().getTime()) / 1000;
-//                if(seconds > 15) {
-//                    task.kill();
-//                    return Response.status(400).build();
-//                }
-//            }
-            
-            return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
-     
+            return Response.ok(gson.toJson(list), MediaType.APPLICATION_JSON).build();
+        }
+        return Response.ok().build();
     }
     
     @POST
@@ -451,11 +482,13 @@ public class TreeService implements Serializable {
             
             Task task = pool.get(pool.size()-1);
             OutputStream stream = task.getInputStream();
-//        try {
-//            stream.write(new String(input + "\n").getBytes());
-//        } catch (IOException ex) {
-//            Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+            try {
+                String str = input + "\n";
+                stream.write(str.getBytes());
+                stream.flush();
+            } catch (IOException ex) {
+                Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
+            }
             task.getProcess().send(input + "\n");
         return Response.ok().build();
     }

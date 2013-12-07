@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -29,7 +28,7 @@ public class Compilation implements Launcher {
     private Queue<String> stream = null;
 
     public Compilation(String args, String pathtofile) {
-        this.stream = new LinkedList<String>();
+        this.stream = new LinkedList<>();
         this.filepath = pathtofile;
         this.args = args;
     }
@@ -39,10 +38,10 @@ public class Compilation implements Launcher {
         this.filepath = pathtofile;
     }
     
-    public Compilation(ArrayList<String> filespath) {
+    public Compilation(ArrayList<String> filesPath) {
         StringBuilder result = new StringBuilder();
-        for(int i = 0; i < filespath.size(); i++) {
-            result.append(filespath.get(i)).append(" ");
+        for(String filePath : filesPath) {
+            result.append(filePath).append(" ");
         }
         result.deleteCharAt(result.length() - 1);
         
@@ -60,14 +59,14 @@ public class Compilation implements Launcher {
             process.waitFor();
             stream.add(" exitValue() " + process.exitValue());
             stream.add("#END_OF_STREAM#");
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException ex) {
             if(killed) {
                 stream.add("<----------------------------------------------------->");
                 stream.add("<------ Compilation was stopped for enforcement ------>");
                 stream.add("<----------------------------------------------------->");
                 stream.add("#END_OF_STREAM#");
             } else {
-                e.printStackTrace();
+                Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         finally {

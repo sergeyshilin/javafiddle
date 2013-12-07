@@ -50,8 +50,6 @@ public class TreeFile implements TreeNode, Comparable<TreeFile>, Serializable {
     public void setPackageId(int packageId) {
         this.packageId = packageId;
     }
-
-
     
     public String getType() {
         return type;

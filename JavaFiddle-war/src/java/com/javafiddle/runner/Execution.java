@@ -1,5 +1,6 @@
 package com.javafiddle.runner;
 
+import com.javafiddle.saving.SavingFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +9,8 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Classfile for project JavaFiddleCompiler
@@ -24,7 +27,7 @@ public class Execution implements Launcher {
     private Queue<String> stream = null;
 
     public Execution(String args, String pathtoclass) {
-        this.stream = new LinkedList<String>();
+        this.stream = new LinkedList<>();
         this.args = args;
         this.pathtoclass = pathtoclass;
     }
@@ -37,8 +40,8 @@ public class Execution implements Launcher {
         try {
             cm.wait();
             pathtoclass = cm.getClassFilePath();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Execution.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -52,18 +55,8 @@ public class Execution implements Launcher {
             process.waitFor();
             stream.add(" exitValue() " + process.exitValue());
             stream.add("#END_OF_STREAM#");
-        } catch (Exception e) {
-            if(killed) {
-                stream.add("<--------------------------------------------------->");
-                stream.add("<------ Execution was stopped for enforcement ------>");
-                stream.add("<--------------------------------------------------->");
-                stream.add("#END_OF_STREAM#");
-            } else {
-                e.printStackTrace();
-            }
-        }
-        synchronized(stream) {
-            
+        } catch (IOException | InterruptedException ex) {
+            Logger.getLogger(Execution.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -85,7 +78,7 @@ public class Execution implements Launcher {
         }
     }
 
-     @Override
+    @Override
     public String getOutputStream() {
         return stream.poll();
     }

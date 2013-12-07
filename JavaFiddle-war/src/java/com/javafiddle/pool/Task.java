@@ -3,10 +3,9 @@ package com.javafiddle.pool;
 import com.javafiddle.runner.Launcher;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * Classfile for project JavaFiddleCompiler
@@ -14,7 +13,7 @@ import java.util.Queue;
  * Email: sergey.shilin@phystech.edu
  * Date: 24.11.13
  */
-public class Task extends Thread {
+public class Task extends Thread implements Serializable {
 
     private String id = null;
     private TaskStatus status = TaskStatus.STARTING;
