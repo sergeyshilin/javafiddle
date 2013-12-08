@@ -28,9 +28,9 @@ public class ProjectRevisionSaver {
     ArrayList projectRevisions;
     Tree tree;
     IdList idList;
-    TreeMap<Integer, TreeMap<Date, String>> files;
+    TreeMap<Integer, TreeMap<Long, String>> files;
     
-    public ProjectRevisionSaver(ArrayList projectRevisions, Tree tree, IdList idList, TreeMap<Integer, TreeMap<Date, String>> files) {
+    public ProjectRevisionSaver(ArrayList projectRevisions, Tree tree, IdList idList, TreeMap<Integer, TreeMap<Long, String>> files) {
         this.projectRevisions = projectRevisions;
         this.tree = tree;
         this.idList = idList;
@@ -41,8 +41,8 @@ public class ProjectRevisionSaver {
         if (tree.hashes.getBranchHash() == null) {
             try {
                 StringBuilder rawHash = new StringBuilder();
-                rawHash.append(tree.getProjects().get(0).getName()).append(new Date().toString()).append(System.currentTimeMillis());
-                String hash = getHash(rawHash.toString(), Hashes.branchHashLength);
+                rawHash.append(tree.getProjects().get(0).getName()).append(new Date().getTime());
+                String hash = getHash(rawHash.toString(), Hashes.BRANCH_HASH_LENGTH);
                 tree.hashes.setBranchHash(hash);
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
                 Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,8 +57,8 @@ public class ProjectRevisionSaver {
             Gson gson = new GsonBuilder().create();
             tree.hashes.setParentTreeHash(tree.hashes.getTreeHash());
             StringBuilder rawHash = new StringBuilder();
-            rawHash.append(new Date().toString()).append(System.currentTimeMillis());
-            tree.hashes.setTreeHash(getHash(rawHash.toString(), Hashes.treeHashLength));
+            rawHash.append(new Date().toString()).append(new Date().getTime());
+            tree.hashes.setTreeHash(getHash(rawHash.toString(), Hashes.TREE_HASH_LENGTH));
             savingFile.saveTree(tree.hashes.getTreeHash(), gson.toJson(tree));
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
             Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);
@@ -70,7 +70,7 @@ public class ProjectRevisionSaver {
         filesList.addAll(idList.getFileList().values());
         for (TreeFile tf : filesList) {
             int id = tf.getId();
-            Date time = tf.getTimeStamp();
+            long time = tf.getTimeStamp();
             savingFile.saveFileRevision(id, time, files.get(id).get(time));
         }
     }
@@ -80,7 +80,7 @@ public class ProjectRevisionSaver {
             try {
                 StringBuilder rawHash = new StringBuilder();
                 rawHash.append(tree.getProjects().get(0).getName()).append(new Date().toString()).append(System.currentTimeMillis());
-                String hash = getHash(rawHash.toString(), Hashes.branchHashLength);
+                String hash = getHash(rawHash.toString(), Hashes.BRANCH_HASH_LENGTH);
                 srcHash = hash;
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
                 Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);

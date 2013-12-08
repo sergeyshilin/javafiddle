@@ -8,8 +8,7 @@ import javax.naming.InitialContext;
 public class IdList extends HashMap<Integer, TreeNode> implements Serializable {
     private int count = 0;
     private IdGeneratorLocal idGenerator = null;
-    
-    
+        
     public IdList() {
         try {
             idGenerator = (IdGeneratorLocal) new InitialContext().lookup("java:global/JavaFiddle/JavaFiddle-ejb/IdGenerator!com.javafiddle.core.ejb.util.IdGeneratorLocal");

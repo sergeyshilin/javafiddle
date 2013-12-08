@@ -11,7 +11,7 @@ public class TreeFile implements TreeNode, Comparable<TreeFile>, Serializable {
     private int packageId;
     private String name;
     private String type;
-    private Date timeStamp;
+    private long timeStamp;
 
     public TreeFile(String name, String type) {
         this.name = name;
@@ -59,11 +59,11 @@ public class TreeFile implements TreeNode, Comparable<TreeFile>, Serializable {
         this.type = type;
     }
 
-    public Date getTimeStamp() {
+    public long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(Date timeStamp) {
+    public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 

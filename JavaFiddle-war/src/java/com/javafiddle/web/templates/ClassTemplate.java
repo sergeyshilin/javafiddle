@@ -20,7 +20,9 @@ public class ClassTemplate {
         this.type = file.getType();
         String packname = idList.getPackage(file.getPackageId()).getName();
         
-        value = "package " + packname + ";\n";
+        value = "";
+        if (!packname.startsWith("!"))
+            value += "package " + packname + ";\n";
         value += getCommentsBlock();
         value += getClassDefinition();
     }

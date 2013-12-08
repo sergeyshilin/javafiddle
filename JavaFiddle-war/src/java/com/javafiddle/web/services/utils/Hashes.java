@@ -1,8 +1,8 @@
 package com.javafiddle.web.services.utils;
 
 public class Hashes {
-    public final static int branchHashLength = 7;
-    public final static int treeHashLength = 5;
+    public final static int BRANCH_HASH_LENGTH = 7;
+    public final static int TREE_HASH_LENGTH = 5;
     
     private String branchHash;
     private String treeHash;

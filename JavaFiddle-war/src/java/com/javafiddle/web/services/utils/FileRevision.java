@@ -1,22 +1,22 @@
 package com.javafiddle.web.services.utils;
 
 public class FileRevision {
-    String timeStamp;
+    long timeStamp;
     String value;
 
     public FileRevision() {
     }
 
-    public FileRevision(String timeStamp, String value) {
+    public FileRevision(long timeStamp, String value) {
         this.timeStamp = timeStamp;
         this.value = value;
     }
 
-    public String getTimeStamp() {
+    public long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(String time) {
+    public void setTimeStamp(long time) {
         this.timeStamp = time;
     }
 

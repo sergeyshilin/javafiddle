@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.javafiddle.core.ejb.ProjectManagerLocal;
 import com.javafiddle.core.ejb.UserManagerLocal;
-import com.javafiddle.core.ejb.util.IdGenerator;
 import com.javafiddle.core.ejb.util.IdGeneratorLocal;
 import com.javafiddle.core.jpa.Project;
 import com.javafiddle.core.jpa.Revision;
@@ -50,8 +49,8 @@ public class TreeService implements Serializable {
     IdList idList;
     ArrayList<String> packages;
     TaskPool pool;
-    ArrayList<Date> projectRevisions;
-    TreeMap<Integer, TreeMap<Date, String>> files;
+    ArrayList<Long> projectRevisions;
+    TreeMap<Integer, TreeMap<Long, String>> files;
     String srcHash;
     Project project;
     
@@ -119,7 +118,11 @@ public class TreeService implements Serializable {
             return Response.status(400).build();
         Gson gson = new GsonBuilder().create();
         int id = Utility.parseId(idString);
-        TreePackage tp = idList.getPackage(id);
+        TreePackage tp;
+        if (idList.isProject(id))
+            tp = idList.getProject(id).getPackageInstance(idList, "!default_package");
+        else 
+            tp = idList.getPackage(id);
         TreeFile file = tp.addFile(idList, type, name + ".java");
         Revisions revisions = new Revisions(idList, files);
         revisions.addFileRevision(file, idList);
@@ -141,6 +144,24 @@ public class TreeService implements Serializable {
         return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
     
+    @GET
+    @Path("tree/projectname")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProjectName(
+            @Context HttpServletRequest request,
+            @QueryParam("id") String idString
+            ) {
+        int id = Utility.parseId(idString);
+        int project_id;
+        if (idList.isProject(id))
+            project_id = id;
+        else
+            project_id = idList.getPackage(id).getProjectId();
+        String result = idList.getProject(project_id).getName();
+        Gson gson = new GsonBuilder().create();
+        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+    }
+        
     @GET
     @Path("tree/packagename")
     @Produces(MediaType.APPLICATION_JSON)
@@ -243,19 +264,6 @@ public class TreeService implements Serializable {
     }
     
     @GET
-    @Path("tree/projectname")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getProjectName(
-            @Context HttpServletRequest request,
-            @QueryParam("id") String id
-            ) {
-        Gson gson = new GsonBuilder().create();
-        int project_id = idList.getPackage(Utility.parseId(id)).getProjectId();
-        String result = idList.getProject(project_id).getName();
-        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
-    }
-       
-    @GET
     @Path("tree/filedata")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFileData(
@@ -279,12 +287,14 @@ public class TreeService implements Serializable {
     public Response saveProjectRevision (
             @Context HttpServletRequest request
             ) {
+
         HttpSession session = SessionUtils.getSession(request, true);
         Long currentUserId = SessionUtils.getUserId(session);
         
         // save project to disk
         Date date = new Date();
-        projectRevisions.add(date);
+        projectRevisions.add(date.getTime());
+
         ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);			
         spr.saveRevision();	
         
@@ -319,10 +329,10 @@ public class TreeService implements Serializable {
         filesList.addAll(idList.getFileList().values());
         for (TreeFile tf : filesList) {
             int id = tf.getId();
-            Date date = tf.getTimeStamp();
-            String text = gpr.getFile(idList.getPackage(tf.getPackageId()).getName(), id, date);
-            TreeMap<Date, String> revisions = new TreeMap<>();
-            revisions.put(date, text);
+            long time = tf.getTimeStamp();
+            String text = gpr.getFile(idList.getPackage(tf.getPackageId()).getName(), id, time);
+            TreeMap<Long, String> revisions = new TreeMap<>();
+            revisions.put(time, text);
             files.put(id, revisions);
         }
         
@@ -353,10 +363,10 @@ public class TreeService implements Serializable {
     public Response saveFile(
             @Context HttpServletRequest request,
             @FormParam("id") String idString,
-            @FormParam("timeStamp") String timeStamp,
+            @FormParam("timeStamp") long timeStamp,
             @FormParam("value") String value
             ) {
-        if (idString == null || timeStamp == null || value == null)
+        if (idString == null || timeStamp == 0 || value == null)
             return Response.status(400).build();
         int id = Utility.parseId(idString);
         Revisions revisions = new Revisions(idList, files);
@@ -377,12 +387,12 @@ public class TreeService implements Serializable {
         
         Gson gson = new GsonBuilder().create();
         FileRevision fr;
-        Date dateTime = idList.getFile(id).getTimeStamp();
-        if (dateTime == null) {
-            fr = new FileRevision("", "");
+        long time = idList.getFile(id).getTimeStamp();
+        if (time == 0) {
+            fr = new FileRevision(0, "");
         } else {   
-            String text = files.get(id).get(dateTime);
-            fr = new FileRevision(Utility.DateToString(dateTime), text);
+            String text = files.get(id).get(time);
+            fr = new FileRevision(time, text);
         }     
         return Response.ok(gson.toJson(fr), MediaType.APPLICATION_JSON).build();
     }
@@ -442,13 +452,14 @@ public class TreeService implements Serializable {
                         if (tf.getName().endsWith(".java"))
                             runnableName = runnableName.substring(0, runnableName.length() - ".java".length());
                         packageName = idList.getPackage(tf.getPackageId()).getName();
+                        packageName = packageName.startsWith("!") ? "" : packageName + ".";
                         path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep);
                         break;
                     }
                 if (runnableName == null || packageName == null)
                     return null;
 
-                Task task = new Task(TaskType.EXECUTION, new Execution("-classpath " + path.toString(), packageName + "." + runnableName));
+                Task task = new Task(TaskType.EXECUTION, new Execution("-classpath " + path.toString(), packageName + runnableName));
                 pool.add(task);
                 task.start();
 

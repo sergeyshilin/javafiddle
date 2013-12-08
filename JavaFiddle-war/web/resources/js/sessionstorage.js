@@ -40,7 +40,10 @@ function getFirstOpenedTab() {
 
 function getLastOpenedTab() {
     var data = getListFromStorage('openedtabs');
-    return data[data.length-1];
+    if (data.length > 0)
+        return data[data.length-1];
+    else 
+        return null;
 }
 
 
@@ -120,6 +123,25 @@ function unModifiedTabs() {
 }
 
 
+// READ ONLY
+
+function setReadOnly(id) {
+    if (!supportsSessionStorage())
+        return false;
+    sessionStorage.setItem("readonly." + id, "true");
+}
+
+function getReadOnly(id) {
+    if (!supportsSessionStorage())
+        return false;
+    var status = sessionStorage.getItem("readonly." + id);
+    if (status !== null) {
+        javaEditor.setOption("readOnly", true);
+    } else
+        javaEditor.setOption("readOnly", false);
+}
+
+
 // TIMESTAMP
 
 function addCurrentFileTimeStamp(timestamp) {
@@ -137,7 +159,7 @@ function getCurrentFileTimeStamp() {
     var id = sessionStorage.getItem("currentFileID");
     var text = sessionStorage.getItem("timestamp." + id);
     if (text !== null)
-        return text;
+        return parseInt(text);
     else
         return "";
 }
@@ -152,6 +174,7 @@ function closeTabInStorage(id) {
     sessionStorage.removeItem("timestamp." + id);
     sessionStorage.removeItem("openedtabs." + id);
     sessionStorage.removeItem("openedtabs." + id + "_history");
+    sessionStorage.removeItem("readonly." + id);
     removeTabFromList("modified", id); 
 }
 
