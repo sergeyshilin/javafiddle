@@ -21,7 +21,11 @@ $(document).ready(function(){
     });
     setObjectsSize();
 }); 
-   
+
+$(window).resize(function() {
+    setObjectsSize();
+});
+
 $("#codetext").resize(function() {
     setObjectsSize();
 });
@@ -34,11 +38,7 @@ window.onbeforeunload = (function() {
 });
 
 function setObjectsSize() { 
-    $compilation = $("#compilation-window");
-    if($compilation.hasClass("closed")) {
-        javaEditor.setSize(null, $("#codetext").height());
-    } else
-        javaEditor.setSize(null, $("#codetext").height() - $compilation.height() - 4);
+    javaEditor.setSize(null, $("#codetext").height());
 }
 
 // MENU
@@ -712,6 +712,7 @@ function toggleConsoleWindow() {
         $compilation.addClass("closed");
         $("#compilation-window").css("display", "none");
     }
+    setObjectsSize();
     setObjectsSize();
 }
 

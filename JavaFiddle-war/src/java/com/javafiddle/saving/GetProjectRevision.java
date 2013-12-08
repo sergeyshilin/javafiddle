@@ -46,7 +46,7 @@ public class GetProjectRevision {
         String path = prefix + sep + branchHash + sep + "tree" + sep + treeHash;
         String treejson = readFile(path);
         Gson gson = new GsonBuilder().create();
-        
+
         return gson.fromJson(treejson, Tree.class);
     }
     

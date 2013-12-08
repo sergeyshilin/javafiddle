@@ -26,12 +26,6 @@ public class IdList extends HashMap<Integer, TreeNode> implements Serializable {
         return id;  
     }
     
-    @Override
-    public TreeNode put(Integer key, TreeNode value) {
-        add(value);
-        return null;
-    }
-    
     public boolean isExist(int id) {
         if (get(id) == null)
             return false;
@@ -67,9 +61,10 @@ public class IdList extends HashMap<Integer, TreeNode> implements Serializable {
     }
     
     public TreePackage getPackage(int id) {
-        if (isPackage(id))
+      //  System.out.println(get(id).getNodeType());
+     //   if (isPackage(id))
             return (TreePackage)get(id);
-        return null;
+     //   return null;
     }
     
     public TreeFile getFile(int id) {

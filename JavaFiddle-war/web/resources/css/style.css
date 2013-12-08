@@ -385,13 +385,12 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 }
 
 #content #treepanel { 
-    margin: 10pt 0pt 10pt 10pt;
+    margin: 10px -5px 10px 10px;
     width: 270px;
     overflow: auto;
 }
 
-#content #codetext {  
-    margin: 10pt;
+#content #rightblock {
     -ms-flex: 1;
     -webkit-flex: 1;
     flex: 1;
@@ -403,16 +402,16 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
     flex-direction: column;
 }
 
-#content .mainblock, #tabpanel li {
-    background-color: #fff;
-    border: 1px solid #d1d1d1;
-    -webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
-    -moz-box-shadow:    0px 0px 5px rgba(50, 50, 50, 0.15);
-    box-shadow:         0px 0px 5px rgba(50, 50, 50, 0.15); 
+#content #codetext {  
+    margin: 10px;
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
 }
 
 #compilation-window {
-    height: 130px;
+    margin: -5px 10px 10px 10px;
+    height: 140px;
     display: none;
     font-size: 13px;
     font-family: 'Open Sans';
@@ -423,30 +422,38 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 #compilation-window #stdout {
     overflow: auto;
     height: 100px;
-    
+    min-height: 100px;
+    padding: 5px;
 }
 
 #compilation-window #stdin {
     background-color: #fff;
     border-top: 1px solid #ccc;
-    
 }
 
 #stdin #stdin-name {
-    width: 80px;
-    heigth : 30px;
-    text-align: center;
+    height: 27px;
     font-weight: bold;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 #stdin #stdinput {
     border: 0;
-    heigth : 30px;
     outline: none;
+    height: 27px;
     font-size: 13px;
     font-family: 'Open Sans';
     font-weight: normal;
     font-style: normal;
+}
+
+#content .mainblock, #tabpanel li {
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    -webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
+    -moz-box-shadow:    0px 0px 5px rgba(50, 50, 50, 0.15);
+    box-shadow:         0px 0px 5px rgba(50, 50, 50, 0.15); 
 }
 
 /**
