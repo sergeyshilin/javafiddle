@@ -1,15 +1,29 @@
 package com.javafiddle.web.tree;
 
+import com.javafiddle.core.ejb.util.IdGeneratorLocal;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
+import javax.naming.InitialContext;
 
 public class IdList extends HashMap<Integer, TreeNode> implements Serializable {
     private int count = 0;
+    private IdGeneratorLocal idGenerator = null;
+        
+    public IdList() {
+        try {
+            idGenerator = (IdGeneratorLocal) new InitialContext().lookup("java:global/JavaFiddle/JavaFiddle-ejb/IdGenerator!com.javafiddle.core.ejb.util.IdGeneratorLocal");
+            count = (int) idGenerator.getNextId();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     protected int add(TreeNode treeNode) {
-        super.put(count++, treeNode);
-        return count-1;  
+        int id = count;
+        super.put(id, treeNode);
+        count = (int) idGenerator.getNextId();
+        System.out.println("id = " + count);
+        return id;  
     }
     
     @Override

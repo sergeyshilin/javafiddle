@@ -27,15 +27,18 @@ public class SavingFile {
         writeFile(path.toString(), text); 
     }
     
-    public void saveFileRevision(int fileId, Date timeStamp, String text) {
+    public void saveFileRevision(int fileId, long timeStamp, String text) {
         StringBuilder path = new StringBuilder();
-        path.append(revisions).append(sep).append(projectId).append(sep).append(fileId).append(sep).append(Utility.DateToString(timeStamp));
+        path.append(revisions).append(sep).append(projectId).append(sep).append(fileId).append(sep).append(timeStamp);
         writeFile(path.toString(), text);
     }
       
     public void saveSrcFile(String fileName, String packageName, String text) {
         StringBuilder path = new StringBuilder();
-        path.append(build).append(sep).append(projectId).append(sep).append("src").append(sep).append(packageName.replace(".", sep)).append(sep).append(fileName);
+        if (packageName.startsWith("!"))
+            path.append(build).append(sep).append(projectId).append(sep).append("src").append(sep).append(fileName);
+        else
+            path.append(build).append(sep).append(projectId).append(sep).append("src").append(sep).append(packageName.replace(".", sep)).append(sep).append(fileName);
         writeFile(path.toString(), text); 
     }
     

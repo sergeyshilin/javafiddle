@@ -21,8 +21,8 @@ public class GetProjectRevision {
     private String treeHash;
 
     public GetProjectRevision(String hash) {
-        branchHash = hash.substring(0, Hashes.branchHashLength);
-        treeHash = hash.substring(Hashes.branchHashLength, Hashes.branchHashLength + Hashes.treeHashLength);
+        branchHash = hash.substring(0, Hashes.BRANCH_HASH_LENGTH);
+        treeHash = hash.substring(Hashes.BRANCH_HASH_LENGTH, Hashes.BRANCH_HASH_LENGTH + Hashes.TREE_HASH_LENGTH);
     }
 
     public GetProjectRevision(Hashes hashes) {
@@ -50,8 +50,8 @@ public class GetProjectRevision {
         return gson.fromJson(treejson, Tree.class);
     }
     
-    public String getFile(String pack, int id, Date date) {
-        String path = prefix + sep + branchHash + sep + id + sep + Utility.DateToString(date);
+    public String getFile(String pack, int id, long date) {
+        String path = prefix + sep + branchHash + sep + id + sep + date;
         String file = readFile(path);
         
         return file;

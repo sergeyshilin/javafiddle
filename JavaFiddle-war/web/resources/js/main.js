@@ -165,9 +165,18 @@ function selectTab(li) {
     $("#tabpanel").find(".active").removeClass("active");
     li.addClass("active");
     setCurrentFileID(id);
+    getReadOnly(id);
     getCurrentFileText();
     changeLastUpdateLabel();
     javaEditor.focus();
+}
+
+function selectEmptyTab() {
+    javaEditor.setValue("");
+    javaEditor.clearHistory();
+    javaEditor.setOption("readOnly", true);  
+    $('#latest_update').text("");
+    
 }
 
 function closeTab(parent) {
@@ -177,19 +186,23 @@ function closeTab(parent) {
     setCurrentFileID("");
     
     id = getLastOpenedTab();
-    var li = document.getElementById(id);
-    li = $("#tabpanel").find(li);
-    selectTab(li);
+    if (id !== null) {
+        var li = document.getElementById(id);
+        li = $("#tabpanel").find(li);
+        selectTab(li);
+    } else {
+        selectEmptyTab();
+    }
 }
 
 function changeLastUpdateLabel() {
     var time = getCurrentFileTimeStamp();
     if (time == "")
-        document.getElementById("latest_update").innerHTML = "Последнее изменение: еще не сохранялось";    
+        $('#latest_update').text("Последнее изменение: еще не сохранялось");
     else {
         moment.lang('ru');
-        var earlier = moment(time, "DD.MM.YYYY HH:mm:ss");
-        document.getElementById("latest_update").innerHTML = "Последнее изменение: " + earlier.from(moment());
+        var earlier = moment(time);
+        $('#latest_update').text("Последнее изменение: " + earlier.from(moment()));
     }
 }
 
@@ -208,16 +221,20 @@ function buildTree() {
                 var proj = data.projects[i];
                 $('#tree').append('<li id = "node_' + proj.id + '" class="open"><a href="#" class="root">' + proj.name + '</a><ul id ="node_' + proj.id + '_src"\></li>');
                 $('#node_' + proj.id + '_src').append('<li id = "node_' + proj.id + '_srcfolder" class="open"><a href="#" class="sources">src</a><ul id ="node_' + proj.id + '_list"\></li>');
-                document.getElementById("projectname").innerHTML = proj.name;
+                $("#projectname").text(proj.name);
                 for (var j = 0; j < proj.packages.length; j++) {
                     var pck = proj.packages[j];
-                    $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
+                    if (!(pck.name == "!default_package"))
+                        $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
                 }   
                 for (var j = 0; j < proj.packages.length; j++) {
                     var pack = proj.packages[j];
                     for (var k = 0; k < pack.files.length; k++) {
                         var file = pack.files[k];
-                        $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
+                        if (pack.name == "!default_package")
+                            $('#node_' + proj.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
+                        else
+                            $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
                      }
                 }   
             }
@@ -426,18 +443,16 @@ function renameElement(id, type) {
 }
 
 function removeFromProject(id) {
-    var idString = String(id);
     $.ajax({
         url: PATH + '/webapi/tree/remove',
         type: 'POST',
-        data: idString,
+        data: id,
         contentType: "application/json",
         success: function() {
-            var removeId = "#" + idString;
-            $(removeId).remove();
+            $('#' + id).remove();
             $("#context_menu").remove();
             $('#popup_bug').togglePopup(); 
-            closeTab($(removeId + "_tab"));
+            closeTab($('#' + id + '_tab'));
         }
     });     
 }
@@ -550,6 +565,7 @@ function showContextMenu($el, event, classname) {
             $li = $('<li/>', {text: 'Удалить'});
             $li.click(function() {
                 deleteFromProject(id, classname, elementname);
+                
                 $ul.remove();
             });
             $li.appendTo($ul);
@@ -586,7 +602,7 @@ function showContextMenu($el, event, classname) {
             $li.appendTo($ul);
             $li = $('<li/>', {text: 'Добавить файл'});
             $li.click(function() {
-                showAddFileWindow(project_id); 
+                showAddFileWindow(id); 
                 $ul.remove();
             });
             $li.appendTo($ul);
@@ -795,9 +811,15 @@ function drawAddPackageWindow(id) {
 }
 
 function drawAddFileWindow(id) {
-    var projectname = getProjectName(id);
-    var packagename = $(document.getElementById(id)).children("a").text();
-    var fullpath = "/" + projectname + "/" + packagename.replace(/\./g, '/') + "/";
+    if ($(document.getElementById(id)).children("a").hasClass("sources")) {
+        var projectname = getProjectName(id);
+        var packagename = "<default_package>";
+        var fullpath = "/" + projectname + "/";
+    } else {
+        var projectname = getProjectName(id);
+        var packagename = $(document.getElementById(id)).children("a").text();
+        var fullpath = "/" + projectname + "/" + packagename.replace(/\./g, '/') + "/";
+    }
     
     $div = $('<div/>', {
         id: "addfile" 
@@ -1057,10 +1079,10 @@ function saveFile(id) {
     if(arguments.length === 0) {
         id = getCurrentFileID();
         addCurrentFileText();
-        document.getElementById("latest_update").innerHTML = "Идет сохранение...";
+        $('#latest_update').text("Идет сохранение...");
     }
     
-    var time = moment().format("DD.MM.YYYY HH:mm:ss");
+    var time = new Date().getTime();
     $.ajax({
         url: PATH + '/webapi/revisions',
         type:'POST', 
@@ -1068,7 +1090,7 @@ function saveFile(id) {
         success: function() {
             unModifiedTab(id);
             addCurrentFileTimeStamp(time);
-            if (isCurrent(id)) document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
+            if (isCurrent(id)) $('#latest_update').text("Все изменения сохранены");
         }
     });
 }
@@ -1076,13 +1098,13 @@ function saveFile(id) {
 function saveAllFiles() {
     addCurrentFileText();
     
-    document.getElementById("latest_update").innerHTML = "Идет сохранение...";
+    $('#latest_update').text("Идет сохранение...");
     
     modifiedList().forEach(function(entry) {
         saveFile(entry);
     });
     
-    document.getElementById("latest_update").innerHTML = "Все изменения сохранены";
+    $('#latest_update').text("Все изменения сохранены");
 }
 
 function saveProject() {
@@ -1093,7 +1115,7 @@ function saveProject() {
         type:'POST', 
         contentType: "application/json",
         success: function(data) {
-            document.getElementById("latest_update").innerHTML = "Проект сохранен c хешем " + data;
+            $('#latest_update').text("Проект сохранен c хешем " + data);
         }
     });
 }
@@ -1116,6 +1138,7 @@ function getFileRevision(id) {
         url: PATH + '/webapi/revisions',
         type:'GET',
         data: {id : id},
+        async: false,
         dataType: "json",
         contentType: "application/json",
         success: function(data) {

@@ -18,6 +18,8 @@ public class Utility {
             idString = idString.substring("node_".length());
             if (idString.endsWith("_tab"))
                 idString = idString.substring(0, idString.length() - "_tab".length());
+            if (idString.endsWith("_srcfolder"))
+                idString = idString.substring(0, idString.length() - "_srcfolder".length());
             return Integer.parseInt(idString);
         }
         return -1;
@@ -33,27 +35,12 @@ public class Utility {
         return true;
     }
 
-    public static void addExampleTree(Tree tree, IdList idList, TreeMap<Integer, TreeMap<Date, String>> files) {
+    public static void addExampleTree(Tree tree, IdList idList, TreeMap<Integer, TreeMap<Long, String>> files) {
         TreeProject tpr = tree.getProjectInstance(idList, "MyFirstProject");
         TreePackage tp = tpr.getPackageInstance(idList, "com.myfirstproject.web");
         TreeFile main = tp.addFile(idList, "runnable", "Main.java");
         
         Revisions revisions = new Revisions(idList, files);
         revisions.addFileRevision(main, idList);
-    }
-    
-    public static String DateToString(Date date) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        return df.format(date);
-    }
-    
-    public static Date StringToDate(String date) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        try {
-            return df.parse(date);
-        } catch (ParseException ex) {
-            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
     }
 }

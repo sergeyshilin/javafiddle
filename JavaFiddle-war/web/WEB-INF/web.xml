@@ -18,6 +18,9 @@
             30
         </session-timeout>
     </session-config>
+    <listener>
+        <listener-class>com.javafiddle.web.utils.SessionListener</listener-class>
+    </listener>
     <welcome-file-list>
         <welcome-file>fiddle/index.xhtml</welcome-file>
     </welcome-file-list>
