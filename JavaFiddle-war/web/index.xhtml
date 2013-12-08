@@ -147,23 +147,8 @@
                 <h:inputTextarea id="textarea"/>
                 <script type="text/javascript">
                 //<![CDATA[
-                    $(document).ready(function(){
-                        PATH = "#{request.contextPath}";
-                        setObjectsSize();
-                        loadMainMenu();
-                        loadLiHarmonica();
-                        var projecthash = "#{param['project']}";
-                        if(projecthash !== "") {
-                            getProject(projecthash);
-                            invalidateSession();
-                        }
-                        buildTree();
-                        loadTabs();
-                        loadToggles();
-                        $("body").click(function() {
-                            closeAllPopUps();
-                        });
-                    });                
+                    PATH = "#{request.contextPath}";
+                    PROJECTPARAM = "#{param['project']}";               
                     
                     CodeMirror.commands.autocomplete = function(cm) {
                         CodeMirror.showHint(cm, CodeMirror.hint.anyword);
@@ -205,16 +190,17 @@
                     });
                 //]]>
                 </script>
+                
+                <div id="compilation-window" class="mainblock closed">
+                    <div id="stdout" />
+                    <div id="stdin">
+                        <h:outputText id="stdin-name" value="stdin:" />
+                        <h:inputText id="stdinput" onkeypress="if (event.keyCode === 13){sendInput(); return false;}" />
+                    </div>
+                </div>
             </div>
             
-            <div id="compilation-window" class="mainblock closed">
-                <div id="stdout">
-                </div>
-                <div id="stdin">
-                    <div id="name">stdin:</div>
-                    <form id="stdincomplete" onsubmit="sendInput();"><input type="text" id="stdinput" /></form>
-                </div>
-            </div>
+            
         </div>
     </h:body>
 </html>

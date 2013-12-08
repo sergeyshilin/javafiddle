@@ -1,8 +1,28 @@
 var PATH = "";
 var javaEditor;
+var PROJECTPARAM;
+
 
 // EVENTS
-$(window).resize(function() {
+
+$(document).ready(function(){
+    loadMainMenu();
+    loadLiHarmonica();
+    var projecthash = PROJECTPARAM;
+    if(projecthash !== "") {
+        getProject(projecthash);
+        invalidateSession();
+    }
+    buildTree();
+    loadTabs();
+    loadToggles();
+    $("body").click(function() {
+        closeAllPopUps();
+    });
+    setObjectsSize();
+}); 
+   
+$("#codetext").resize(function() {
     setObjectsSize();
 });
 
@@ -14,63 +34,11 @@ window.onbeforeunload = (function() {
 });
 
 function setObjectsSize() { 
-    setContentSize();
-    setCompilationSize();
-    setTabPanelSize();
-}
-
-function setContentSize() {
-    var $header = $("#header");
-    var $content = $("#content");
-    var $tree = $("#treepanel");
-    var $code = $("#codetext");
-    var $compilation = $("#compilation-window");
-    var $codearea = $("#textarea");
-    var height = $(window).height() - $header.height();
-    var width = $(window).width();
-    var padding = 30;    
-    
-    $content.height(height - padding);
-    $content.width(width - padding); 
-    
-    $tree.height($content.height());
-    
-    if ($compilation.height() > 0)
-        $code.height($content.height() -$compilation.height() - 17);
-    else 
-        $code.height($content.height() -$compilation.height());
-    
-    if($tree.width() > 0) {
-        $code.width($content.width() - $tree.width() - 20);
-        $compilation.width($content.width() - $tree.width() - 20);
-    } else {
-        $code.width(width - $tree.width() - 30);
-        $compilation.width(width - $tree.width() - 30);
-    } 
-    
-    $codearea.height($code.height() - 20);
-    $codearea.width($code.width() - 20);
-    $codearea.css("margin", "10px 0 0 10px");
-    javaEditor.setSize(null, $code.height());
-}
-
-function setCompilationSize() {
-    var $compilation = $("#compilation-window");
-    var $stdout = $("#stdout");
-    var $stdin = $("#stdin");
-    var $stdinput = $("#stdinput");
-    
-    $stdout.width($compilation.width() - 10);
-    $stdin.width($compilation.width());
-    $stdinput.width($stdin.width() - 90);
-}
-
-function setTabPanelSize() {
-    var $header = $("#header-bottom");
-    var $tabpanel = $("#tabpanel");
-    var $menu = $("#main_menu");
-    
-    $tabpanel.width($header.width() - $menu.width() - 10);
+    $compilation = $("#compilation-window");
+    if($compilation.hasClass("closed")) {
+        javaEditor.setSize(null, $("#codetext").height());
+    } else
+        javaEditor.setSize(null, $("#codetext").height() - $compilation.height() - 4);
 }
 
 // MENU
@@ -738,16 +706,13 @@ function toggleConsoleWindow() {
     closeAllPopUps();
     $compilation = $("#compilation-window");
     if($compilation.hasClass("closed")) {
-        $compilation.height(130);
-        setObjectsSize();
         $("#compilation-window").css("display", "block");
         $compilation.removeClass("closed");
     } else {
         $compilation.addClass("closed");
-        $compilation.height(0);
         $("#compilation-window").css("display", "none");
-        setObjectsSize();
     }
+    setObjectsSize();
 }
 
 function isConsoleOpened() {
@@ -1158,7 +1123,6 @@ String.prototype.endsWith = function(suffix) {
 
 function getFileDataById(id) {
     var filedata;
-
     $.ajax({
         url: PATH + '/webapi/tree/filedata',
         type: 'GET',

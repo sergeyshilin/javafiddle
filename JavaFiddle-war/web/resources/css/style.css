@@ -1,15 +1,17 @@
-/* 
-    Document   : style
-    Created on : 07.10.2013, 19:25:33
-    Author     : Java Fiddle
-    Description: Main stylesheet for home page
-*/
-
 html, body {
     margin: 0;
     padding: 0; 
     width: 100%;
     height: 100%;
+}
+
+body {
+    display: -ms-flex; 
+    display: -webkit-flex; 
+    display: flex; 
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-direction: column;
 }
 
 /**
@@ -75,6 +77,10 @@ html, body {
     float: right;
     height: 20px;
     margin: 12px 10px 0 0;
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
 }
 
 #header-top #username a {
@@ -225,6 +231,7 @@ html, body {
     background-repeat: no-repeat;
     background-position: 7% 50%;
 }
+
 #share:hover {
     background-color: #4189fc;
 }
@@ -245,10 +252,16 @@ html, body {
     background-image: -ms-linear-gradient(top,#f5f5f5,#eee);
     background-image: -o-linear-gradient(top,#f5f5f5,#eee);
     background-image: linear-gradient(top,#f5f5f5,#eee);
+    display: -ms-flex; 
+    display: -webkit-flex; 
+    display: flex; 
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
 }
 
 #header-bottom #editor_buttons {
-    width: 320px;
+    width: 310px;
     height: 18px;
     list-style: none;
     /*border: 1px solid red;*/
@@ -310,6 +323,9 @@ html, body {
     float: left;
     padding: 0 5px 3px 5px;
     margin: 0;
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;    
 }
 
 ul#tabpanel li {
@@ -355,41 +371,36 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 * Content
 */
 
-#content {    
+#content {   
     background-color: #eee;
-    height: 30px;
-    padding: 15px;
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -ms-flex; 
+    display: -webkit-flex; 
+    display: flex; 
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
 }
 
-
 #content #treepanel { 
-    float: left;
-    width: 20%;
-    margin: 0;
-    resize: none;
+    margin: 10pt 0pt 10pt 10pt;
+    width: 270px;
     overflow: auto;
 }
 
 #content #codetext {  
-    float: right;
-    resize: none;
-    margin: 0;
-}
-
-#codetext #textarea {
-    border: none;
-    resize: none;
-    overflow: auto;
-    width: 100%;
-    height: 100%;
-}
-
-#codetext #textarea {
-    border: none;
-    resize: none;
-    overflow: auto;
-    width: 100%;
-    height: 100%;
+    margin: 10pt;
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -ms-flex; 
+    display: -webkit-flex; 
+    display: flex; 
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-direction: column;
 }
 
 #content .mainblock, #tabpanel li {
@@ -401,11 +412,8 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 }
 
 #compilation-window {
-    margin-top: 15px;
-    resize: none;
-    height: 0;
+    height: 130px;
     display: none;
-    float: right;
     font-size: 13px;
     font-family: 'Open Sans';
     font-weight: normal;
@@ -414,31 +422,26 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 
 #compilation-window #stdout {
     overflow: auto;
-    height: 91px;
-    padding: 5px;
+    height: 100px;
+    
 }
 
 #compilation-window #stdin {
-    position: fixed;
-    width: 100%;
-    height: 27px;
+    background-color: #fff;
     border-top: 1px solid #ccc;
+    
 }
 
-#stdin #name {
-    position: absolute;
+#stdin #stdin-name {
     width: 80px;
-    height: auto;
-    margin-top: 4px;
+    heigth : 30px;
     text-align: center;
     font-weight: bold;
 }
 
-#stdin input#stdinput {
-    height: 27px;
-    padding: 0 10px 0 80px;
-    width: 100%;
+#stdin #stdinput {
     border: 0;
+    heigth : 30px;
     outline: none;
     font-size: 13px;
     font-family: 'Open Sans';
@@ -531,12 +534,15 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
     border-bottom: 3px solid transparent;
     top: 5px;
 }
+
 .project a:hover {
     text-decoration: underline;
 }
+
 .project a.cur {
   color: #000
 }
+
 .project a.harOpen {
   color: #000
 }
@@ -604,10 +610,10 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
     outline: 0;
     cursor: default;
 }
+
 #confirm-buttons div.button:hover {
     background-color: #99CCFF;
 }
-
 
 #confirm.button {
     float: left;
