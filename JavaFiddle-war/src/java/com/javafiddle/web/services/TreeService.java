@@ -419,7 +419,11 @@ public class TreeService implements Serializable {
                 ArrayList<String> paths = new ArrayList<>();
                 for (TreeFile tf : idList.getFileList().values()) {
                     StringBuilder path = new StringBuilder();
-                    path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(idList.getPackage(tf.getPackageId()).getName().replace(".", sep)).append(sep).append(tf.getName());
+                    String packageName = idList.getPackage(tf.getPackageId()).getName();
+                    if (packageName.startsWith("!"))
+                        path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(tf.getName());
+                    else
+                        path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(packageName.replace(".", sep)).append(sep).append(tf.getName());
                     paths.add(path.toString());
                 }
                 

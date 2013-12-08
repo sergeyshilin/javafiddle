@@ -425,18 +425,16 @@ function renameElement(id, type) {
 }
 
 function removeFromProject(id) {
-    var idString = String(id);
     $.ajax({
         url: PATH + '/webapi/tree/remove',
         type: 'POST',
-        data: idString,
+        data: id,
         contentType: "application/json",
         success: function() {
-            var removeId = "#" + idString;
-            $(removeId).remove();
+            $('#' + id).remove();
             $("#context_menu").remove();
             $('#popup_bug').togglePopup(); 
-            closeTab($(removeId + "_tab"));
+            closeTab($('#' + id + '_tab'));
         }
     });     
 }
@@ -549,6 +547,7 @@ function showContextMenu($el, event, classname) {
             $li = $('<li/>', {text: 'Удалить'});
             $li.click(function() {
                 deleteFromProject(id, classname, elementname);
+                
                 $ul.remove();
             });
             $li.appendTo($ul);
