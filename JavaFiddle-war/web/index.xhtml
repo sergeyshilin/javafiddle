@@ -55,10 +55,9 @@
                             <ul>
                                 <li onclick="saveFile();">Сохранить</li>
                                 <li onclick="saveAllFiles();">Сохранить все</li>
-                                <li onclick="saveProject();">Сохранить проект</li>
-                                <li>Переименовать</li>
+                                <li onclick="saveProject();">Создать ревизию</li>
                                 <li>Настройки</li>
-                                <li>Удалить</li>
+                                <li onclick="closeProject();">Закрыть</li>
                             </ul>
                         </li>
                         <li><div class="link">Правка</div>
@@ -97,12 +96,11 @@
                         <li>
                             <div class="link">История</div>
                             <ul>
-                                <li>Список ревизий</li>
+                                <li onclick="showRevisionsList();">Список ревизий</li>
                             </ul>
                         </li>
                         <li><div class="link">Справка</div>
                             <ul>
-                                <li>Справка</li>
                                 <li>Сочетания клавиш</li>
                                 <li>О JavaFiddle</li>
                             </ul>
@@ -118,8 +116,8 @@
                     <li><h:commandButton value="" type="button" id="saveall" onclick="saveAllFiles();" title="Сохранить все файлы" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><h:commandButton value="" type="button" id="undo" onclick="getFileRevision('prev');" title="Отменить действие" /></li>
-                    <li><h:commandButton value="" type="button" id="redo" onclick="getFileRevision('next');" title="Повторить действие" /></li>
+                    <li><h:commandButton value="" type="button" id="undo" onclick="javaEditor.execCommand('undo');" title="Отменить действие" /></li>
+                    <li><h:commandButton value="" type="button" id="redo" onclick="javaEditor.execCommand('redo');" title="Повторить действие" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><h:commandButton value="" type="button" id="cut" title="Вырезать" /></li>

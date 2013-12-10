@@ -174,6 +174,24 @@ function changeLastUpdateLabel() {
     }
 }
 
+function closeTabsFromPackage(id) {
+    $pack = $('#' + id);
+    $pack.children("ul").children("li").each(function() {
+        var subid = $(this).attr("id");
+        if($(this).children("a").hasClass("project"))
+            closeTabsFromPackage(subid);
+        else 
+            closeTab($('#' + subid + '_tab'));
+    });
+}
+
+function closeAllTabs() {
+    $panel = $("#tabpanel");
+    $panel.children("li").each(function() {
+       closeTab($(this));
+    });
+}
+
 
 // TREE
 
@@ -190,6 +208,7 @@ function buildTree() {
                 $('#tree').append('<li id = "node_' + proj.id + '" class="open"><a href="#" class="root">' + proj.name + '</a><ul id ="node_' + proj.id + '_src"\></li>');
                 $('#node_' + proj.id + '_src').append('<li id = "node_' + proj.id + '_srcfolder" class="open"><a href="#" class="sources">src</a><ul id ="node_' + proj.id + '_list"\></li>');
                 $("#projectname").text(proj.name);
+                setProjectId(proj.id);
                 for (var j = 0; j < proj.packages.length; j++) {
                     var pck = proj.packages[j];
                     if (!(pck.name == "!default_package"))
@@ -213,9 +232,8 @@ function buildTree() {
                 });
             });
             openedNodesList().forEach(function(entry) {
-                var $entry = $("#" + entry).children('a');
-                $entry.addClass('harOpen');
-                $entry.next('ul').stop(true).slideToggle(100);
+                $("#" + entry).children('a').addClass('harOpen');
+                $("#" + entry).children('ul').addClass('opened');
             });
             loadTreeOperation();
         }
@@ -353,7 +371,7 @@ function addFile(id) {
         name = name.substring(0, name.length - 5);
     }
     
-    if(isRightClassName(name)) {
+    if(isRightClassName(name, id)) {
         $.ajax({
             url: PATH + '/webapi/tree/addFile',
             type: 'POST',
@@ -372,12 +390,13 @@ function addFile(id) {
 function renameElement(id, type) {
     var name = $("#rename input").val();
     $input = $("#rename input");
-    var name = name;
     $input.val(name);
     var correct = false;
     
     switch (type) {
         case "file":
+            if(name.endsWith(".java"))
+                name = name.substring(0, name.length - 5);
             correct = isRightClassName(name, id);
             break;
         case "package":
@@ -410,19 +429,40 @@ function renameElement(id, type) {
  
 }
 
-function removeFromProject(id) {
+function removeFromProject(id, classname) {
     $.ajax({
         url: PATH + '/webapi/tree/remove',
         type: 'POST',
         data: id,
         contentType: "application/json",
         success: function() {
-            $('#' + id).remove();
+            switch(classname) {
+                case "root":
+                    $('#' + id).remove();
+                    closeAllTabs();
+                    invalidateSession();
+                    buildTree();
+                    break;
+                case "package":
+                    closeTabsFromPackage(id);
+                    $('#' + id).remove();
+                    break;
+                case "file":
+                    $('#' + id).remove();
+                    closeTab($('#' + id + '_tab'));
+                    break;
+            }
+
             $("#context_menu").remove();
             $('#popup_bug').togglePopup(); 
-            closeTab($('#' + id + '_tab'));
         }
     });     
+}
+
+function closeProject() {
+    var id = getProjectId();
+    var name = $('#' + id).children("a").text();
+    deleteFromProject(id, "root", name);
 }
 
 function toggleProjectTreePanel($li) {
@@ -576,7 +616,12 @@ function showContextMenu($el, event, classname) {
             $li.appendTo($ul);
             break;
         case "root":
-            $('<li/>', {text: 'Запустить'}).appendTo($ul);
+            $li = $('<li/>', {text: 'Запустить'});
+            $li.click(function() {
+                compileAndRun();
+                $ul.remove();
+            });
+            $li.appendTo($ul);
             $li = $('<li/>', {text: 'Переименовать'});
             $li.click(function() {
                 showRenameWindow(id, classname, elementname);
@@ -590,7 +635,7 @@ function showContextMenu($el, event, classname) {
             });
             $li.appendTo($ul);
             $('<li/>', {text: 'Настройки проекта'}).appendTo($ul);
-            $li = $('<li/>', {text: 'Удалить'});
+            $li = $('<li/>', {text: 'Закрыть'});
             $li.click(function() {
                 deleteFromProject(id, classname, elementname);
                 $ul.remove();
@@ -649,7 +694,7 @@ function drawDeleteWindow(id, classname, name) {
         id: "confirm",
         class: "button"
     });
-    $confirm.attr("onclick", "removeFromProject('"+ id +"')");
+    $confirm.attr("onclick", "removeFromProject('"+ id +"', '"+ classname +"')");
     
     $decline = $('<div/>', {
         text: "Отменить",
@@ -702,6 +747,16 @@ function showProjectSettings() {
     showPopup($div, params); 
 }
 
+function showRevisionsList() {
+    closeAllPopUps();
+    $div = drawRevisionsList();
+    var params = {
+        width: 400,
+        height: 280
+    };
+    showPopup($div, params); 
+}
+
 function toggleConsoleWindow() {
     closeAllPopUps();
     $compilation = $("#compilation-window");
@@ -728,6 +783,34 @@ function drawProjectSettings() {
     });
     
     return $div;
+}
+
+function drawRevisionsList() {
+    var revisions;
+    
+    $.ajax({
+        url: PATH + '/webapi/tree/revisionslist',
+        type: 'GET',
+        async: false,
+        data: {id: getProjectId()},
+        dataType: "json",
+        contentType: "application/json",
+        success: function(data) {
+            revisions = data;
+        }
+    }); 
+    
+    console.log(revisions);
+ 
+    $ul = $("<ol/>", {
+        id: "revisions-list"
+    });
+    
+    for(var i = 0; i < revisions.length; ++i) {
+        $ul.append("<li><div class='revision-time'>" + revisions[i].creationDate + "</div><div class='revert'>Revert</div></li>");
+    }
+    
+    return $ul;
 }
 
 function drawAddPackageWindow(id) {
@@ -994,22 +1077,34 @@ function isRightClassName(name, id) {
     $.ajax({
         url: PATH + '/webapi/tree/classname',
         type: 'GET',
-        data: {name: name},
+        data: {name: name, package_id: id},
         dataType: "json",
         async: false,
         success: function(data) {
-            result = data;
+            switch(data) {
+                case "wrongname":
+                    $("#result-msg").text("Неверное название класса. \n\
+                        Допустимы лишь латинские символы и цифры. \n\
+                        Название класса не должно начинаться с цифры.");
+                    $("#result-msg").css("font-size", "13px");
+                    break;
+                case "used":
+                   $("#result-msg").text("Это имя класса уже используется в данном пакете.");
+                   $("#result-msg").css("font-size", "15px");
+                   break;
+                case "unknown":
+                   $("#result-msg").text("Неизвестная ошибка.");  
+                   $("#result-msg").css("font-size", "15px");
+                   break;
+                case "ok":
+                    result = !result;
+                    break;
+            }
         }
     }); 
-    
     if(!result) {
-        $("#result-msg").text("Неверное название класса. \n\
-                            Допустимы лишь латинские символы и цифры. \n\
-                            Название пакета не должно начинаться с цифры.");
-        $("#result-msg").css("font-size", "13px"); 
         $("#result-msg").css("color", "red");
     }
-    
     return result;
 }
 
@@ -1128,14 +1223,13 @@ function getFileDataById(id) {
         url: PATH + '/webapi/tree/filedata',
         type: 'GET',
         data: {id: id},
-        dataType: "json",
         async: false,
+        dataType: "json",
+        contentType: "application/json",
         success: function(data) {
             filedata = data;
         },
         error: function(jqXHR) {
-          /*  if (jqXHR.status === 410)
-                invalidateSession(); */
             filedata = false;
         }
     }); 

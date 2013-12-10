@@ -797,3 +797,44 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 #context_menu li:hover, #typelist li:hover {
     background-color: #eaeaea; 
 }
+
+/**
+ * Revisions List
+ */
+
+#revisions-list {
+    list-style-type: none;
+    overflow: auto;
+    width: 340px;
+    height: 245px;
+    padding-right: 20px;
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+}
+
+#revisions-list li {
+    width: 320px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    background-color: #eee;
+    height: 27px;
+}
+
+#revisions-list li div.revision-time {
+    padding: 5px 10px;
+    float: left;
+}
+
+#revisions-list li div.revert {
+    cursor: default;
+    float: right;
+    border-left: 1px solid #ccc;
+    background-color: #ddd;
+    padding: 5px 10px;
+}
+
+#revisions-list li div.revert:hover {
+    background-color: #99CCFF;
+}

@@ -201,6 +201,14 @@ function changeNodeState($el) {
         pushToList("openednodes", id);
 }
 
+function setProjectId(id) {
+    sessionStorage.setItem("projectID", "node_" + id);
+}
+
+function getProjectId() {
+    return sessionStorage.getItem("projectID");
+}
+
 
 // UTILS
 
