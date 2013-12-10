@@ -5,11 +5,17 @@ package com.javafiddle.help;
  * @author Ivashkin Vladimir
  * @author Vinogradov Konstantin
  *
- * @version 1.0
+ * @version 0.4
  */
 
 public class About {
     public final String projectName = "JavaFiddle";
+
+    // public final String link = "http://javafiddle.org";
+
+    // public final String email = "mail@javafiddle.org";
+
+    public final String curator = "Anton Danshin";
 
     public final String[] creaters = {
         "Shilin Sergey",

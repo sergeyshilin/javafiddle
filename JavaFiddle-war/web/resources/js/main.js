@@ -178,7 +178,7 @@ function closeTabsFromPackage(id) {
     $pack = $('#' + id);
     $pack.children("ul").children("li").each(function() {
         var subid = $(this).attr("id");
-        if($(this).children("a").hasClass("project"))
+        if($(this).children("a").hasClass("package"))
             closeTabsFromPackage(subid);
         else 
             closeTab($('#' + subid + '_tab'));
@@ -860,12 +860,12 @@ function drawAddPackageWindow(id) {
 }
 
 function drawAddFileWindow(id) {
+    var projectname = getProjectName(id);
+    
     if ($(document.getElementById(id)).children("a").hasClass("sources")) {
-        var projectname = getProjectName(id);
         var packagename = "<default_package>";
         var fullpath = "/" + projectname + "/";
     } else {
-        var projectname = getProjectName(id);
         var packagename = $(document.getElementById(id)).children("a").text();
         var fullpath = "/" + projectname + "/" + packagename.replace(/\./g, '/') + "/";
     }

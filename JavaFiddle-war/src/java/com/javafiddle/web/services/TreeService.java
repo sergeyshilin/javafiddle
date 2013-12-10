@@ -204,8 +204,10 @@ public class TreeService implements Serializable {
         javaname = javaname.toLowerCase();
         
         int packageid = Utility.parseId(id);
-        if(!idList.isPackage(packageid))
+        if(idList.isFile(packageid))
             packageid = idList.getFile(packageid).getPackageId();
+        else if(idList.isProject(packageid))
+            packageid = idList.getProject(packageid).getPackageInstance(idList, "!default_package").getId();
         List<TreeFile> package_files = idList.getPackage(packageid).getFiles();
         Boolean exist = false;
         for(TreeFile file : package_files) {
