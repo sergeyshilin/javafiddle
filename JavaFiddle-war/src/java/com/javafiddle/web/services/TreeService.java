@@ -13,6 +13,7 @@ import com.javafiddle.pool.TaskType;
 import com.javafiddle.revisions.Revisions;
 import com.javafiddle.runner.Compilation;
 import com.javafiddle.runner.Execution;
+import com.javafiddle.runner.Killer;
 import com.javafiddle.runner.LaunchPermissions;
 import com.javafiddle.saving.GetProjectRevision;
 import com.javafiddle.saving.ProjectRevisionSaver;
@@ -359,6 +360,7 @@ public class TreeService implements Serializable {
     //
     @POST
     @Path("revisions")
+    @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response saveFile(
             @Context HttpServletRequest request,
@@ -429,7 +431,12 @@ public class TreeService implements Serializable {
                 
                 Task task = new Task(TaskType.COMPILATION, new Compilation(paths));
                 pool.add(task);
-                task.start();
+                try {
+                    task.start();
+                } finally {
+                    Killer killer = new Killer(task);
+                    killer.start();
+                }
 
                 return null;
             }
@@ -465,7 +472,12 @@ public class TreeService implements Serializable {
 
                 Task task = new Task(TaskType.EXECUTION, new Execution("-classpath " + path.toString(), packageName + runnableName));
                 pool.add(task);
-                task.start();
+                try {
+                    task.start();
+                } finally {
+                    Killer killer = new Killer(task);
+                    killer.start();
+                }
 
                 return null;
             }
@@ -515,7 +527,12 @@ public class TreeService implements Serializable {
                 
                 Task task1 = new Task(TaskType.COMPILATION, new Compilation(paths));
                 pool.add(task1);
-                task1.start();
+                try {
+                    task1.start();
+                } finally {
+                    Killer killer = new Killer(task1);
+                    killer.start();
+                }
 
                 try{
                     task1.join();
@@ -526,7 +543,12 @@ public class TreeService implements Serializable {
                     if(!task1.isError()) {
                         Task task2 = new Task(TaskType.EXECUTION, new Execution("-classpath " + executepath.toString(), packageName + "." + runnableName));
                         pool.add(task2);
-                        task2.start();
+                        try {
+                            task2.start();
+                        } finally {
+                            Killer killer = new Killer(task2);
+                            killer.start();
+                        }
                     }
                 }
                 return null;
@@ -566,16 +588,6 @@ public class TreeService implements Serializable {
                 Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        double seconds = (new Date().getTime() - task.getStartTime().getTime()) / 1000;
-        if(seconds > 15) {
-            task.kill();
-            ArrayList<String> list = new ArrayList<>();
-            list.add("<------ Execution was stopped for enforcement ------>");
-            list.add("#END_OF_STREAM#");
-            Gson gson = new GsonBuilder().create();
-            return Response.ok(gson.toJson(list), MediaType.APPLICATION_JSON).build();
-        }
         return Response.ok().build();
     }
     
@@ -597,7 +609,6 @@ public class TreeService implements Serializable {
             } catch (IOException ex) {
                 Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
             }
-            task.getProcess().send(input + "\n");
         return Response.ok().build();
     }
     

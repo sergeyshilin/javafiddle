@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -26,6 +26,7 @@ public class Compilation implements Launcher {
     private Process process;
     private Boolean killed = false;
     private Queue<String> stream = null;
+    private Integer pid = null;
 
     public Compilation(String args, String pathtofile) {
         this.stream = new LinkedList<>();
@@ -54,6 +55,7 @@ public class Compilation implements Launcher {
         try {
             String command = "javac " + args + " " + filepath;
             process = Runtime.getRuntime().exec(command);
+            setPid(process);
             printLines(" stdout:", process.getInputStream());
             printLines(" <span style='color:red'>stderr:</span>", process.getErrorStream());
             process.waitFor();
@@ -117,15 +119,6 @@ public class Compilation implements Launcher {
     }
 
     @Override
-    public void send(String input) {
-        try {
-            process.getOutputStream().write(input.getBytes(Charset.forName("UTF-8")));
-        } catch (IOException ex) {
-            Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
     public int getExitCode() {
         return process.exitValue();
     }
@@ -138,5 +131,31 @@ public class Compilation implements Launcher {
             Logger.getLogger(Compilation.class.getName()).log(Level.SEVERE, null, ex);
         }
         return 0;
+    }
+
+    @Override
+    public Integer getPid() {
+        return pid;
+    }
+    
+    private void setPid(Process process) {
+        if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
+            try {
+                Class cl = process.getClass();
+                Field field = cl.getDeclaredField("pid");
+                field.setAccessible(true);
+                Object pidObject = field.get(process);
+                pid = (Integer) pidObject;
+            } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException ex) {
+                Logger.getLogger(Execution.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            throw new IllegalArgumentException("Needs to be a UNIXProcess");
+        }
+    }
+
+    @Override
+    public void addToOutput(String line) {
+        stream.add(line);
     }
 }

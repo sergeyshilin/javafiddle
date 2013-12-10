@@ -37,7 +37,6 @@ public class Task extends Thread implements Serializable {
             process.run();
         } catch (Exception e) {
             status = TaskStatus.ERROR;
-            e.printStackTrace();
         }
         finally {
             process.waitFor();
@@ -47,7 +46,14 @@ public class Task extends Thread implements Serializable {
     }
 
     public void kill() {
-        process.destroy();
+        try {
+            process.destroy();
+        } catch(Exception e) {
+            status = TaskStatus.ERROR;
+        } finally {
+            process.waitFor();
+            status = process.getExitCode() == 0 ? TaskStatus.COMPLETED : TaskStatus.ERROR;
+       }
     }
 
     public String getOutputStream() {
@@ -88,6 +94,18 @@ public class Task extends Thread implements Serializable {
 
     public Launcher getProcess() {
         return process;
+    }
+    
+    public TaskType getType() {
+        return type;
+    }
+    
+    public Integer getPid() {
+        return process.getPid();
+    }
+
+    public void addToOutput(String line) {
+        process.addToOutput(line);
     }
 
 }

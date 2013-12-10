@@ -25,9 +25,11 @@ public interface Launcher {
 
     public Boolean streamIsEmpty();
 
-    public void send(String input);
-
     public int getExitCode();
+    
+    public void addToOutput(String line);
 
     public int waitFor();
+    
+    public Integer getPid();
 }
