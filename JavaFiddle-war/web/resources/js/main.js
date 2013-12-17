@@ -1,33 +1,31 @@
 var PATH = "";
 var javaEditor;
 var PROJECTPARAM;
-
+var $elClicked;
 
 // EVENTS
 
 $(document).ready(function(){
-    loadMainMenu();
     loadLiHarmonica();
     var projecthash = PROJECTPARAM;
     if(projecthash !== "") {
         getProject(projecthash);
         invalidateSession();
     }
+    javaEditor.setOption("readOnly", true);
     buildTree();
     loadTabs();
     loadToggles();
-    $("body").click(function() {
-        closeAllPopUps();
-    });
-    setObjectsSize();
-}); 
+    setJavaEditorSize();
+    loadPopupMenu();
+});
 
 $(window).resize(function() {
-    setObjectsSize();
+    setJavaEditorSize();
 });
 
 $("#codetext").resize(function() {
-    setObjectsSize();
+    setJavaEditorSize();
 });
 
 window.onbeforeunload = (function() {
@@ -37,36 +35,8 @@ window.onbeforeunload = (function() {
     return "ВНИМАНИЕ! В проекте есть несохраненные файлы. Когда сессия истечет, все несохраненные изменения будут потеряны!";
 });
 
-function setObjectsSize() { 
+function setJavaEditorSize() { 
     javaEditor.setSize(null, $("#codetext").height());
-}
-
-// MENU
-
-function loadMainMenu() {
-    $menu = $("#main_menu");
-    $('#main_menu div.link').each(function() {
-        $parent = $(this).parent();
-        if($parent.children().length > 1) {
-            $(this).click(function() {  
-                $li = $(this).parent();
-                if($li.hasClass('active')) {
-                    $li.find('ul').removeClass('show');
-                    $li.removeClass('active');
-                } else {
-                    $menu.find('.active').removeClass("active");
-                    $menu.find('.show').removeClass('show');
-                    $li.addClass('active');
-                    $li.find('ul').addClass('show');
-                }
-            });
-        }
-    });
-    
-    $menu.click(function(event){
-        $("#context_menu").remove();
-        event.stopPropagation();
-    });
 }
 
 
@@ -166,11 +136,11 @@ function closeTab(parent) {
 function changeLastUpdateLabel() {
     var time = getCurrentFileTimeStamp();
     if (time == "")
-        $('#latest_update').text("Последнее изменение: еще не сохранялось");
+        $('#latest_update').text("Last changes: not saved yet.");
     else {
-        moment.lang('ru');
+        moment.lang('en');
         var earlier = moment(time);
-        $('#latest_update').text("Последнее изменение: " + earlier.from(moment()));
+        $('#latest_update').text("Last changes: " + earlier.from(moment()));
     }
 }
 
@@ -219,9 +189,9 @@ function buildTree() {
                     for (var k = 0; k < pack.files.length; k++) {
                         var file = pack.files[k];
                         if (pack.name == "!default_package")
-                            $('#node_' + proj.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
+                            $('#node_' + proj.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '" onclick="openTabFromTree($(this));">' + file.name + '</a></li>');
                         else
-                            $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '">' + file.name + '</a></li>');
+                            $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '" onclick="openTabFromTree($(this));">' + file.name + '</a></li>');
                      }
                 }   
             }
@@ -235,64 +205,7 @@ function buildTree() {
                 $("#" + entry).children('a').addClass('harOpen');
                 $("#" + entry).children('ul').addClass('opened');
             });
-            loadTreeOperation();
         }
-    });
-}
-
-function loadTreeOperation() {
-    $("#tree a").each(function() {
-        this.oncontextmenu = function() {return false;};  
-        $(this).mousedown(function(event) {
-            var classname = $(this).attr("class").split(" ")[0];
-            switch(classname) {
-                case "class": 
-                case "interface": 
-                case "exception": 
-                case "annotation": 
-                case "runnable":
-                case "enum":
-                    switch(event.which) {
-                        case 1:
-                            openTabFromTree($(this));
-                            break;
-                        case 3: 
-                            showContextMenu($(this), event, "file");
-                            break;
-                    }
-                    break;
-                case "package":
-                    switch(event.which) {
-                        case 1:
-                            changeNodeState($(this));
-                            break;                        
-                        case 3: 
-                            showContextMenu($(this), event, "package");
-                            break;
-                    }
-                    break;
-                case "sources":
-                    switch(event.which) {  
-                        case 1:
-                            changeNodeState($(this));
-                            break;   
-                        case 3: 
-                            showContextMenu($(this), event, "sources");
-                            break;
-                    }
-                    break;
-                case "root":
-                    switch(event.which) {
-                        case 1:
-                            changeNodeState($(this));
-                            break;   
-                        case 3: 
-                            showContextMenu($(this), event, "root");
-                            break;
-                    }
-                    break;
-            }
-        });
     });
 }
 
@@ -465,194 +378,96 @@ function closeProject() {
     deleteFromProject(id, "root", name);
 }
 
-function toggleProjectTreePanel($li) {
-    closeAllPopUps();
-    if($li.hasClass('closed')) {
-        $("#treepanel").css("width", "20%");
-        $("#treepanel").css("display", "block");
-        $li.removeClass('closed');
-        $li.text("Скрыть дерево проекта");
-        setObjectsSize();
-    } else {
-        $li.addClass('closed');
-        $("#treepanel").width(0);
-        $("#treepanel").css("display", "none");
-        $li.text("Отобразить дерево проекта");
-    }  
-    setObjectsSize();
+function toggleProjectTreePanel() {
+    var $treepanel = $("#treepanel");
+    if($treepanel.css("display") == "none")
+        $treepanel.css("display", "block");
+    else
+        $treepanel.css("display", "none");
 }
 
 
 // TOGGLES
 
-function loadToggles() {
-    $.fn.alignCenter = function() {
-       var marginLeft =  - $(this).width()/2 + 'px';
-       var marginTop =  - $(this).height()/2 + 'px';
-       return $(this).css({'margin-left':marginLeft, 'margin-top':marginTop});
-    };
-
-    $.fn.togglePopup = function(){
-        if($('#popup').hasClass('hidden')) {
-            $("#popup").empty();
-            $('#opaco').height($(document).height()).toggleClass('hidden').fadeTo('slow', 0.7)
-                     .click(function(){$(this).togglePopup();});
-
-            $('#popup')
-              .html($(this).html())
-              .alignCenter()
-              .toggleClass('hidden');
-        } else  {
-            $('#opaco').toggleClass('hidden').removeAttr('style').unbind('click');
-            $('#popup').toggleClass('hidden');
-        }
-    };
-}
-
-function showPopup(content, params) {
-    var options = {
-        width: 300,
-        height: 300
-    };
-    if(arguments.length > 1) {
-        options = params;
-    }
-    var html = "<div id=\"opaco\" class=\"hidden\"></div>";
-    html += "<div id=\"popup\" class=\"hidden\"></div>";
-    html += "<div id=\"popup_bug\" class=\"hidden\">";
-    html += "<div class=\"bug\">";
-    if( Object.prototype.toString.call(content) === '[object String]' ) {
-        html += (content === "" || content === null) ? "" : content;
-    }
-    html += "</div>";
-    html += "</div>";
-    
-    $div = $('<div/>', {
-        html: html
+function loadPopupMenu() {
+    $(function () {
+        $("#tree").on("contextmenu", "a", function (e) {
+            var $contextMenu;
+            var classname = $(this).attr("class").split(" ")[0];
+            switch(classname) {
+            case "root":    
+                $contextMenu = $("#projectMenu");
+                break;
+            case "sources":
+                $contextMenu = $("#srcMenu");
+                break;
+            case "package":
+                $contextMenu = $("#packageMenu");
+                break;
+            case "class": 
+            case "interface": 
+            case "exception": 
+            case "annotation": 
+            case "runnable":
+            case "enum":
+                $contextMenu = $("#fileMenu");
+                break;
+            default:
+                return;
+            }
+            
+            hidePopups();
+            $elClicked = $(this);
+            $contextMenu.css({
+                display: "block",
+                left: e.pageX,
+                top: e.pageY
+            });
+            return false;
+        });
+       
+        $(document).click(function () {
+            hidePopups();
+        });
+        javaEditor.on("mousedown", function() {
+            hidePopups();
+        });
     });
     
-    $("body").append($div);
-    $("#popup").attr("style", "height: " + options.height + "px !important; width: " + options.width + "px !important");
-    if( Object.prototype.toString.call(content) === '[object Object]' ) {
-        $("#popup_bug .bug").html("");
-        $("#popup_bug .bug").append(content);
+    function hidePopups() {
+        $("#projectMenu").hide();
+        $("#srcMenu").hide();
+        $("#packageMenu").hide();
+        $("#fileMenu").hide();
     }
-    $('#popup_bug').togglePopup();
 }
 
-function showContextMenu($el, event, classname) {
-    $("#context_menu").remove();
-    var elementname = $el.html();
-    var id = $el.parent().attr("id");
-    var x = event.clientX;
-    var y = event.clientY;
-    var context_menu_id = "context_menu";
-    $ul = $('<ul/>', {
-        id: context_menu_id
-    });
-    $ul.css('margin-left', x + 'px');
-    $ul.css('margin-top', y + 'px');
-    $ul.appendTo('body');
-   
-    switch(classname) {
-        case "file":
-            $li = $('<li/>', {text: 'Открыть'});
-            $li.click(function() {
-                openTabFromTree($el);
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            
-            $li = $('<li/>', {text: 'Переименовать'});
-            $li.click(function() {
-                showRenameWindow(id, classname, elementname);
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            
-            $li = $('<li/>', {text: 'Удалить'});
-            $li.click(function() {
-                deleteFromProject(id, classname, elementname);
-                
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            break;
-        case "package":
-            $li = $('<li/>', {text: 'Добавить...'});
-            $li.click(function() {
-                showAddFileWindow(id);
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            
-            $li = $('<li/>', {text: 'Переименовать'});
-            $li.click(function() {
-                showRenameWindow(id, classname, elementname);
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            
-            $li = $('<li/>', {text: 'Удалить'});
-            $li.click(function() {
-                deleteFromProject(id, classname, elementname);
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            break;
-        case "sources":
-            var project_id = id.substring(0, id.length - 10);
-            $li = $('<li/>', {text: 'Добавить пакет'});
-            $li.click(function() {
-                showAddPackageWindow(project_id); 
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            $li = $('<li/>', {text: 'Добавить файл'});
-            $li.click(function() {
-                showAddFileWindow(id); 
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            break;
-        case "root":
-            $li = $('<li/>', {text: 'Запустить'});
-            $li.click(function() {
-                compileAndRun();
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            $li = $('<li/>', {text: 'Переименовать'});
-            $li.click(function() {
-                showRenameWindow(id, classname, elementname);
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            $li = $('<li/>', {text: 'Добавить пакет'});
-            $li.click(function() {
-                showAddPackageWindow(id); 
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            $('<li/>', {text: 'Настройки проекта'}).appendTo($ul);
-            $li = $('<li/>', {text: 'Закрыть'});
-            $li.click(function() {
-                deleteFromProject(id, classname, elementname);
-                $ul.remove();
-            });
-            $li.appendTo($ul);
-            break;
-    }
-    $("#context_menu").click(function(event) {
-        event.stopPropagation();
-    });
+function popup_new_package() {
+    var id = $elClicked.closest('li').attr('id');
+    showAddPackageWindow(id);
 }
 
-function closeAllPopUps() {
-    $("#context_menu").remove();
-    $("#main_menu").find('.active').removeClass("active");
-    $("#main_menu").find('.show').removeClass('show'); 
+function popup_new_file() {
+    var id = $elClicked.closest('li').attr('id');
+    showAddFileWindow(id);
 }
+
+function popup_popup_rename() {
+    var id = $elClicked.closest('li').attr('id');
+    showRenameWindow(id, $elClicked.attr("class").split(" ")[0], $elClicked.html());
+}
+
+function popup_popup_delete() {
+    var id = $elClicked.closest('li').attr('id');
+    deleteFromProject(id, $elClicked.attr("class").split(" ")[0], $elClicked.html());
+}
+
+function popup_new_popup_openfile() {
+    openTabFromTree($elClicked);
+}
+
+
+// WINDOWS
 
 function deleteFromProject(id, classname, name) {
     $div = drawDeleteWindow(id, classname, name);
@@ -663,9 +478,6 @@ function deleteFromProject(id, classname, name) {
     };
     showPopup($div, params);
 }
-
-
-// WINDOWS
 
 function drawDeleteWindow(id, classname, name) {
     var cn = "";
@@ -737,16 +549,6 @@ function showAddFileWindow(package_id) {
     showPopup($div, params);
 }
 
-function showProjectSettings() {
-    closeAllPopUps();
-    $div = drawProjectSettings();
-    var params = {
-        width: 400,
-        height: 180
-    };
-    showPopup($div, params); 
-}
-
 function showRevisionsList() {
     closeAllPopUps();
     $div = drawRevisionsList();
@@ -758,7 +560,6 @@ function showRevisionsList() {
 }
 
 function toggleConsoleWindow() {
-    closeAllPopUps();
     $compilation = $("#compilation-window");
     if($compilation.hasClass("closed")) {
         $("#compilation-window").css("display", "block");
@@ -767,8 +568,8 @@ function toggleConsoleWindow() {
         $compilation.addClass("closed");
         $("#compilation-window").css("display", "none");
     }
-    setObjectsSize();
-    setObjectsSize();
+    setJavaEditorSize();
+    setJavaEditorSize();
 }
 
 function isConsoleOpened() {
@@ -783,6 +584,61 @@ function drawProjectSettings() {
     });
     
     return $div;
+}
+
+function loadToggles() {
+    $.fn.alignCenter = function() {
+       var marginLeft =  - $(this).width()/2 + 'px';
+       var marginTop =  - $(this).height()/2 + 'px';
+       return $(this).css({'margin-left':marginLeft, 'margin-top':marginTop});
+    };
+
+    $.fn.togglePopup = function(){
+        if($('#popup').hasClass('hidden')) {
+            $("#popup").empty();
+            $('#opaco').height($(document).height()).toggleClass('hidden').fadeTo('slow', 0.7)
+                     .click(function(){$(this).togglePopup();});
+
+            $('#popup')
+              .html($(this).html())
+              .alignCenter()
+              .toggleClass('hidden');
+        } else  {
+            $('#opaco').toggleClass('hidden').removeAttr('style').unbind('click');
+            $('#popup').toggleClass('hidden');
+        }
+    };
+}
+
+function showPopup(content, params) {
+    var options = {
+        width: 300,
+        height: 300
+    };
+    if(arguments.length > 1) {
+        options = params;
+    }
+    var html = "<div id=\"opaco\" class=\"hidden\"></div>";
+    html += "<div id=\"popup\" class=\"hidden\"></div>";
+    html += "<div id=\"popup_bug\" class=\"hidden\">";
+    html += "<div class=\"bug\">";
+    if( Object.prototype.toString.call(content) === '[object String]' ) {
+        html += (content === "" || content === null) ? "" : content;
+    }
+    html += "</div>";
+    html += "</div>";
+    
+    $div = $('<div/>', {
+        html: html
+    });
+    
+    $("body").append($div);
+    $("#popup").attr("style", "height: " + options.height + "px !important; width: " + options.width + "px !important");
+    if( Object.prototype.toString.call(content) === '[object Object]' ) {
+        $("#popup_bug .bug").html("");
+        $("#popup_bug .bug").append(content);
+    }
+    $('#popup_bug').togglePopup();
 }
 
 function drawRevisionsList() {
@@ -891,16 +747,7 @@ function drawAddFileWindow(id) {
     
     $type.attr("onclick", "showTypesList()");
     
-    $typelist = $('<ul/>', {
-        id: "typelist",
-        class: "hidden"
-    });
-    $typelist.append("<li class='class' onclick=\"setFileType('class')\">Class</li>");
-    $typelist.append("<li class='interface' onclick=\"setFileType('interface')\">Interface</li>");
-    $typelist.append("<li class='runnable' onclick=\"setFileType('runnable')\">Runnable class</li>");
-    $typelist.append("<li class='enum' onclick=\"setFileType('enum')\">Enumeration</li>");
-    $typelist.append("<li class='annotation' onclick=\"setFileType('annotation')\">Annotation</li>");
-    $typelist.append("<li class='exception' onclick=\"setFileType('exception')\">Exception</li>");
+    $typelist = $("#typelist")
     
     $div.append($type);
     $div.append($typelist);
@@ -1019,14 +866,22 @@ function drawRenameWindow(id, type, name) {
 function setFileType(classname) {
     $("#addfile div#filetype").removeClass();
     $("#addfile div#filetype").addClass(classname);
-    $("#addfile ul#typelist").addClass("hidden");
+    $("#typelist").hide();
 }
 
 function showTypesList() {
-    if(!$("#addfile ul#typelist").hasClass("hidden")) {
-            $("#addfile ul#typelist").addClass("hidden");
+    var $filetype = $("#filetype");
+    var $typelist = $("#typelist");
+    if ($typelist.css('display') == 'none') {
+        $typelist.css({
+            display: "block",
+            left: $filetype.position().left + $("#class").outerWidth() - $typelist.outerWidth(),
+            top: $filetype.position().top + $filetype.height()
+        });
     } else {
-        $("#addfile ul#typelist").removeClass("hidden");
+        $typelist.css({
+            display: "none"
+        });
     }
 }
 

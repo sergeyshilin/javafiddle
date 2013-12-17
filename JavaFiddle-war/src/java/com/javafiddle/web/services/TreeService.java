@@ -579,7 +579,7 @@ public class TreeService implements Serializable {
                 } 
                 catch (InterruptedException ex) {
                     Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
-                } finally {
+                } finally { 
                     if(!task1.isError()) {
                         Task task2 = new Task(TaskType.EXECUTION, new Execution("-classpath " + executepath.toString(), packageName + "." + runnableName));
                         pool.add(task2);

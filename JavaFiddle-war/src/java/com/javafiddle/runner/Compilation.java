@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -12,13 +13,7 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Classfile for project JavaFiddleCompiler
- * Author: Sergey Shilin
- * Email: sergey.shilin@phystech.edu
- * Date: 24.11.13
- */
-public class Compilation implements Launcher {
+public class Compilation implements Launcher, Serializable {
 
     private String filepath = "";
     private String args = "";

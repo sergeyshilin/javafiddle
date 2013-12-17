@@ -7,7 +7,9 @@
         <h:outputScript library="js" name="moment-with-langs.min.js"/>
         <h:outputScript library="js" name="main.js"/>
         <h:outputScript library="js" name="sessionstorage.js"/>
-       
+        <h:outputScript library="js" name="todc-bootstrap.min.js"/>
+        <h:outputScript library="js" name="bootstrap-dropdown.js"/>
+        
         <h:outputScript library="cm" name="lib/codemirror.js"/>
         <h:outputScript library="cm" name="mode/java.js"/>
         <h:outputScript library="cm" name="addon/edit/matchbrackets.js"/>
@@ -28,6 +30,7 @@
         
         <h:outputStylesheet library="css" name="style.css"/>
         <h:outputStylesheet library="css" name="osans.css"/>
+        <h:outputStylesheet library="css" name="bootstrap.min.css"/>
 
         <h:outputStylesheet library="cm" name="lib/codemirror.css"/>
         <h:outputStylesheet library="cm" name="theme/idea.css"/> 
@@ -40,96 +43,89 @@
         <div id="header">
             <div id="header-top">
                 <div id="logo"> 
-                    <div class="ltgt"><img src="resources/images/br_prev.ico"></img></div>
+                    <div class="ltgt"><img src="resources/img/br_prev.ico"></img></div>
                     <h2><h:link value="JavaFiddle" outcome="index" /></h2>
-                    <div class="ltgt"><img src="resources/images/br_next.ico"></img></div>
+                    <div class="ltgt"><img src="resources/img/br_next.ico"></img></div>
                 </div>
                 <h:panelGroup layout="block" id="projectname" >NetCrackerTasks</h:panelGroup>
                 <h:panelGroup layout="block" id="username" >
                     Logged in as <h:link value="#{userBean.profile.nickname}" outcome="index" />
                 </h:panelGroup>
                 <div id="bottom"> 
-                    <ul id="main_menu">
-                        <li>
-                            <div class="link">Проект</div>
-                            <ul>
-                                <li onclick="saveFile();">Сохранить</li>
-                                <li onclick="saveAllFiles();">Сохранить все</li>
-                                <li onclick="saveProject();">Создать ревизию</li>
-                                <li>Настройки</li>
-                                <li onclick="closeProject();">Закрыть</li>
+                    <ul id="main_menu" class="nav nav-pills">
+                        <li class="dropdown">
+                            <div class="dropdown-toggle" data-toggle="dropdown">Project</div>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                                <li onclick="saveFile();">Save</li>
+                                <li onclick="saveAllFiles();">Save All</li>
+                                <li onclick="saveProject();">Commit</li>
+                                <li class="divider"></li>
+                                <li onclick="closeProject();">Close Project</li>
                             </ul>
                         </li>
-                        <li><div class="link">Правка</div>
-                            <ul>
-                                <li onclick="javaEditor.execCommand('undo');">Отменить</li>
-                                <li onclick="javaEditor.execCommand('redo');">Повторить</li>
-                                <div class="hr"></div>
-                                <li>Вырезать</li>
-                                <li>Копировать</li>
-                                <li>Вставить</li>
-                                <li>Удалить</li>
-                                <li onclick="javaEditor.execCommand('selectAll');">Выделить всё</li>
-                                <div class="hr"></div>
-                                <li onclick="javaEditor.execCommand('findPrev');">Найти ранее</li>
-                                <li onclick="javaEditor.execCommand('findNext');">Найти далее</li>
-                                <div class="hr"></div>
-                                <li onclick="javaEditor.execCommand('find');">Найти</li>
-                                <li onclick="javaEditor.execCommand('replace');">Заменить</li>
-                                <li onclick="javaEditor.execCommand('replaceAll');">Заменить всё</li>
+                        <li class="dropdown">
+                            <div class="dropdown-toggle" data-toggle="dropdown">Edit</div>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                                <li onclick="javaEditor.execCommand('undo');">Undo</li>
+                                <li onclick="javaEditor.execCommand('redo');">Redo</li>
+                                <li class="divider"></li>
+                                <li onclick="javaEditor.execCommand('findPrev');">Find Previous</li>
+                                <li onclick="javaEditor.execCommand('findNext');">Find Next</li>
+                                <li class="divider"></li>
+                                <li onclick="javaEditor.execCommand('find');">Find</li>
+                                <li onclick="javaEditor.execCommand('replace');">Replace</li>
+                                <li onclick="javaEditor.execCommand('replaceAll');">Replace All</li>
                             </ul>
                         </li>
-                        <li><div class="link">Вид</div>
-                            <ul>
-                                <li onclick="toggleConsoleWindow();">Отобразить консоль</li>
-                                <li onclick="toggleProjectTreePanel($(this));">Скрыть дерево проекта</li>
-                                <li onclick='javaEditor.setOption("fullScreen", false);'>Полноэкранный режим</li>
+                        <li class="dropdown">
+                            <div class="dropdown-toggle" data-toggle="dropdown">View</div>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                                <li onclick="toggleConsoleWindow();">Console</li>
+                                <li onclick="toggleProjectTreePanel();">Project Tree</li>
+                                <li onclick='javaEditor.setOption("fullScreen", true);'>Full Screen</li>
                             </ul>
                         </li>
-                        <li><div class="link">Выполнение</div>
-                            <ul>
-                                <li onclick="compile();">Компилировать</li>
-                                <li onclick="execute();">Выполнить</li>
-                                <li onclick="showProjectSettings();">Настройки</li>
+                        <li class="dropdown">
+                            <div class="link dropdown-toggle" data-toggle="dropdown">Run</div>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                                <li onclick="compile();">Compile</li>
+                                <li onclick="execute();">Run</li>
+                                <li onclick="compileAndRun();">Compile&amp;Run</li>
                             </ul>
                         </li>
-                        <li>
-                            <div class="link">История</div>
-                            <ul>
-                                <li onclick="showRevisionsList();">Список ревизий</li>
+                        <li class="dropdown">
+                            <div class="dropdown-toggle" data-toggle="dropdown">History</div>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                                <li onclick="showRevisionsList();">Commit's List</li>
                             </ul>
                         </li>
-                        <li><div class="link">Справка</div>
-                            <ul>
-                                <li>Сочетания клавиш</li>
-                                <li>О JavaFiddle</li>
+                        <li class="dropdown">
+                            <div class="dropdown-toggle" data-toggle="dropdown">Help</div>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                                <li onclick="openStaticTab('shortcuts');">Shortcuts</li>
+                                <li onclick="openStaticTab('about');">About JavaFiddle</li>
                             </ul>
                         </li>
                     </ul>
-                    <h:panelGroup layout="block" id="latest_update">Последнее изменение: не сохранялось.</h:panelGroup>
-                    <h:link id="share" value="Поделиться кодом" outcome="index" />
+                    <h:panelGroup layout="block" id="latest_update">Last changes: not saved yet.</h:panelGroup>
+                    <h:link id="share" value="Share Code..." outcome="index" />
                 </div>
             </div>
             <div id="header-bottom">
                 <ul id="editor_buttons">
-                    <li><h:commandButton value="" type="button" id="save" onclick="saveFile();" title="Сохранить файл" /></li>
-                    <li><h:commandButton value="" type="button" id="saveall" onclick="saveAllFiles();" title="Сохранить все файлы" /></li>
+                    <li><h:commandButton value="" type="button" id="save" onclick="saveFile();" title="Save current file" /></li>
+                    <li><h:commandButton value="" type="button" id="saveall" onclick="saveAllFiles();" title="Save all files" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><h:commandButton value="" type="button" id="undo" onclick="javaEditor.execCommand('undo');" title="Отменить действие" /></li>
-                    <li><h:commandButton value="" type="button" id="redo" onclick="javaEditor.execCommand('redo');" title="Повторить действие" /></li>
+                    <li><h:commandButton value="" type="button" id="undo" onclick="javaEditor.execCommand('undo');" title="Undo" /></li>
+                    <li><h:commandButton value="" type="button" id="redo" onclick="javaEditor.execCommand('redo');" title="Redo" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><h:commandButton value="" type="button" id="cut" title="Вырезать" /></li>
-                    <li><h:commandButton value="" type="button" id="copy" title="Копировать" /></li>
-                    <li><h:commandButton value="" type="button" id="paste" onclick="paste();" title="Вставить" /></li>
-                    <div class="separator" />
-                    <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><h:commandButton value="" type="button" id="compile" onclick="compile();" title="Компилировать"/></li>
-                    <li><h:commandButton value="" type="button" id="run" onclick="execute();" title="Выполнить"/></li>
-                    <li><h:commandButton value="" type="button" id="compileandrun" onclick="compileAndRun();" title="Компилировать и выполнить"/></li>
+                    <li><h:commandButton value="" type="button" id="compile" onclick="compile();" title="Compile"/></li>
+                    <li><h:commandButton value="" type="button" id="run" onclick="execute();" title="Run"/></li>
+                    <li><h:commandButton value="" type="button" id="compileandrun" onclick="compileAndRun();" title="Compile&amp;Run"/></li>
                 </ul>  
-                <ul id="tabpanel">
+                <ul id="tabpanel" class="tabs">
                 </ul>
                 <div style="clear:both"></div>
             </div>
@@ -140,12 +136,15 @@
 
                 </div>
             </div>
-            
             <div id="rightblock"> 
                 <div id="codetext" class="mainblock">
                     <h:inputTextarea id="textarea"/>
                     <script type="text/javascript">
                     //<![CDATA[
+                        $(function() {
+                            $('.dropdown-toggle').dropdown();
+                        });
+                    
                         PATH = "#{request.contextPath}";
                         PROJECTPARAM = "#{param['project']}";               
 
@@ -190,7 +189,6 @@
                     //]]>
                     </script>
                 </div>
-            
                 <div id="compilation-window" class="mainblock closed">
                     <div id="stdout" />
                     <div id="stdin">
@@ -199,6 +197,48 @@
                     </div>
                 </div>     
             </div>
+        </div>
+        <div id="projectMenu" class="dropdown clearfix contextMenu">
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+                <li onclick="popup_new_package();">New Package</li>
+                <li class="divider"></li>
+                <li onclick="compile();">Compile</li>
+                <li onclick="execute();">Run</li>
+                <li onclick="compileAndRun();">Compile&amp;Run</li>
+                <li class="divider"></li>
+                <li onclick="popup_popup_rename();">Rename</li>
+                <li onclick="popup_popup_delete();">Close</li>
+            </ul>
+        </div>
+        <div id="srcMenu" class="dropdown clearfix contextMenu">
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+                <li onclick="popup_new_package();">New Package</li>
+                <li onclick="popup_new_file();">New Java Class</li>
+            </ul>
+        </div>    
+        <div id="packageMenu" class="dropdown clearfix contextMenu">
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+                <li onclick="popup_new_file();">New Java Class</li>
+                <li onclick="popup_popup_rename();">Rename</li>
+                <li onclick="popup_popup_delete();">Delete</li>
+            </ul>
+        </div>  
+        <div id="fileMenu" class="dropdown clearfix contextMenu">
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+                <li onclick="popup_new_popup_openfile();">Open</li>
+                <li onclick="popup_popup_rename();">Rename</li>
+                <li onclick="popup_popup_delete();">Delete</li>
+            </ul>
+        </div>
+        <div id="typelist" class="dropdown clearfix contextMenu">
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+                <li class='class' onclick="setFileType('class');">Class</li>
+                <li class='interface' onclick="setFileType('interface');">Interface</li>
+                <li class='runnable' onclick="setFileType('runnable');">Runnable class</li>
+                <li class='enum' onclick="setFileType('enum');">Enumeration</li>
+                <li class='annotation' onclick="setFileType('annotation');">Annotation</li>
+                <li class='exception' onclick="setFileType('exception');">Exception</li>
+            </ul>
         </div>
     </h:body>
 </html>
