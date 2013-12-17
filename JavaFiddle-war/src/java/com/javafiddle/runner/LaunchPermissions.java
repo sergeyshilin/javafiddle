@@ -9,12 +9,6 @@ import java.security.Permissions;
 import java.security.ProtectionDomain;
 import java.util.PropertyPermission;
 
-/**
- * Classfile for project JavaFiddleCompiler
- * Author: Sergey Shilin
- * Email: sergey.shilin@phystech.edu
- * Date: 26.11.13
- */
 public class LaunchPermissions {
     public static AccessControlContext getSecureContext() {
         Permissions perms = new Permissions();

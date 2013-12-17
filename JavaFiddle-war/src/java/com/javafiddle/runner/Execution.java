@@ -106,7 +106,7 @@ public class Execution implements Launcher, Serializable {
     }
 
     private void setPid(Process process) {
-        if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
+   //     if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
             try {
                 Class cl = process.getClass();
                 Field field = cl.getDeclaredField("pid");
@@ -116,10 +116,10 @@ public class Execution implements Launcher, Serializable {
             } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException ex) {
                 Logger.getLogger(Execution.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } else {
+   /*     } else {
             throw new IllegalArgumentException("Needs to be a UNIXProcess");
         }
-    }
+  */  }
 
     @Override
     public void addToOutput(String line) {

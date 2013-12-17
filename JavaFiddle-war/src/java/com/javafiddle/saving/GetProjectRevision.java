@@ -75,7 +75,7 @@ public class GetProjectRevision {
         return treeList;
     } 
     
-    static String readFile(String path) {
+    public static String readFile(String path) {
         StringBuilder text = new StringBuilder();
         try {
             try (BufferedReader reader = new BufferedReader(

@@ -126,6 +126,7 @@
                     <li><h:commandButton value="" type="button" id="compileandrun" onclick="compileAndRun();" title="Compile&amp;Run"/></li>
                 </ul>  
                 <ul id="tabpanel" class="tabs">
+                    
                 </ul>
                 <div style="clear:both"></div>
             </div>
@@ -185,6 +186,13 @@
                         });
                         javaEditor.on("change", function() {
                             pushModifiedTab();
+                            hidePopups();
+                        });
+                        javaEditor.on("mousedown", function() {
+                            hidePopups();
+                        });
+                        javaEditor.on("focus", function() {
+                            hidePopups();
                         });
                     //]]>
                     </script>
@@ -206,8 +214,8 @@
                 <li onclick="execute();">Run</li>
                 <li onclick="compileAndRun();">Compile&amp;Run</li>
                 <li class="divider"></li>
-                <li onclick="popup_popup_rename();">Rename</li>
-                <li onclick="popup_popup_delete();">Close</li>
+                <li onclick="popup_rename();">Rename</li>
+                <li onclick="popup_delete();">Close</li>
             </ul>
         </div>
         <div id="srcMenu" class="dropdown clearfix contextMenu">
@@ -219,15 +227,15 @@
         <div id="packageMenu" class="dropdown clearfix contextMenu">
             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
                 <li onclick="popup_new_file();">New Java Class</li>
-                <li onclick="popup_popup_rename();">Rename</li>
-                <li onclick="popup_popup_delete();">Delete</li>
+                <li onclick="popup_rename();">Rename</li>
+                <li onclick="popup_delete();">Delete</li>
             </ul>
         </div>  
         <div id="fileMenu" class="dropdown clearfix contextMenu">
             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-                <li onclick="popup_new_popup_openfile();">Open</li>
-                <li onclick="popup_popup_rename();">Rename</li>
-                <li onclick="popup_popup_delete();">Delete</li>
+                <li onclick="popup_openfile();">Open</li>
+                <li onclick="popup_rename();">Rename</li>
+                <li onclick="popup_delete();">Delete</li>
             </ul>
         </div>
         <div id="typelist" class="dropdown clearfix contextMenu">

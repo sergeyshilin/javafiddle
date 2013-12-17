@@ -28,6 +28,10 @@ $("#codetext").resize(function() {
     setJavaEditorSize();
 });
 
+$(document).click(function () {
+    hidePopups();
+});
+
 window.onbeforeunload = (function() {
     if (isEmpty('modified'))
         return;
@@ -82,7 +86,6 @@ function openTabFromTree($el) {
 
 function addTabToPanel(id, name, cl) {
     pushOpenedTab(id);
-    
     var li = $('<li id="'+ id +'" class="'+ cl +'" onclick="selectTab($(this))">'+ name +'<div class="close" onclick="closeTab($(this).parent())"></div></li>');
     $("#tabpanel").append(li);
     return li;
@@ -90,7 +93,6 @@ function addTabToPanel(id, name, cl) {
 
 function selectTab(li) {
     var id = li.attr("id");
-    
     if (openedTabs().indexOf(id) === -1)
         return false;
     
@@ -188,10 +190,8 @@ function buildTree() {
                     var pack = proj.packages[j];
                     for (var k = 0; k < pack.files.length; k++) {
                         var file = pack.files[k];
-                        if (pack.name == "!default_package")
-                            $('#node_' + proj.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '" onclick="openTabFromTree($(this));">' + file.name + '</a></li>');
-                        else
-                            $('#node_' + pack.id + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '" onclick="openTabFromTree($(this));">' + file.name + '</a></li>');
+                        var parent = (pack.name == "!default_package") ? proj.id : pack.id; 
+                        $('#node_' + parent + '_list').append('<li id = "node_' + file.id + '"><a href="#" class="' + file.type + '" onclick="openTabFromTree($(this));">' + file.name + '</a></li>');
                      }
                 }   
             }
@@ -228,7 +228,6 @@ function loadLiHarmonica() {
                 });
 
                 $('ul', el).prev('a').addClass('harFull');
-
 
                 el.find('.' + p.currentClass).parents('ul').show().prev('a').addClass(p.currentClass).addClass('harOpen');
 
@@ -360,7 +359,7 @@ function removeFromProject(id, classname) {
                     closeTabsFromPackage(id);
                     $('#' + id).remove();
                     break;
-                case "file":
+                default:
                     $('#' + id).remove();
                     closeTab($('#' + id + '_tab'));
                     break;
@@ -425,23 +424,16 @@ function loadPopupMenu() {
             });
             return false;
         });
-       
-        $(document).click(function () {
-            hidePopups();
-        });
-        javaEditor.on("mousedown", function() {
-            hidePopups();
-        });
     });
-    
-    function hidePopups() {
-        $("#projectMenu").hide();
-        $("#srcMenu").hide();
-        $("#packageMenu").hide();
-        $("#fileMenu").hide();
-    }
 }
 
+function hidePopups() {
+    $("#projectMenu").hide();
+    $("#srcMenu").hide();
+    $("#packageMenu").hide();
+    $("#fileMenu").hide();
+}
+    
 function popup_new_package() {
     var id = $elClicked.closest('li').attr('id');
     showAddPackageWindow(id);
@@ -452,17 +444,17 @@ function popup_new_file() {
     showAddFileWindow(id);
 }
 
-function popup_popup_rename() {
+function popup_rename() {
     var id = $elClicked.closest('li').attr('id');
     showRenameWindow(id, $elClicked.attr("class").split(" ")[0], $elClicked.html());
 }
 
-function popup_popup_delete() {
+function popup_delete() {
     var id = $elClicked.closest('li').attr('id');
     deleteFromProject(id, $elClicked.attr("class").split(" ")[0], $elClicked.html());
 }
 
-function popup_new_popup_openfile() {
+function popup_openfile() {
     openTabFromTree($elClicked);
 }
 
@@ -1197,6 +1189,33 @@ function sendInput() {
     return false;
 }
 
-/**
- * Menu events
- */
+function openStaticTab(name) {
+    var id;
+    var nm;
+    var cl;
+    
+    switch(name) {
+        case "about":
+            id = "about_tab";
+            nm = "About";
+            cl = "help";
+            break;
+        case "shortcuts":
+            id = "shortcuts_tab";
+            nm = "Shortcuts";
+            cl = "help";
+            break;            
+        default:
+            return;
+    }
+
+    setReadOnly(id);
+    var li;
+    if(!isOpened(id))
+        li = addTabToPanel(id, nm, cl);
+    else {
+        li = document.getElementById(id);
+        li = $("#tabpanel").find(li);
+    }
+    selectTab(li);
+}
