@@ -113,21 +113,27 @@ body {
 }
 
 #main_menu li {
-    display: inline-block;
-    position: relative;
     color: #0e0e0e;
     font-size: 13px;
     font-family: 'Open Sans';
     font-weight: normal;
     font-style: normal;
-    margin: 0;
     cursor: default;
 }
 
-#main_menu div.link {
+#main_menu .dropdown-toggle {
     margin: 0;
-    padding: 6px 4px;
-    
+    padding: 5px 6px;
+}
+
+#main_menu .open {
+    background: #eaeaea; 
+}
+
+#main_menu .dropdown-menu {
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 #main_menu li:hover {
@@ -135,60 +141,19 @@ body {
 }
 
 #main_menu li.active {
-    background-color: #fff;
+    background-color: #777;
     border-top: 1px solid rgba(0, 0, 0, 0.2);
     border-left: 1px solid rgba(0, 0, 0, 0.2);
     border-right: 1px solid rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-#main_menu li.active div.link {
-    padding: 5px 3px 6px 3px;
-}
-
-#main_menu ul {
-    list-style: none;
-    left: -1px;
-    top: 26px;
-    min-width: 150px;
-    min-height: 10px;
-    width: auto;
-    height: auto;
-    background-color: #fff;
-    position: absolute;
-    margin: 0;
-    padding: 10px 0 10px 0;
-    z-index: 20;
-    display: none;
-    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 #main_menu ul li {
-    float: none;
-    position: relative;
     min-width: 150px;
-    width: auto;
-    padding: 5px 10px 5px 10px;
-    margin: 0;
-    
+    padding: 4px 10px;
 }
 
-#main_menu ul div.hr {
-    width: 90%;
-    margin: 0 auto;
-    padding: 0 0 4px 0;
-    margin-top: 6px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    height: 1px !important;
-}
-
-#main_menu ul.show {
-    display: block;
+#main_menu li .divider {
+    padding: 0px;
 }
 
 /**
@@ -227,7 +192,7 @@ body {
     text-decoration: none;
     text-align: right;
     text-shadow: 1px 1px 0px #1b6df2;
-    background-image: url('images/share.ico');
+    background-image: url('img/share.ico');
     background-repeat: no-repeat;
     background-position: 7% 50%;
 }
@@ -261,7 +226,7 @@ body {
 }
 
 #header-bottom #editor_buttons {
-    width: 310px;
+    width: 268px;
     height: 18px;
     list-style: none;
     /*border: 1px solid red;*/
@@ -301,18 +266,18 @@ body {
     margin-left: 18px;
 }
 
-#editor_buttons li #open {background-image: url('images/folder_open.ico')}
-#editor_buttons li #save {background-image: url('images/save.ico')}
-#editor_buttons li #saveall {background-image: url('images/saveall.ico')}
-#editor_buttons li #reload {background-image: url('images/playback_reload.ico')}
-#editor_buttons li #undo {background-image: url('images/undo.ico')}
-#editor_buttons li #redo {background-image: url('images/redo.ico')}
-#editor_buttons li #cut {background-image: url('images/clipboard_cut.ico')}
-#editor_buttons li #copy {background-image: url('images/copy.ico')}
-#editor_buttons li #paste {background-image: url('images/paste.ico')}
-#editor_buttons li #run {background-image: url('images/playback_play.ico')}
-#editor_buttons li #compile {background-image: url('images/compile.ico')}
-#editor_buttons li #compileandrun {background-image: url('images/compileandrun.ico')}
+#editor_buttons li #open {background-image: url('img/folder_open.ico')}
+#editor_buttons li #save {background-image: url('img/save.ico')}
+#editor_buttons li #saveall {background-image: url('img/saveall.ico')}
+#editor_buttons li #reload {background-image: url('img/playback_reload.ico')}
+#editor_buttons li #undo {background-image: url('img/undo.ico')}
+#editor_buttons li #redo {background-image: url('img/redo.ico')}
+#editor_buttons li #cut {background-image: url('img/clipboard_cut.ico')}
+#editor_buttons li #copy {background-image: url('img/copy.ico')}
+#editor_buttons li #paste {background-image: url('img/paste.ico')}
+#editor_buttons li #run {background-image: url('img/playback_play.ico')}
+#editor_buttons li #compile {background-image: url('img/compile.ico')}
+#editor_buttons li #compileandrun {background-image: url('img/compileandrun.ico')}
 
 #header-bottom #tabpanel {
     height: auto;
@@ -352,19 +317,19 @@ ul#tabpanel li div.close {
     margin: 0 3px 0 3px;
     padding: 0;
     float: right;
-    background-image: url('images/close.png');
+    background-image: url('img/close.png');
     background-repeat: no-repeat;
     cursor: pointer;
 }
 
 ul#tabpanel li.active{background-color: #fff !important}
 ul#tabpanel li.modified{font-weight: bold !important}
-ul#tabpanel li.class{background-image: url('images/idea-class.png')}
-ul#tabpanel li.interface{background-image: url('images/idea-class-interface.png')}
-ul#tabpanel li.runnable{background-image: url('images/idea-class-runnable.png')}
-ul#tabpanel li.exception{background-image: url('images/idea-class-exception.png')}
-ul#tabpanel li.enum{background-image: url('images/idea-class-enum.png')}
-ul#tabpanel li.annotation{background-image: url('images/idea-class-annotation.png')}
+ul#tabpanel li.class{background-image: url('img/idea-class.png')}
+ul#tabpanel li.interface{background-image: url('img/idea-class-interface.png')}
+ul#tabpanel li.runnable{background-image: url('img/idea-class-runnable.png')}
+ul#tabpanel li.exception{background-image: url('img/idea-class-exception.png')}
+ul#tabpanel li.enum{background-image: url('img/idea-class-enum.png')}
+ul#tabpanel li.annotation{background-image: url('img/idea-class-annotation.png')}
 ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 
 /**
@@ -498,18 +463,18 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
     background-position: 4% 50%;  
 }
 
-.project a.folder {background-image: url('images/idea-folder.png')}
-.project a.root {background-image: url('images/idea-folder-root.gif'); font-weight: bold}
-.project a.sources {background-image: url('images/idea-folder-src.gif')}
-.project a.package {background-image: url('images/idea-package.png')}
-.project a.runnable {background-image: url('images/idea-class-runnable.png')}
-.project a.iml {background-image: url('images/idea-logo.png')}
-.project a.lib {background-image: url('images/idea-libs.png'); background-position-y: 1px}
-.project a.class {background-image: url('images/idea-class.png')}
-.project a.interface {background-image: url('images/idea-class-interface.png')}
-.project a.exception {background-image: url('images/idea-class-exception.png')}
-.project a.enum {background-image: url('images/idea-class-enum.png')}
-.project a.annotation {background-image: url('images/idea-class-annotation.png')}
+.project a.folder {background-image: url('img/idea-folder.png')}
+.project a.root {background-image: url('img/idea-folder-root.gif'); font-weight: bold}
+.project a.sources {background-image: url('img/idea-folder-src.gif')}
+.project a.package {background-image: url('img/idea-package.png')}
+.project a.runnable {background-image: url('img/idea-class-runnable.png')}
+.project a.iml {background-image: url('img/idea-logo.png')}
+.project a.lib {background-image: url('img/idea-libs.png'); background-position-y: 1px}
+.project a.class {background-image: url('img/idea-class.png')}
+.project a.interface {background-image: url('img/idea-class-interface.png')}
+.project a.exception {background-image: url('img/idea-class-exception.png')}
+.project a.enum {background-image: url('img/idea-class-enum.png')}
+.project a.annotation {background-image: url('img/idea-class-annotation.png')}
 
 .project a:before {
     content: '';
@@ -557,6 +522,7 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 /**
 *  Popup Window
 */
+
 #opaco {
     background-color: #fff;
     left: 0;
@@ -740,63 +706,58 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
     background-color: #eaeaea !important;
 }
 
-#addfile #filetype.class {background: url('images/idea-class.png') no-repeat 50% 50%}
-#addfile #filetype.interface {background: url('images/idea-class-interface.png') no-repeat 50% 50%}
-#addfile #filetype.runnable {background: url('images/idea-class-runnable.png') no-repeat 50% 50%}
-#addfile #filetype.annotation {background: url('images/idea-class-annotation.png') no-repeat 50% 50%}
-#addfile #filetype.exception {background: url('images/idea-class-exception.png') no-repeat 50% 50%}
-#addfile #filetype.enum {background: url('images/idea-class-enum.png') no-repeat 50% 50%}
+#addfile #filetype.class {background: url('img/idea-class.png') no-repeat 50% 50%}
+#addfile #filetype.interface {background: url('img/idea-class-interface.png') no-repeat 50% 50%}
+#addfile #filetype.runnable {background: url('img/idea-class-runnable.png') no-repeat 50% 50%}
+#addfile #filetype.annotation {background: url('img/idea-class-annotation.png') no-repeat 50% 50%}
+#addfile #filetype.exception {background: url('img/idea-class-exception.png') no-repeat 50% 50%}
+#addfile #filetype.enum {background: url('img/idea-class-enum.png') no-repeat 50% 50%}
 
-#addfile #typelist li.class {background: url('images/idea-class.png') no-repeat 5% 50%}
-#addfile #typelist li.interface {background: url('images/idea-class-interface.png') no-repeat 5% 50%}
-#addfile #typelist li.runnable {background: url('images/idea-class-runnable.png') no-repeat 5% 50%}
-#addfile #typelist li.annotation {background: url('images/idea-class-annotation.png') no-repeat 5% 50%}
-#addfile #typelist li.exception {background: url('images/idea-class-exception.png') no-repeat 5% 50%}
-#addfile #typelist li.enum {background: url('images/idea-class-enum.png') no-repeat 5% 50%}
+#addfile #typelist li.class {background: url('img/idea-class.png') no-repeat 5% 50%}
+#addfile #typelist li.interface {background: url('img/idea-class-interface.png') no-repeat 5% 50%}
+#addfile #typelist li.runnable {background: url('img/idea-class-runnable.png') no-repeat 5% 50%}
+#addfile #typelist li.annotation {background: url('img/idea-class-annotation.png') no-repeat 5% 50%}
+#addfile #typelist li.exception {background: url('img/idea-class-exception.png') no-repeat 5% 50%}
+#addfile #typelist li.enum {background: url('img/idea-class-enum.png') no-repeat 5% 50%}
 
 /**
 * Context menu
 */
 
-#context_menu, #typelist {
-    list-style: none;
-    left: 2px;
-    top: 1px;
-    min-width: 150px;
-    min-height: 10px;
-    width: auto;
-    height: auto;
-    background-color: #fff;
-    position: absolute;
-    margin: 0;
-    padding: 10px 0 10px 0;
-    z-index: 20;
-    display: block;
-    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+.contextMenu {
+    position: absolute !important;
+    display : none;
+    z-index : 100;
+    margin-bottom : 5px;
 }
 
-#context_menu li, #typelist li {
-    float: none;
-    position: relative;
-    color: #0e0e0e;
-    font-size: 13px;
-    font-family: 'Open Sans';
-    font-weight: normal;
-    font-style: normal;
-    margin: 0;
+.contextMenu .dropdown-menu {
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important; 
+}
+
+.contextMenu li.active {
+    background-color: #777;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.contextMenu li {
+    min-width: 170px;
+    padding: 4px 10px;
     cursor: default;
-    min-width: 150px;
-    width: auto;
-    padding: 5px 10px 5px 10px;
-    margin: 0;   
 }
 
-#context_menu li:hover, #typelist li:hover {
+.contextMenu li:hover {
     background-color: #eaeaea; 
 }
+
+.contextMenu .divider {
+    padding: 0px;
+}
+
 
 /**
  * Revisions List
@@ -837,4 +798,10 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 
 #revisions-list li div.revert:hover {
     background-color: #99CCFF;
+}
+
+div, input, a {
+    -webkit-box-sizing: content-box !important;
+    -moz-box-sizing: content-box !important;
+    box-sizing: content-box !important;
 }

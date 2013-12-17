@@ -1,0 +1,52 @@
+package com.javafiddle.help;
+
+/**
+ * This class can help you remember all necessary
+ * shortcuts, which can be useful during work with 
+ * JavaFiddle
+ */
+public class Shortcuts {
+    /**
+     * Array contains all shortcuts and
+     * a brief explanation of them
+     */
+    public String[] shortcuts = {
+        "Ctrl-S",       // Save
+        "Shift-Ctrl-S", // Save all
+        "Ctrl-Space",   // Autocomplete
+        "Ctrl-F",       // Start searching
+        "Ctrl-G",       // Find next
+        "Shift-Ctrl-G", // Find previous
+        "Shift-Ctrl-F", // Replace
+        "Shift-Ctrl-R", // Replace all
+        "Ctrl-Q",       // Fold function
+        "F11",          // Change fullscreen mode
+        "Esc"           // Return from fullscreen to normal mode
+    };
+
+    public String[] defaultShortcuts {
+        "Ctrl-A",           // selectAll
+        "Ctrl-D",           // deleteLine
+        "Ctrl-Z",           // undo
+        "Shift-Ctrl-Z",     // redo
+        "Ctrl-Y",           // redo
+        "Ctrl-Home",        // goDocStart
+        "Alt-Up",           // goDocStart
+        "Ctrl-End",         // goDocEnd
+        "Ctrl-Down",        // goDocEnd
+        "Ctrl-Left",        // goGroupLeft 
+        "Ctrl-Right",       // goGroupRight
+        "Alt-Left",         // goLineStart
+        "Alt-Right",        // goLineEnd
+        "Ctrl-Backspace",   //  delGroupBefore
+        "Ctrl-Delete",      // delGroupAfter
+        "Ctrl-S",           // save
+        "Ctrl-F",           // find
+        "Ctrl-G",           // findNext
+        "Shift-Ctrl-G",     // findPrev
+        "Shift-Ctrl-F",     // replace
+        "Shift-Ctrl-R",     // replaceAll
+        "Ctrl-[",           // indentLess
+        "Ctrl-]"            // indentMore
+    };
+}
