@@ -84,7 +84,6 @@
                                 <li onclick="toggleHeader();">Toggle Header</li>
                                 <li onclick="toggleConsoleWindow();">Toggle Console</li>
                                 <li onclick="toggleProjectTreePanel();">Toggle Project Tree</li>
-                                <li onclick='javaEditor.setOption("fullScreen", true);'>Full Screen</li>
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -123,8 +122,8 @@
                     <li><h:commandButton value="" type="button" id="redo" onclick="javaEditor.execCommand('redo');" title="Redo" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><h:commandButton value="" type="button" id="toggle_header" onclick="toggleHeader();" title="Toddle Header"/></li>
-                    <li><h:commandButton value="" type="button" id="toggle_tree" onclick="toggleProjectTreePanel();" title="Toddle Tree"/></li>
+                    <li><h:commandButton value="" type="button" id="toggle_header" onclick="toggleHeader();" title="Toggle Header"/></li>
+                    <li><h:commandButton value="" type="button" id="toggle_tree" onclick="toggleProjectTreePanel();" title="Toggle Tree"/></li>
                     <li><h:commandButton value="" type="button" id="toggle_console" onclick="toggleConsoleWindow();" title="Toggle Console"/></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>

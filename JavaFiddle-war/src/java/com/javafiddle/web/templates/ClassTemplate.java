@@ -22,7 +22,7 @@ public class ClassTemplate {
         
         value = "";
         if (!packname.startsWith("!"))
-            value += "package " + packname + ";\n";
+            value += "package " + packname + ";\n\n";
         value += getCommentsBlock();
         value += getClassDefinition();
     }
@@ -90,14 +90,11 @@ public class ClassTemplate {
     
      private String getRunnableContent() {
         String exccontent = "\t/**\n";
-        exccontent += "\t * Creates a new instance of\n";
-        exccontent += "\t * <code>NewException</code> with the specified detail message.\n";
-        exccontent += "\t *\n";
-        exccontent += "\t * @param args An array of arguments\n";
+        exccontent += "\t * @param args the command line arguments\n";
         exccontent += "\t */\n";
         
         exccontent += "\tpublic static void main(String[] args) {\n";
-        exccontent += "\n";
+        exccontent += "\t\tSystem.out.println(\"Hello, World!\");\n";
         exccontent += "\t}\n";
                 
         return exccontent;
@@ -106,8 +103,7 @@ public class ClassTemplate {
     private String getCommentsBlock() {
         String comments;
         
-        comments = "\n";
-        comments += "/**\n";
+        comments = "/**\n";
         comments += " * Autor: guest\n";
         comments += " * Project: " + idList.getProject(idList.getPackage(file.getPackageId()).getProjectId()).getName() + "\n";
         comments += " * Time: " + newDateTime() + "\n";
