@@ -89,7 +89,7 @@ public class TreeService implements Serializable {
             @FormParam("name") String name
             ) {
         if (idString == null || name == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         int id = Utility.parseId(idString);
         TreeProject tpr = idList.getProject(id);
@@ -110,7 +110,7 @@ public class TreeService implements Serializable {
             @FormParam("type") String type
             ) {
         if (idString == null || name == null || type == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         int id = Utility.parseId(idString);
         TreePackage tp;
@@ -134,7 +134,7 @@ public class TreeService implements Serializable {
             @QueryParam("name") String name
             ) {
         if (name == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         boolean result = false;
         if(name.matches("([a-zA-Z][a-zA-Z0-9_]*)"))
@@ -152,7 +152,7 @@ public class TreeService implements Serializable {
             @QueryParam("id") String idString
             ) {
         if (idString == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         int id = Utility.parseId(idString);
         int project_id;
@@ -175,7 +175,7 @@ public class TreeService implements Serializable {
             @QueryParam("name") String name
             ) {
         if (idString == null || name == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         String result = "unknown";
         if(packages.isEmpty() && idList.isProject(Utility.parseId(idString))) {
@@ -199,11 +199,11 @@ public class TreeService implements Serializable {
     @Produces(MediaType.APPLICATION_JSON)
     public Response isRightClassName(
             @Context HttpServletRequest request,
-            @QueryParam("project_id") String idString,
+            @QueryParam("package_id") String idString,
             @QueryParam("name") String name
             ) {
         if (idString == null || name == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
                 
         String result = "unknown";
         String javaname = name;
@@ -246,13 +246,10 @@ public class TreeService implements Serializable {
             @FormParam("type") String type
             ) {
         if (idString == null || name == null || type == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         int id = Utility.parseId(idString);
         switch(type) {
-            case "file":
-                idList.getFile(id).setName(name + ".java");
-                break;
             case "package":
                 idList.getPackage(id).setName(name);
                 break;
@@ -260,6 +257,7 @@ public class TreeService implements Serializable {
                 idList.getProject(id).setName(name);
                 break;
             default:
+                idList.getFile(id).setName(name + ".java");
                 break;
         }
         
@@ -274,7 +272,7 @@ public class TreeService implements Serializable {
             String idString
             ) {
         if (idString == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         int id = Utility.parseId(idString);
         if (!idList.isExist(id))
@@ -309,7 +307,7 @@ public class TreeService implements Serializable {
             @QueryParam("id") String idString
             ) {
         if (idString == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         TreeFile tf;
         switch(idString) {
@@ -338,7 +336,7 @@ public class TreeService implements Serializable {
             @QueryParam("id") String idString
             ) {
         if (idString == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         List<Revision> revisions = pm.getProjectTrees(Utility.parseId(idString));
         if (revisions == null)
@@ -382,7 +380,7 @@ public class TreeService implements Serializable {
             @QueryParam("projecthash") String hash
             ) {
         if (hash == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         GetProjectRevision gpr = new GetProjectRevision(hash);
         if (!gpr.treeExists())
@@ -431,11 +429,22 @@ public class TreeService implements Serializable {
             @FormParam("value") String value
             ) {
         if (idString == null || timeStamp == 0 || value == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
-        int id = Utility.parseId(idString);
-        Revisions revisions = new Revisions(idList, files);
-        int addResult = revisions.addFileRevision(id, timeStamp, value);
+        int addResult;
+        switch(idString) {
+            case "about_tab":
+                addResult = 406;
+                break;
+            case "shortcuts_tab":
+                addResult = 406;
+                break;
+            default:
+                int id = Utility.parseId(idString);
+                Revisions revisions = new Revisions(idList, files);
+                addResult = revisions.addFileRevision(id, timeStamp, value);
+        }
+        
         
         return Response.status(addResult == 304 ? 200 : addResult).build();
     }
@@ -448,10 +457,11 @@ public class TreeService implements Serializable {
             @QueryParam("id") String idString
             ) {
         if (idString == null)
-            return Response.status(400).build();
+            return Response.status(401).build();
         
         FileRevision fr;
         String text;
+        Gson gson = new GsonBuilder().create();
         switch(idString) {
             case "about_tab":
                 text = GetProjectRevision.readFile(prefix + sep + "static" + sep + "about");
@@ -463,6 +473,8 @@ public class TreeService implements Serializable {
                 break;
             default:
                 int id = Utility.parseId(idString);
+                if (idList.getFile(id) == null)
+                    return Response.status(406).build();
                 long time = idList.getFile(id).getTimeStamp();
                 if (time == 0) {
                     fr = new FileRevision(0, "");
@@ -473,7 +485,6 @@ public class TreeService implements Serializable {
                 break;
         }
         
-        Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(fr), MediaType.APPLICATION_JSON).build();
     }
     

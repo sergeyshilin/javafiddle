@@ -7,7 +7,7 @@
         <h:outputScript library="js" name="moment-with-langs.min.js"/>
         <h:outputScript library="js" name="main.js"/>
         <h:outputScript library="js" name="sessionstorage.js"/>
-        <h:outputScript library="js" name="todc-bootstrap.min.js"/>
+        <h:outputScript library="js" name="bootstrap.min.js"/>
         <h:outputScript library="js" name="bootstrap-dropdown.js"/>
         
         <h:outputScript library="cm" name="lib/codemirror.js"/>
@@ -31,6 +31,7 @@
         <h:outputStylesheet library="css" name="style.css"/>
         <h:outputStylesheet library="css" name="osans.css"/>
         <h:outputStylesheet library="css" name="bootstrap.min.css"/>
+        <h:outputStylesheet library="css" name="bootstrap-theme.min.css"/>
 
         <h:outputStylesheet library="cm" name="lib/codemirror.css"/>
         <h:outputStylesheet library="cm" name="theme/idea.css"/> 
@@ -51,7 +52,7 @@
                 <h:panelGroup layout="block" id="username" >
                     Logged in as <h:link value="#{userBean.profile.nickname}" outcome="index" />
                 </h:panelGroup>
-                <div id="bottom"> 
+                <div id="bottom" class="nav-collapse"> 
                     <ul id="main_menu" class="nav nav-pills">
                         <li class="dropdown">
                             <div class="dropdown-toggle" data-toggle="dropdown">Project</div>
@@ -80,8 +81,9 @@
                         <li class="dropdown">
                             <div class="dropdown-toggle" data-toggle="dropdown">View</div>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                <li onclick="toggleConsoleWindow();">Console</li>
-                                <li onclick="toggleProjectTreePanel();">Project Tree</li>
+                                <li onclick="toggleHeader();">Toggle Header</li>
+                                <li onclick="toggleConsoleWindow();">Toggle Console</li>
+                                <li onclick="toggleProjectTreePanel();">Toggle Project Tree</li>
                                 <li onclick='javaEditor.setOption("fullScreen", true);'>Full Screen</li>
                             </ul>
                         </li>
@@ -121,6 +123,11 @@
                     <li><h:commandButton value="" type="button" id="redo" onclick="javaEditor.execCommand('redo');" title="Redo" /></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
+                    <li><h:commandButton value="" type="button" id="toggle_header" onclick="toggleHeader();" title="Toddle Header"/></li>
+                    <li><h:commandButton value="" type="button" id="toggle_tree" onclick="toggleProjectTreePanel();" title="Toddle Tree"/></li>
+                    <li><h:commandButton value="" type="button" id="toggle_console" onclick="toggleConsoleWindow();" title="Toggle Console"/></li>
+                    <div class="separator" />
+                    <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><h:commandButton value="" type="button" id="compile" onclick="compile();" title="Compile"/></li>
                     <li><h:commandButton value="" type="button" id="run" onclick="execute();" title="Run"/></li>
                     <li><h:commandButton value="" type="button" id="compileandrun" onclick="compileAndRun();" title="Compile&amp;Run"/></li>
@@ -142,10 +149,6 @@
                     <h:inputTextarea id="textarea"/>
                     <script type="text/javascript">
                     //<![CDATA[
-                        $(function() {
-                            $('.dropdown-toggle').dropdown();
-                        });
-                    
                         PATH = "#{request.contextPath}";
                         PROJECTPARAM = "#{param['project']}";               
 
@@ -183,16 +186,6 @@
                                 rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
                             },    
                             gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
-                        });
-                        javaEditor.on("change", function() {
-                            pushModifiedTab();
-                            hidePopups();
-                        });
-                        javaEditor.on("mousedown", function() {
-                            hidePopups();
-                        });
-                        javaEditor.on("focus", function() {
-                            hidePopups();
                         });
                     //]]>
                     </script>

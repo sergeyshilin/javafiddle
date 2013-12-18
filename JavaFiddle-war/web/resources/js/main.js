@@ -18,8 +18,32 @@ $(document).ready(function(){
     loadToggles();
     setJavaEditorSize();
     loadPopupMenu();
-});
+    $(function() {
+        $('.dropdown-toggle').dropdown();
+    });
+    
+    if (typeof String.prototype.endsWith != 'function') {
+        String.prototype.endsWith = function(str) {
+            return this.substring(this.length - str.length, this.length) === str;
+        };
+    };
+    
+    javaEditor.on("change", function() {
+        pushModifiedTab();
+        hidePopups();
+    });
 
+    javaEditor.on("mousedown", function() {
+        hidePopups();
+        $("#main_menu").find(".open").removeClass("open");
+    });
+
+    javaEditor.on("focus", function() {
+        hidePopups();
+        $("#main_menu").find(".open").removeClass("open");
+    });
+});
+                        
 $(window).resize(function() {
     setJavaEditorSize();
 });
@@ -137,6 +161,12 @@ function closeTab(parent) {
 
 function changeLastUpdateLabel() {
     var time = getCurrentFileTimeStamp();
+    
+    if (getCurrentFileID() == "about_tab" || getCurrentFileID() == "shortcuts_tab") {
+        $('#latest_update').text("Static tab.");
+        return;
+    }
+        
     if (time == "")
         $('#latest_update').text("Last changes: not saved yet.");
     else {
@@ -147,7 +177,7 @@ function changeLastUpdateLabel() {
 }
 
 function closeTabsFromPackage(id) {
-    $pack = $('#' + id);
+    var $pack = $('#' + id);
     $pack.children("ul").children("li").each(function() {
         var subid = $(this).attr("id");
         if($(this).children("a").hasClass("package"))
@@ -158,7 +188,7 @@ function closeTabsFromPackage(id) {
 }
 
 function closeAllTabs() {
-    $panel = $("#tabpanel");
+    var $panel = $("#tabpanel");
     $panel.children("li").each(function() {
        closeTab($(this));
     });
@@ -184,7 +214,7 @@ function buildTree() {
                 for (var j = 0; j < proj.packages.length; j++) {
                     var pck = proj.packages[j];
                     if (!(pck.name == "!default_package"))
-                        $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
+                        $('#node_' + pck.parentId + '_list').append('<li id = "node_' + pck.id + '"><a href="#" class="package" onclick="changeNodeState($(this));">' + pck.name + '</a><ul id ="node_' + pck.id + '_list"\></li>');
                 }   
                 for (var j = 0; j < proj.packages.length; j++) {
                     var pack = proj.packages[j];
@@ -306,11 +336,6 @@ function renameElement(id, type) {
     var correct = false;
     
     switch (type) {
-        case "file":
-            if(name.endsWith(".java"))
-                name = name.substring(0, name.length - 5);
-            correct = isRightClassName(name, id);
-            break;
         case "package":
             var name = $input.val().toLowerCase();
             var dotname = name;
@@ -323,6 +348,9 @@ function renameElement(id, type) {
             correct = isRightProjectName(name);
             break;
         default:
+            if(name.endsWith(".java"))
+                name = name.substring(0, name.length - 5);
+            correct = isRightClassName(name, id);
             break;
     }
     
@@ -383,6 +411,14 @@ function toggleProjectTreePanel() {
         $treepanel.css("display", "block");
     else
         $treepanel.css("display", "none");
+}
+
+function toggleHeader() {
+    var $header = $("#header-top");
+    if($header.css("display") == "none")
+        $header.css("display", "block");
+    else
+        $header.css("display", "none");
 }
 
 
@@ -542,7 +578,6 @@ function showAddFileWindow(package_id) {
 }
 
 function showRevisionsList() {
-    closeAllPopUps();
     $div = drawRevisionsList();
     var params = {
         width: 400,
@@ -987,7 +1022,7 @@ function saveFile(id) {
     if(arguments.length === 0) {
         id = getCurrentFileID();
         addCurrentFileText();
-        $('#latest_update').text("Идет сохранение...");
+        $('#latest_update').text("Saving...");
     }
     
     var time = new Date().getTime();
@@ -998,7 +1033,12 @@ function saveFile(id) {
         success: function() {
             unModifiedTab(id);
             addCurrentFileTimeStamp(time);
-            if (isCurrent(id)) $('#latest_update').text("Все изменения сохранены");
+            if (isCurrent(id))
+                $('#latest_update').text("All changes saved.");
+        },
+        error: function(jqXHR) {
+            if (jqXHR.status == 406)
+                $('#latest_update').text("Saving isn't acceptable.");
         }
     });
 }
@@ -1006,13 +1046,13 @@ function saveFile(id) {
 function saveAllFiles() {
     addCurrentFileText();
     
-    $('#latest_update').text("Идет сохранение...");
+    $('#latest_update').text("Saving...");
     
     modifiedList().forEach(function(entry) {
         saveFile(entry);
     });
     
-    $('#latest_update').text("Все изменения сохранены");
+    $('#latest_update').text("All files saved");
 }
 
 function saveProject() {
@@ -1023,8 +1063,11 @@ function saveProject() {
         type:'POST', 
         contentType: "application/json",
         success: function(data) {
-            $('#latest_update').text("Проект сохранен c хешем " + data);
-        }
+            $('#latest_update').text("Project saved with hash: " + data);
+        },
+        error: function() {
+            $('#latest_update').text("Project not saved.");
+        },
     });
 }
 
@@ -1053,6 +1096,10 @@ function getFileRevision(id) {
             javaEditor.setValue(data.value);
             javaEditor.clearHistory();
             addCurrentFileTimeStamp(data.timeStamp);
+        },
+        error: function(jqXHR) {
+            if (jqXHR.status == 406)
+                $('#latest_update').text("File not found in project.");
         }
     });
 }
@@ -1077,7 +1124,10 @@ function getFileDataById(id) {
             filedata = data;
         },
         error: function(jqXHR) {
-            filedata = false;
+            if (jqXHR.status == 410) {
+                $('#latest_update').text("File not found in project.");
+                filedata = false;
+            }
         }
     }); 
     

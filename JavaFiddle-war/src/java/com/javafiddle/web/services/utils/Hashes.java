@@ -1,6 +1,8 @@
 package com.javafiddle.web.services.utils;
 
-public class Hashes {
+import java.io.Serializable;
+
+public class Hashes implements Serializable {
     public final static int BRANCH_HASH_LENGTH = 7;
     public final static int TREE_HASH_LENGTH = 5;
     

@@ -20,7 +20,6 @@ body {
 
 #header {
     background-color: #fff;
-    min-height: 107px;
     height: auto;
     width: 100%;
     /*border: 1px solid red;*/
@@ -149,7 +148,7 @@ body {
 }
 
 #main_menu ul li {
-    min-width: 150px;
+    min-width: 160px;
     padding: 4px 10px;
 }
 
@@ -163,13 +162,13 @@ body {
 
 #header-top #bottom #latest_update {
     color: #b3b3b3;
-    font-size: 12px;
+    font-size: 13px;
     font-family: 'Open Sans';
     font-weight: normal;
     font-style: normal;
     position: relative;
     float: left;
-    margin: 2px 0 0 25px;
+    margin: 2px 0 0 55px;
 }
 
 #header-top #bottom #share {
@@ -184,14 +183,14 @@ body {
     border: 1px solid #1f6eed;
     display: inline-block;
     color: #ffffff;
-    font-size: 12px;
+    font-size: 13px;
     font-family: 'Open Sans';
     font-weight: bold;
     font-style: normal;
     width: 140px;
     letter-spacing: 0;
     text-decoration: none;
-    text-align: right;
+    text-align: center;
     text-shadow: 1px 1px 0px #1b6df2;
     background-image: url('img/share.ico');
     background-repeat: no-repeat;
@@ -227,7 +226,7 @@ body {
 }
 
 #header-bottom #editor_buttons {
-    width: 268px;
+    width: 304px;
     height: 18px;
     list-style: none;
     /*border: 1px solid red;*/
@@ -279,6 +278,9 @@ body {
 #editor_buttons li #run {background-image: url('img/playback_play.ico')}
 #editor_buttons li #compile {background-image: url('img/compile.ico')}
 #editor_buttons li #compileandrun {background-image: url('img/compileandrun.ico')}
+#editor_buttons li #toggle_console {background-image: url('img/console.png')}
+#editor_buttons li #toggle_tree {background-image: url('img/tree.png')}
+#editor_buttons li #toggle_header {background-image: url('img/header.png')}
 
 #header-bottom #tabpanel {
     height: auto;
@@ -331,7 +333,8 @@ ul#tabpanel li.runnable{background-image: url('img/idea-class-runnable.png')}
 ul#tabpanel li.exception{background-image: url('img/idea-class-exception.png')}
 ul#tabpanel li.enum{background-image: url('img/idea-class-enum.png')}
 ul#tabpanel li.annotation{background-image: url('img/idea-class-annotation.png')}
-ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
+ul#tabpanel li.notfound{font-style: italic; color:#777777; padding-left: 5px;}
+ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
 
 /**
 * Content
@@ -395,13 +398,18 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 #compilation-window #stdin {
     background-color: #fff;
     border-top: 1px solid #ccc;
+    display: -ms-flex; 
+    display: -webkit-flex; 
+    display: flex; 
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
 }
 
 #stdin #stdin-name {
     height: 27px;
     font-weight: bold;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 5px;
 }
 
 #stdin #stdinput {
@@ -412,6 +420,9 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
     font-family: 'Open Sans';
     font-weight: normal;
     font-style: normal;
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;  
 }
 
 #content .mainblock, #tabpanel li {
@@ -476,6 +487,7 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 .project a.exception {background-image: url('img/idea-class-exception.png')}
 .project a.enum {background-image: url('img/idea-class-enum.png')}
 .project a.annotation {background-image: url('img/idea-class-annotation.png')}
+.project a.help {background-image: url('img/idea-libs.png')}
 
 .project a:before {
     content: '';
@@ -713,6 +725,7 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 #addfile #filetype.annotation {background: url('img/idea-class-annotation.png') no-repeat 50% 50%}
 #addfile #filetype.exception {background: url('img/idea-class-exception.png') no-repeat 50% 50%}
 #addfile #filetype.enum {background: url('img/idea-class-enum.png') no-repeat 50% 50%}
+#addfile #filetype.help {background: url('img/idea-libs.png') no-repeat 50% 50%}
 
 #addfile #typelist li.class {background: url('img/idea-class.png') no-repeat 5% 50%}
 #addfile #typelist li.interface {background: url('img/idea-class-interface.png') no-repeat 5% 50%}
@@ -720,7 +733,7 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
 #addfile #typelist li.annotation {background: url('img/idea-class-annotation.png') no-repeat 5% 50%}
 #addfile #typelist li.exception {background: url('img/idea-class-exception.png') no-repeat 5% 50%}
 #addfile #typelist li.enum {background: url('img/idea-class-enum.png') no-repeat 5% 50%}
-
+#addfile #typelist li.help {background: url('img/idea-libs.png') no-repeat 5% 50%}
 /**
 * Context menu
 */
@@ -743,6 +756,15 @@ ul#tabpanel li.notfound {font-style: italic; color:#777777; padding-left: 5px;}
     border-top: 1px solid rgba(0, 0, 0, 0.2);
     border-left: 1px solid rgba(0, 0, 0, 0.2);
     border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.contextMenu li {
+    color: #0e0e0e;
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    cursor: default;
 }
 
 .contextMenu li {
