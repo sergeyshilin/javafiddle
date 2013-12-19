@@ -806,9 +806,6 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
 
 #revisions-list {
     list-style-type: none;
-    overflow: auto;
-    width: 340px;
-    height: 245px;
     padding-right: 20px;
     font-size: 13px;
     font-family: 'Open Sans';
@@ -841,7 +838,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     background-color: #99CCFF;
 }
 
-div, input, a {
+div, input, a {      
     -webkit-box-sizing: content-box !important;
     -moz-box-sizing: content-box !important;
     box-sizing: content-box !important;

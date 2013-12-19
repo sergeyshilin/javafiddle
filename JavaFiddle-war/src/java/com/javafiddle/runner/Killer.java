@@ -11,10 +11,6 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author snape
- */
 public class Killer extends Thread implements Serializable {
     private Task task = null;
     private Integer pid = null;

@@ -1,6 +1,5 @@
 package com.javafiddle.revisions;
 
-import com.javafiddle.web.services.utils.Utility;
 import com.javafiddle.web.templates.ClassTemplate;
 import com.javafiddle.web.tree.IdList;
 import com.javafiddle.web.tree.TreeFile;

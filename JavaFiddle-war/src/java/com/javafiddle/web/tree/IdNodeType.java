@@ -1,3 +1,7 @@
 package com.javafiddle.web.tree;
 
-public enum IdNodeType {PROJECT, PACKAGE, FILE};
+public enum IdNodeType {
+    PROJECT,
+    PACKAGE,
+    FILE
+};

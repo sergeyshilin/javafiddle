@@ -45,7 +45,6 @@ public class TreeService implements Serializable {
     TaskPool pool;
     ArrayList<Long> projectRevisions;
     TreeMap<Integer, TreeMap<Long, String>> files;
-    String srcHash;
     Project project;
     
     @Inject
@@ -344,24 +343,6 @@ public class TreeService implements Serializable {
         return Response.ok(gson.toJson(tf), MediaType.APPLICATION_JSON).build();
     }
     
-    @GET
-    @Path("tree/revisionslist")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getRevisionsList(
-            @Context HttpServletRequest request,
-            @QueryParam("id") String idString
-            ) {
-        if (idString == null)
-            return Response.status(401).build();
-        
-        List<Revision> revisions = pm.getProjectTrees(Utility.parseId(idString));
-        if (revisions == null)
-            return Response.status(410).build();
-        
-        Gson gson = new GsonBuilder().create();
-        return Response.ok(gson.toJson(revisions), MediaType.APPLICATION_JSON).build();
-    }
-    
     @POST
     @Path("revisions/project")
     public Response saveProjectRevision (
@@ -379,10 +360,12 @@ public class TreeService implements Serializable {
         
         // save project meta info
         if (project == null) {
-            project = pm.createProject(currentUserId, tree.getHashes().getBranchHash(), "MyProject", null);
-        } 
+            Long id = idGenerator.getNextId();
+            project = pm.createProject(currentUserId, tree.getHashes().getBranchHash(), tree.getProjects().get(0).getName(), null);
+        }
         Revision parentRevision = pm.findTreeByHashcode(tree.getHashes().getParentTreeHash());
         pm.addTree(project.getId(), parentRevision==null?null:parentRevision.getId(), tree.getHashes().getTreeHash(), date, null);
+
         
         String hash = tree.getHashes().getBranchHash() + tree.getHashes().getTreeHash();
         
@@ -419,9 +402,9 @@ public class TreeService implements Serializable {
     }
 
     @GET
-    @Path("revisions/project/list")
+    @Path("revisions/hierarchy")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getProjectList(
+    public Response getTreeHierarchy( 
             @Context HttpServletRequest request
             ) {
         GetProjectRevision gpr = new GetProjectRevision(tree.getHashes());
@@ -430,10 +413,11 @@ public class TreeService implements Serializable {
            return Response.ok().build();
         ArrayList<String> names = new ArrayList<>();
         for (Tree entry : trees)
-            names.add(entry.getHashes().getTreeHash());
-        return Response.ok(names, MediaType.APPLICATION_JSON).build();
+           names.add(tree.getHashes().getBranchHash() + entry.getHashes().getTreeHash());
+        Gson gson = new GsonBuilder().create();
+        return Response.ok(gson.toJson(names), MediaType.APPLICATION_JSON).build();
     }
-    
+ 
     @POST
     @Path("revisions")
     @Produces(MediaType.TEXT_HTML)
@@ -519,15 +503,15 @@ public class TreeService implements Serializable {
     /**
      * Compile && Executing
      */
-    
+     
     @POST
     @Path("run/compile")
     public Response compile(
             @Context HttpServletRequest request
             ) {
         ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);
-        srcHash = spr.saveSrc(srcHash);
-        if (srcHash == null)
+        tree.getHashes().setSrcHash(spr.saveSrc(tree.getHashes().getSrcHash()));
+        if (tree.getHashes().getSrcHash() == null)
             return Response.status(404).build();
         
         AccessController.doPrivileged(new PrivilegedAction() {
@@ -538,9 +522,9 @@ public class TreeService implements Serializable {
                     StringBuilder path = new StringBuilder();
                     String packageName = idList.getPackage(tf.getPackageId()).getName();
                     if (packageName.startsWith("!"))
-                        path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(tf.getName());
+                        path.append(build).append(sep).append(tree.getHashes().getSrcHash()).append(sep).append("src").append(sep).append(tf.getName());
                     else
-                        path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(packageName.replace(".", sep)).append(sep).append(tf.getName());
+                        path.append(build).append(sep).append(tree.getHashes().getSrcHash()).append(sep).append("src").append(sep).append(packageName.replace(".", sep)).append(sep).append(tf.getName());
                     paths.add(path.toString());
                 }
                 
@@ -577,7 +561,7 @@ public class TreeService implements Serializable {
                             runnableName = runnableName.substring(0, runnableName.length() - ".java".length());
                         packageName = idList.getPackage(tf.getPackageId()).getName();
                         packageName = packageName.startsWith("!") ? "" : packageName + ".";
-                        path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep);
+                        path.append(build).append(sep).append(tree.getHashes().getSrcHash()).append(sep).append("src").append(sep);
                         break;
                     }
                 if (runnableName == null || packageName == null)
@@ -607,8 +591,8 @@ public class TreeService implements Serializable {
             @Context HttpServletRequest request
             ) {
         ProjectRevisionSaver spr = new ProjectRevisionSaver(projectRevisions, tree, idList, files);
-        srcHash = spr.saveSrc(srcHash);
-        if (srcHash == null)
+        tree.getHashes().setSrcHash(spr.saveSrc(tree.getHashes().getSrcHash()));
+        if (tree.getHashes().getSrcHash() == null)
             return Response.status(404).build();
         
         AccessController.doPrivileged(new PrivilegedAction() {
@@ -622,7 +606,7 @@ public class TreeService implements Serializable {
                 
                 for (TreeFile file : idList.getFileList().values()) {
                     StringBuilder path = new StringBuilder();
-                    path.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep).append(idList.getPackage(file.getPackageId()).getName().replace(".", sep)).append(sep).append(file.getName());
+                    path.append(build).append(sep).append(tree.getHashes().getSrcHash()).append(sep).append("src").append(sep).append(idList.getPackage(file.getPackageId()).getName().replace(".", sep)).append(sep).append(file.getName());
                     paths.add(path.toString());
                    
                     if (file.getType().equals("runnable")) {
@@ -630,7 +614,7 @@ public class TreeService implements Serializable {
                         if (file.getName().endsWith(".java"))
                             runnableName = runnableName.substring(0, runnableName.length() - ".java".length());
                         packageName = idList.getPackage(file.getPackageId()).getName();
-                        executepath.append(build).append(sep).append(srcHash).append(sep).append("src").append(sep);
+                        executepath.append(build).append(sep).append(tree.getHashes().getSrcHash()).append(sep).append("src").append(sep);
                         break;
                     }
                 }
@@ -724,5 +708,4 @@ public class TreeService implements Serializable {
             }
         return Response.ok().build();
     }
-    
 }

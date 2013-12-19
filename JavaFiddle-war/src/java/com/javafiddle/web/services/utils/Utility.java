@@ -2,13 +2,7 @@ package com.javafiddle.web.services.utils;
 
 import com.javafiddle.revisions.Revisions;
 import com.javafiddle.web.tree.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Utility {
     public static int parseId(String idString) {

@@ -438,6 +438,7 @@ function toggleHeader() {
         $header.css("display", "block");
     else
         $header.css("display", "none");
+    setJavaEditorSize();
 }
 
 
@@ -691,11 +692,9 @@ function drawRevisionsList() {
     var revisions;
     
     $.ajax({
-        url: PATH + '/webapi/tree/revisionslist',
+        url: PATH + '/webapi/revisions/hierarchy',
         type: 'GET',
         async: false,
-        data: {id: getProjectId()},
-        dataType: "json",
         contentType: "application/json",
         success: function(data) {
             revisions = data;
@@ -709,7 +708,7 @@ function drawRevisionsList() {
     });
     
     for(var i = 0; i < revisions.length; ++i) {
-        $ul.append("<li><div class='revision-time'>" + revisions[i].creationDate + "</div><div class='revert'>Revert</div></li>");
+        $ul.append("<li><div class='revision-time'>" + revisions[i] + "</div><div class='revert'>Revert</div></li>");
     }
     
     return $ul;

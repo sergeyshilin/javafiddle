@@ -12,7 +12,7 @@ import java.util.TreeMap;
 public class Tree implements Serializable {
     private Hashes hashes;
     private List<TreeProject> projects = new ArrayList<>();
-
+    
     public Tree() {
         hashes = new Hashes();
     }

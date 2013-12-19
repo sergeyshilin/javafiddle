@@ -3,23 +3,17 @@ package com.javafiddle.saving;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.javafiddle.web.services.utils.Hashes;
-import com.javafiddle.web.services.utils.Utility;
 import com.javafiddle.web.tree.IdList;
-import com.javafiddle.web.tree.IdNodeType;
 import com.javafiddle.web.tree.Tree;
 import com.javafiddle.web.tree.TreeFile;
-import com.javafiddle.web.tree.TreeNode;
 import com.javafiddle.web.tree.TreePackage;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +32,7 @@ public class ProjectRevisionSaver {
     }
     
     public void saveRevision() {
-        if (tree.getHashes().getBranchHash() == null) {
+        if ("".equals(tree.getHashes().getBranchHash())) {
             try {
                 StringBuilder rawHash = new StringBuilder();
                 rawHash.append(tree.getProjects().get(0).getName()).append(new Date().getTime());
@@ -76,7 +70,7 @@ public class ProjectRevisionSaver {
     }
     
     public String saveSrc(String srcHash) {
-        if (srcHash == null) {
+        if (srcHash.equals("")) { 
             try {
                 StringBuilder rawHash = new StringBuilder();
                 rawHash.append(tree.getProjects().get(0).getName()).append(new Date().toString()).append(System.currentTimeMillis());

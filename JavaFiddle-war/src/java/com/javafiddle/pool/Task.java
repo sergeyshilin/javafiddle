@@ -7,12 +7,6 @@ import java.io.Serializable;
 
 import java.util.Date;
 
-/**
- * Classfile for project JavaFiddleCompiler
- * Author: Sergey Shilin
- * Email: sergey.shilin@phystech.edu
- * Date: 24.11.13
- */
 public class Task extends Thread implements Serializable {
 
     private String id = null;

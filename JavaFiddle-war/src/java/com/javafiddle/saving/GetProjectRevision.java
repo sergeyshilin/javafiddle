@@ -3,7 +3,6 @@ package com.javafiddle.saving;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.javafiddle.web.services.utils.Hashes;
-import com.javafiddle.web.services.utils.Utility;
 import com.javafiddle.web.tree.Tree;
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class GetProjectRevision {
     private static final String sep = File.separator;
@@ -64,7 +62,7 @@ public class GetProjectRevision {
             return null;
         treeList.add(current);
         int i = 0;
-        while (current.getHashes().getParentTreeHash() != null && i < 50) {
+        while (!"".equals(current.getHashes().getParentTreeHash()) && i < 50) {
             current = getTree(current.getHashes().getParentTreeHash());
             if (current == null)
                 break;
@@ -74,7 +72,7 @@ public class GetProjectRevision {
 
         return treeList;
     } 
-    
+        
     public static String readFile(String path) {
         StringBuilder text = new StringBuilder();
         try {

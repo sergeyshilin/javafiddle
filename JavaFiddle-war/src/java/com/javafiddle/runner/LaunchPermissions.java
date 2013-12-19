@@ -1,8 +1,5 @@
 package com.javafiddle.runner;
 
-import sun.reflect.Reflection;
-
-import java.io.FilePermission;
 import java.security.AccessControlContext;
 import java.security.CodeSource;
 import java.security.Permissions;

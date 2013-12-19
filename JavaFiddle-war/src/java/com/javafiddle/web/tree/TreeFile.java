@@ -2,7 +2,6 @@ package com.javafiddle.web.tree;
 
 import java.io.Serializable;
 import java.text.Collator;
-import java.util.Date;
 import java.util.Locale;
 
 public class TreeFile implements TreeNode, Comparable<TreeFile>, Serializable { 
