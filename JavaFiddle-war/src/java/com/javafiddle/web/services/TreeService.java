@@ -235,6 +235,22 @@ public class TreeService implements Serializable {
         Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
+    
+    @GET
+    @Path("tree/righthash")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response isRightHash(
+            @Context HttpServletRequest request,
+            @QueryParam("hash") String hash
+            ) {                
+        Boolean right = false;
+        if(pm.findByHashcode(hash) != null) 
+            right = !right;
+        Gson gson = new GsonBuilder().create();
+        return Response.ok(gson.toJson(right), MediaType.APPLICATION_JSON).build();
+    }
+    
+    
            
     @POST
     @Path("tree/rename")
@@ -363,12 +379,12 @@ public class TreeService implements Serializable {
         
         // save project meta info
         if (project == null) {
-            project = pm.createProject(currentUserId, tree.hashes.getBranchHash(), "MyProject", null);
+            project = pm.createProject(currentUserId, tree.getHashes().getBranchHash(), "MyProject", null);
         } 
-        Revision parentRevision = pm.findTreeByHashcode(tree.hashes.getParentTreeHash());
-        pm.addTree(project.getId(), parentRevision==null?null:parentRevision.getId(), tree.hashes.getTreeHash(), date, null);
+        Revision parentRevision = pm.findTreeByHashcode(tree.getHashes().getParentTreeHash());
+        pm.addTree(project.getId(), parentRevision==null?null:parentRevision.getId(), tree.getHashes().getTreeHash(), date, null);
         
-        String hash = tree.hashes.getBranchHash() + tree.hashes.getTreeHash();
+        String hash = tree.getHashes().getBranchHash() + tree.getHashes().getTreeHash();
         
         return Response.ok(hash, MediaType.TEXT_PLAIN).build();
     }
@@ -408,13 +424,13 @@ public class TreeService implements Serializable {
     public Response getProjectList(
             @Context HttpServletRequest request
             ) {
-        GetProjectRevision gpr = new GetProjectRevision(tree.hashes);
+        GetProjectRevision gpr = new GetProjectRevision(tree.getHashes());
         ArrayList<Tree> trees = gpr.findParents(tree);
         if (trees == null)
            return Response.ok().build();
         ArrayList<String> names = new ArrayList<>();
         for (Tree entry : trees)
-            names.add(entry.hashes.getTreeHash());
+            names.add(entry.getHashes().getTreeHash());
         return Response.ok(names, MediaType.APPLICATION_JSON).build();
     }
     
@@ -486,6 +502,18 @@ public class TreeService implements Serializable {
         }
         
         return Response.ok(gson.toJson(fr), MediaType.APPLICATION_JSON).build();
+    }
+    
+    @GET
+    @Path("revisions/lasthash")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLastHash(
+            @Context HttpServletRequest request
+            ) {
+        Gson gson = new GsonBuilder().create();
+        if(tree.getHashes().getHash() == null)
+            return Response.ok(gson.toJson("null"), MediaType.APPLICATION_JSON).build();
+        return Response.ok(gson.toJson(tree.getHashes().getHash()), MediaType.APPLICATION_JSON).build();
     }
     
     /**

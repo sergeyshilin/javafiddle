@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class Tree implements Serializable {
-    public Hashes hashes;
+    private Hashes hashes;
     private List<TreeProject> projects = new ArrayList<>();
 
     public Tree() {
@@ -23,6 +23,10 @@ public class Tree implements Serializable {
 
     public List<TreeProject> getProjects() {
         return projects;
+    }
+    
+    public Hashes getHashes() {
+        return hashes;
     }
     
     public TreeProject addProject(IdList idList, String projectName) {

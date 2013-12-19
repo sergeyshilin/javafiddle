@@ -195,6 +195,7 @@ body {
     background-image: url('img/share.ico');
     background-repeat: no-repeat;
     background-position: 7% 50%;
+    cursor: default;
 }
 
 #share:hover {
@@ -609,7 +610,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     float: right;
 }
 
-#addpackage, #addfile, #rename {
+.popup_window {
     text-align: center;
     color: #0e0e0e;
     font-size: 15px;
@@ -619,7 +620,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     padding: 15px;
 }
 
-#addpackage .inputname, #addfile .inputname, #rename .inputname {
+.popup_window .inputname {
     font-size: 18px;
     color: #0e0e0e;
     position: absolute;
@@ -627,7 +628,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     z-index: 50;
 }
 
-#addpackage input, #addfile input, #rename input {
+.popup_window input {
     font-family: 'Open Sans';
     font-weight: bold;
     font-style: normal;
@@ -644,7 +645,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     background-color: #ececec;
 }
 
-#addpackage #result-msg, #addfile #result-msg, #rename #result-msg {
+.popup_window #result-msg {
     position: relative;
     margin: 0 auto;
     margin-top: 10px;
@@ -655,7 +656,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     /*display: none;*/
 }
 
-#addpackage input:focus, #addfile input:focus, #rename input:focus {
+.popup_window input:focus {
     color: #0e0e0e;
     border: 1px solid rgba(0,0,0,.222);
 }
@@ -734,6 +735,23 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
 #addfile #typelist li.exception {background: url('img/idea-class-exception.png') no-repeat 5% 50%}
 #addfile #typelist li.enum {background: url('img/idea-class-enum.png') no-repeat 5% 50%}
 #addfile #typelist li.help {background: url('img/idea-libs.png') no-repeat 5% 50%}
+
+#sharecode input {
+    width: 370px;
+    padding-left: 70px;
+}
+
+#sharecode #confirm-buttons {
+    margin: 0 auto;
+    margin-top: 4px;
+    width: auto;
+    text-align: center;
+}
+
+#sharecode #confirm {
+    margin: 0 0 0 166px;
+}
+
 /**
 * Context menu
 */

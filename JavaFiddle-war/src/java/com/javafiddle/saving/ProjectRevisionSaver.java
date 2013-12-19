@@ -38,28 +38,28 @@ public class ProjectRevisionSaver {
     }
     
     public void saveRevision() {
-        if (tree.hashes.getBranchHash() == null) {
+        if (tree.getHashes().getBranchHash() == null) {
             try {
                 StringBuilder rawHash = new StringBuilder();
                 rawHash.append(tree.getProjects().get(0).getName()).append(new Date().getTime());
                 String hash = getHash(rawHash.toString(), Hashes.BRANCH_HASH_LENGTH);
-                tree.hashes.setBranchHash(hash);
+                tree.getHashes().setBranchHash(hash);
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
                 Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);
                 return;
             }
         }
         
-        SavingFile savingFile = new SavingFile(tree.hashes.getBranchHash());
+        SavingFile savingFile = new SavingFile(tree.getHashes().getBranchHash());
         
         // saving tree
         try {
             Gson gson = new GsonBuilder().create();
-            tree.hashes.setParentTreeHash(tree.hashes.getTreeHash());
+            tree.getHashes().setParentTreeHash(tree.getHashes().getTreeHash());
             StringBuilder rawHash = new StringBuilder();
             rawHash.append(new Date().toString()).append(new Date().getTime());
-            tree.hashes.setTreeHash(getHash(rawHash.toString(), Hashes.TREE_HASH_LENGTH));
-            savingFile.saveTree(tree.hashes.getTreeHash(), gson.toJson(tree));
+            tree.getHashes().setTreeHash(getHash(rawHash.toString(), Hashes.TREE_HASH_LENGTH));
+            savingFile.saveTree(tree.getHashes().getTreeHash(), gson.toJson(tree));
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
             Logger.getLogger(ProjectRevisionSaver.class.getName()).log(Level.SEVERE, null, ex);
             return;

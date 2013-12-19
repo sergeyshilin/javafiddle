@@ -64,8 +64,8 @@ public class GetProjectRevision {
             return null;
         treeList.add(current);
         int i = 0;
-        while (current.hashes.getParentTreeHash() != null && i < 50) {
-            current = getTree(current.hashes.getParentTreeHash());
+        while (current.getHashes().getParentTreeHash() != null && i < 50) {
+            current = getTree(current.getHashes().getParentTreeHash());
             if (current == null)
                 break;
             treeList.add(current); 

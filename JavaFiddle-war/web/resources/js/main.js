@@ -60,7 +60,7 @@ window.onbeforeunload = (function() {
     if (isEmpty('modified'))
         return;
     addCurrentFileText();
-    return "ВНИМАНИЕ! В проекте есть несохраненные файлы. Когда сессия истечет, все несохраненные изменения будут потеряны!";
+    return "WARNING! The project has unsaved files. When the session expires, any unsaved changes will be lost!";
 });
 
 function setJavaEditorSize() { 
@@ -399,10 +399,29 @@ function removeFromProject(id, classname) {
     });     
 }
 
+function openProject() {
+    $div = drawOpenProjectWindow();
+    
+    var params = {
+        width: 500,
+        height: 180
+    };
+    showPopup($div, params);
+}
+
 function closeProject() {
     var id = getProjectId();
     var name = $('#' + id).children("a").text();
     deleteFromProject(id, "root", name);
+}
+
+function loadProjectByHash(hash) {
+    if(hashIsCorrect()) {
+        getProject(hash);
+    } else {
+        $("#result-msg").text("Project with this hash does not exist");
+        $("#result-msg").css("color", "red");
+    }
 }
 
 function toggleProjectTreePanel() {
@@ -511,33 +530,33 @@ function drawDeleteWindow(id, classname, name) {
     var cn = "";
     switch(classname) {
         case "file":
-            cn = "файл";
+            cn = "class";
             break;
         case "package":
-            cn = "пакет";
+            cn = "package";
             break;
         case "root":
-            cn = "проект";
+            cn = "project";
             break;
     }
     $div = $('<div/>', {
         id: "delete_confirm"
     });
-    $div.append("<span class='title'>Вы уверены, что хотите удалить " + cn + " " + name + "?</span>");
+    $div.append("<span class='title'>Are you sure you want to delete " + cn + " " + name + "?</span>");
     
     $buttons = $('<div/>', {
         id: "confirm-buttons"
     });
     
     $confirm = $('<div/>', {
-        text: "Подтвердить",
+        text: "Confirm",
         id: "confirm",
         class: "button"
     });
     $confirm.attr("onclick", "removeFromProject('"+ id +"', '"+ classname +"')");
     
     $decline = $('<div/>', {
-        text: "Отменить",
+        text: "Cancel",
         id: "decline",
         class: "button"
     });
@@ -698,7 +717,8 @@ function drawRevisionsList() {
 
 function drawAddPackageWindow(id) {
     $div = $('<div/>', {
-        id: "addpackage" 
+        id: "addpackage",
+        class: "popup_window"
     });
     
     $input = $('<input/>', {
@@ -711,7 +731,7 @@ function drawAddPackageWindow(id) {
         $("#addpackage input").val(val.toLowerCase());
     });
     
-    $div.append("<div class='inputname'>Название:</div>");
+    $div.append("<div class='inputname'>Name:</div>");
     $div.append($input);
     $div.append("<div id='result-msg'></div>");
     
@@ -720,14 +740,14 @@ function drawAddPackageWindow(id) {
     });
     
     $confirm = $('<div/>', {
-        text: "Добавить",
+        text: "Add",
         id: "confirm",
         class: "button"
     });
     $confirm.attr( "onclick", "addPackage('"+ id +"')");
     
     $decline = $('<div/>', {
-        text: "Отменить",
+        text: "Cancel",
         id: "decline",
         class: "button"
     });
@@ -754,7 +774,8 @@ function drawAddFileWindow(id) {
     }
     
     $div = $('<div/>', {
-        id: "addfile" 
+        id: "addfile",
+        class: "popup_window"
     });
     
     $class = $('<input/>', {
@@ -774,11 +795,11 @@ function drawAddFileWindow(id) {
     
     $type.attr("onclick", "showTypesList()");
     
-    $typelist = $("#typelist")
+    $typelist = $("#typelist");
     
     $div.append($type);
     $div.append($typelist);
-    $div.append("<div class='inputname'>Название:</div>");
+    $div.append("<div class='inputname'>Name:</div>");
     $div.append($class);
     
     $project = $('<input/>', {
@@ -789,7 +810,7 @@ function drawAddFileWindow(id) {
     });
     
     $project.prop('disabled', true);
-    $div.append("<div class='inputname addfilename'>Проект:</div>");
+    $div.append("<div class='inputname addfilename'>Project:</div>");
     $div.append($project);
     
     $package = $('<input/>', {
@@ -800,7 +821,7 @@ function drawAddFileWindow(id) {
     });
     
     $package.prop('disabled', true);
-    $div.append("<div class='inputname addfilename'>Пакет:</div>");
+    $div.append("<div class='inputname addfilename'>Package:</div>");
     $div.append($package);
     
     $fullpath = $('<input/>', {
@@ -811,7 +832,7 @@ function drawAddFileWindow(id) {
     });
     
     $fullpath.prop('disabled', true);
-    $div.append("<div class='inputname addfilename'>Путь до файла:</div>");
+    $div.append("<div class='inputname addfilename'>Path to file:</div>");
     $div.append($fullpath);
     
     $div.append("<div id='result-msg'></div>");
@@ -821,14 +842,14 @@ function drawAddFileWindow(id) {
     });
     
     $confirm = $('<div/>', {
-        text: "Добавить",
+        text: "Add",
         id: "confirm",
         class: "button"
     });
     $confirm.attr( "onclick", "addFile('"+ id +"')");
     
     $decline = $('<div/>', {
-        text: "Отменить",
+        text: "Cancel",
         id: "decline",
         class: "button"
     });
@@ -845,7 +866,8 @@ function drawAddFileWindow(id) {
 
 function drawRenameWindow(id, type, name) {
     $div = $('<div/>', {
-        id: "rename" 
+        id: "rename",
+        class: "popup_window"
     });
     
     $input = $('<input/>', {
@@ -859,7 +881,7 @@ function drawRenameWindow(id, type, name) {
         rename = $("#rename input").val();
     });
     
-    $div.append("<div class='inputname'>Название:</div>");
+    $div.append("<div class='inputname'>Name:</div>");
     $div.append($input);
     $div.append("<div id='result-msg'></div>");
     
@@ -868,14 +890,14 @@ function drawRenameWindow(id, type, name) {
     });
     
     $confirm = $('<div/>', {
-        text: "Изменить",
+        text: "Change",
         id: "confirm",
         class: "button"
     });
     $confirm.attr( "onclick", "renameElement('"+ id +"', '"+ type +"')");
     
     $decline = $('<div/>', {
-        text: "Отменить",
+        text: "Cancel",
         id: "decline",
         class: "button"
     });
@@ -887,6 +909,103 @@ function drawRenameWindow(id, type, name) {
     
     $div.append($buttons);
     
+    return $div;
+}
+
+function drawOpenProjectWindow() {
+    $div = $('<div/>', {
+        id: "openproj",
+        class: "popup_window"
+    });
+    
+    $input = $('<input/>', {
+        type: "text",
+        value: "eBjaEbmKGwiS"
+    });
+    
+    $(document).on('focus', "#openproj input", function() {
+        var text = $("#openproj input").val();
+        if(text.localeCompare("eBjaEbmKGwiS") == 0)
+            $("#openproj input").val("");
+    });
+    
+    $(document).on('blur', "#openproj input", function() {
+        var text = $("#openproj input").val();
+        if(text.localeCompare("") == 0)
+            $("#openproj input").val("eBjaEbmKGwiS");
+    });
+    
+    $div.append("<div class='inputname'>Hash:</div>");
+    $div.append($input);
+    $div.append("<div id='result-msg'></div>");
+    
+    $buttons = $('<div/>', {
+        id: "confirm-buttons"
+    });
+    
+    $confirm = $('<div/>', {
+        text: "Open",
+        id: "confirm",
+        class: "button"
+    });
+    $confirm.attr( "onclick", "loadProjectByHash('"+ $("#openproj input").val() +"')");
+    
+    $decline = $('<div/>', {
+        text: "Cancel",
+        id: "decline",
+        class: "button"
+    });
+    $decline.attr("onclick", "$('#popup_bug').togglePopup();");
+    
+    $buttons.css("margin-top", "18px");
+    $buttons.append($confirm);
+    $buttons.append($decline);
+    
+    $div.append($buttons);
+    
+    return $div;
+}
+
+function drawShareCodeWindow(latest) {
+    $div = $('<div/>', {
+        id: "sharecode",
+        class: "popup_window"
+    });
+    
+    $input = $('<input/>', {
+        type: "text",
+        value: "http://javafiddle.org/?project=" + (!latest.localeCompare("null") ? "" : latest)
+    });
+    
+    $(document).on('focus', "#sharecode input[type='text']", function() {
+        var save_this = $(this);
+        window.setTimeout (function(){ 
+            save_this.select(); 
+        },100);
+    });
+        
+    $div.append("<div class='inputname'>Link:</div>");
+    $div.append($input);
+    $("<div/>", {
+        id: "result-msg",
+        text: !latest.localeCompare("null") ? "There are no project revisions. Commit it!" : "Share this link with your friends!"
+    }).appendTo($div);
+    
+    $buttons = $('<div/>', {
+        id: "confirm-buttons"
+    });
+    
+    $confirm = $('<div/>', {
+        text: "Close",
+        id: "confirm",
+        class: "button"
+    });
+    
+    $confirm.attr("onclick", "$('#popup_bug').togglePopup();");
+    
+    $buttons.append($confirm);
+    $div.append($buttons);
+ 
     return $div;
 }
 
@@ -924,17 +1043,17 @@ function isRightPackageName(name, id) {
             success: function(data) {
                 switch(data) {
                     case "wrongname":
-                        $("#result-msg").text("Неверное название пакета. \n\
-                            Допустимы лишь латинские символы и цифры. \n\
-                            Название пакета не должно начинаться с цифры.");
+                        $("#result-msg").text("Wrong package name. \n\
+                            Only latin characters and numbers are allowed. \n\
+                            The package name must not start with a digit.");
                         $("#result-msg").css("font-size", "13px");
                         break;
                     case "used":
-                       $("#result-msg").text("Это имя пакета уже используется в вашем проекте.");
+                       $("#result-msg").text("This package name is already used in your project.");
                        $("#result-msg").css("font-size", "15px");
                        break;
                     case "unknown":
-                       $("#result-msg").text("Неизвестная ошибка.");  
+                       $("#result-msg").text("Unknown error.");  
                        $("#result-msg").css("font-size", "15px");
                        break;
                     case "ok":
@@ -965,17 +1084,17 @@ function isRightClassName(name, id) {
         success: function(data) {
             switch(data) {
                 case "wrongname":
-                    $("#result-msg").text("Неверное название класса. \n\
-                        Допустимы лишь латинские символы и цифры. \n\
-                        Название класса не должно начинаться с цифры.");
-                    $("#result-msg").css("font-size", "13px");
+                    $("#result-msg").text("Wrong class name. \n\
+                            Only latin characters and numbers are allowed. \n\
+                            The class name must not start with a digit.");
+                        $("#result-msg").css("font-size", "13px");
                     break;
                 case "used":
-                   $("#result-msg").text("Это имя класса уже используется в данном пакете.");
+                   $("#result-msg").text("This class name is already used in this package.");
                    $("#result-msg").css("font-size", "15px");
                    break;
                 case "unknown":
-                   $("#result-msg").text("Неизвестная ошибка.");  
+                   $("#result-msg").text("Unknown error.");  
                    $("#result-msg").css("font-size", "15px");
                    break;
                 case "ok":
@@ -1005,9 +1124,9 @@ function isRightProjectName(name) {
     }); 
     
     if(!result) {
-        $("#result-msg").text("Неверное название проекта. \n\
-                            Допустимы лишь латинские символы и цифры. \n\
-                            Название пакета не должно начинаться с цифры.");
+        $("#result-msg").text("Wrong project name. \n\
+                            Only latin characters and numbers are allowed. \n\
+                            The project name must not start with a digit.");
         $("#result-msg").css("font-size", "13px"); 
         $("#result-msg").css("color", "red");
     }
@@ -1015,6 +1134,20 @@ function isRightProjectName(name) {
     return result;
 }
 
+function hashIsCorrect(hash) {
+    var result = false;
+    $.ajax({
+        url: PATH + '/webapi/tree/righthash',
+        type: 'GET',
+        data: {hash: hash},
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    return result;
+}
 
 // FILE REVISIONS (SERVICES)
 
@@ -1067,7 +1200,7 @@ function saveProject() {
         },
         error: function() {
             $('#latest_update').text("Project not saved.");
-        },
+        }
     });
 }
 
@@ -1104,6 +1237,33 @@ function getFileRevision(id) {
     });
 }
 
+function getLatestProjectHash() {
+    var hash = "";
+    $.ajax({
+        url: PATH + '/webapi/revisions/lasthash',
+        type:'GET',
+        async: false,
+        dataType: "json",
+        success: function(data) {
+            hash = data;
+        }
+    });
+    
+    return hash;
+}
+
+function shareCode() {
+    var latest = getLatestProjectHash();
+    $div = drawShareCodeWindow(latest);
+    
+    var params = {
+        width: 500,
+        height: 160
+    };
+    
+    showPopup($div, params);
+    return false;
+}
 
 // UTILS
 
@@ -1158,6 +1318,8 @@ function compile() {
         toggleConsoleWindow();
     }
     
+    visualizeProcess("compile");
+    
     $.ajax({
         url: PATH + '/webapi/run/compile',
         type: 'POST',
@@ -1173,6 +1335,8 @@ function execute() {
     if(!isConsoleOpened()) {
         toggleConsoleWindow();
     }
+    
+    visualizeProcess("run");
     
     $.ajax({
         url: PATH + '/webapi/run/execute',
@@ -1212,6 +1376,8 @@ function compileAndRun() {
     if(!isConsoleOpened()) {
         toggleConsoleWindow();
     }
+    
+    visualizeProcess("compileandrun");
     
     $.ajax({
         url: PATH + '/webapi/run/compilerun',
@@ -1268,4 +1434,41 @@ function openStaticTab(name) {
         li = $("#tabpanel").find(li);
     }
     selectTab(li);
+}
+
+function visualizeProcess(process) {
+    disableProcess();
+    
+    switch(process) {
+        case "compile":
+            $("#compile").css("background-image", "url('resources/img/stop.ico')");
+            $("#compile").attr("onclick", "stopProcess();");
+            break;
+        case "run":
+            $("#run").css("background-image", "url('resources/img/stop.ico')");
+            $("#run").attr("onclick", "stopProcess();");
+            break;
+        case "compileandrun":
+            $("#compileandrun").css("background-image", "url('resources/img/stop.ico')");
+            $("#compileandrun").attr("onclick", "stopProcess();");
+            break;        
+    }
+}
+
+function disableProcess() {
+    $("#compile").attr("onclick", "return false;");
+    $("#run").attr("onclick", "return false;");
+    $("#compileandrun").attr("onclick", "return false;");
+    $("#compile").css("background-image", "url('resources/img/compile-block.ico')");
+    $("#run").css("background-image", "url('resources/img/run-block.ico')");
+    $("#compileandrun").css("background-image", "url('resources/img/compileandrun-block.ico')");
+}
+
+function stopProcess() {
+    $("#compile").attr("onclick", "compile();");
+    $("#run").attr("onclick", "execute();");
+    $("#compileandrun").attr("onclick", "compileAndRun();");
+    $("#compile").css("background-image", "url('resources/img/compile.ico')");
+    $("#run").css("background-image", "url('resources/img/playback_play.ico')");
+    $("#compileandrun").css("background-image", "url('resources/img/compileandrun.ico')");
 }

@@ -57,6 +57,8 @@
                         <li class="dropdown">
                             <div class="dropdown-toggle" data-toggle="dropdown">Project</div>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                                <li onclick="openProject();">Open</li>
+                                <li class="divider"></li>
                                 <li onclick="saveFile();">Save</li>
                                 <li onclick="saveAllFiles();">Save All</li>
                                 <li onclick="saveProject();">Commit</li>
@@ -109,7 +111,7 @@
                         </li>
                     </ul>
                     <h:panelGroup layout="block" id="latest_update">Last changes: not saved yet.</h:panelGroup>
-                    <h:link id="share" value="Share Code..." outcome="index" />
+                    <div id="share" onclick="shareCode();">Share Code...</div>
                 </div>
             </div>
             <div id="header-bottom">

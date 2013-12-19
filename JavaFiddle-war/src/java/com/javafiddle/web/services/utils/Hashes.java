@@ -6,9 +6,9 @@ public class Hashes implements Serializable {
     public final static int BRANCH_HASH_LENGTH = 7;
     public final static int TREE_HASH_LENGTH = 5;
     
-    private String branchHash;
-    private String treeHash;
-    private String parentTreeHash;
+    private String branchHash = null;
+    private String treeHash = null;
+    private String parentTreeHash = null;
 
     public String getBranchHash() {
         return branchHash;
@@ -32,5 +32,11 @@ public class Hashes implements Serializable {
 
     public void setParentTreeHash(String parentTreeHash) {
         this.parentTreeHash = parentTreeHash;
+    }
+    
+    public String getHash() {
+        if(branchHash == null || treeHash == null)
+            return null;
+        return branchHash + treeHash;
     }
 }
