@@ -359,12 +359,12 @@ public class TreeService implements Serializable {
         spr.saveRevision();	
         
         // save project meta info
-        if (project == null) {
-            Long id = idGenerator.getNextId();
-            project = pm.createProject(currentUserId, tree.getHashes().getBranchHash(), tree.getProjects().get(0).getName(), null);
-        }
-        Revision parentRevision = pm.findTreeByHashcode(tree.getHashes().getParentTreeHash());
-        pm.addTree(project.getId(), parentRevision==null?null:parentRevision.getId(), tree.getHashes().getTreeHash(), date, null);
+//        if (project == null) {
+//            Long id = idGenerator.getNextId();
+//            project = pm.createProject(currentUserId, tree.getHashes().getBranchHash(), tree.getProjects().get(0).getName(), null);
+//        }
+//        Revision parentRevision = pm.findTreeByHashcode(tree.getHashes().getParentTreeHash());
+//        pm.addTree(project.getId(), parentRevision==null?null:parentRevision.getId(), tree.getHashes().getTreeHash(), date, null);
 
         
         String hash = tree.getHashes().getBranchHash() + tree.getHashes().getTreeHash();

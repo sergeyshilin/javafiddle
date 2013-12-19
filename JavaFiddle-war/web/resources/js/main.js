@@ -701,14 +701,12 @@ function drawRevisionsList() {
         }
     }); 
     
-    console.log(revisions);
- 
     $ul = $("<ol/>", {
         id: "revisions-list"
     });
     
     for(var i = 0; i < revisions.length; ++i) {
-        $ul.append("<li><div class='revision-time'>" + revisions[i] + "</div><div class='revert'>Revert</div></li>");
+        $ul.append("<li><div class='revision-time'>" + revisions[i] + "</div><div class='revert' onclick=\"revert('"+ revisions[i] +"');\">Revert</div></li>");
     }
     
     return $ul;
@@ -1198,7 +1196,7 @@ function saveProject() {
             $('#latest_update').text("Project saved with hash: " + data);
         },
         error: function() {
-            $('#latest_update').text("Project not saved.");
+            $('#latest_update').text("Project hasn't been saved.");
         }
     });
 }
@@ -1262,6 +1260,13 @@ function shareCode() {
     
     showPopup($div, params);
     return false;
+}
+
+function revert(hash) {
+    closeAllTabs();
+    closeProject();
+    getProject(hash);
+    buildTree();
 }
 
 // UTILS
@@ -1366,6 +1371,8 @@ function poll() {
                 });
             if (result == 1)
                 poll();
+            else if(result == 0)
+                stopProcess();
         }
     });
 }    

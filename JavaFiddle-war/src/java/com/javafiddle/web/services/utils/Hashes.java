@@ -44,7 +44,7 @@ public class Hashes implements Serializable {
     }
     
     public String getHash() {
-        if(branchHash == null || treeHash == null)
+        if("".equals(branchHash) || "".equals(treeHash))
             return null;
         return branchHash + treeHash;
     }
