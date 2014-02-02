@@ -123,7 +123,7 @@
             <div id="header-bottom">
                 <ul id="editor_buttons">
                     <li><span class="glyphicon glyphicon-floppy-save" onclick="saveFile();" title="Save current file"/></li>
-                    <li><span class="glyphicon glyphicon-cloud-upload" onclick="saveAllFiles();" title="Save all files"/></li>
+                    <li><span class="glyphicon glyphicon-save" onclick="saveAllFiles();" title="Save all files"/></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><span class="glyphicon glyphicon-arrow-left" onclick="javaEditor.execCommand('undo');" title="Undo"/></li>
@@ -135,7 +135,7 @@
                     <li><span class="glyphicon glyphicon-list-alt" onclick="toggleConsoleWindow();" title="Toggle Console"/></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
-                    <li><span class="glyphicon glyphicon-facetime-video" onclick="compile();" title="Compile"/></li>
+                    <li><span class="glyphicon glyphicon-wrench" onclick="compile();" title="Compile"/></li>
                     <li><span class="glyphicon glyphicon-play" onclick="execute();" title="Run"/></li>
                     <li><span class="glyphicon glyphicon-flag" onclick="compileAndRun();" title="Compile&amp;Run"/></li>
                 </ul>  
@@ -261,7 +261,7 @@
         </div>
 
         <!-- Modal add package -->
-        <div class="modal fade" id="modal-newpack" tabindex="-1" role="dialog" aria-labelledby="modal-newpath-header" aria-hidden="false">
+        <div class="modal" id="modal-newpack" tabindex="-1" role="dialog" aria-labelledby="modal-newpath-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -292,7 +292,7 @@
         </div>
         
         <!-- Modal add new file -->
-        <div class="modal fade" id="modal-newfile" tabindex="-1" role="dialog" aria-labelledby="modal-newfile-header" aria-hidden="false">
+        <div class="modal" id="modal-newfile" tabindex="-1" role="dialog" aria-labelledby="modal-newfile-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -343,7 +343,7 @@
         </div>
         
         <!-- Modal rename -->    
-        <div class="modal fade" id="modal-rename" tabindex="-1" role="dialog" aria-labelledby="modal-rename-header" aria-hidden="false">
+        <div class="modal" id="modal-rename" tabindex="-1" role="dialog" aria-labelledby="modal-rename-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -366,7 +366,7 @@
         </div>
 
         <!-- Modal delete -->    
-        <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-delete-header" aria-hidden="false">
+        <div class="modal" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-delete-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -387,7 +387,7 @@
         </div>
                 
         <!-- Modal share --> 
-        <div class="modal fade" id="modal-share" tabindex="-1" role="dialog" aria-labelledby="modal-share-header" aria-hidden="false">
+        <div class="modal" id="modal-share" tabindex="-1" role="dialog" aria-labelledby="modal-share-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -409,7 +409,7 @@
         </div>
         
         <!-- Modal commit's list -->
-        <div class="modal fade" id="modal-revisions" tabindex="-1" role="dialog" aria-labelledby="modal-revisions-header" aria-hidden="false">
+        <div class="modal" id="modal-revisions" tabindex="-1" role="dialog" aria-labelledby="modal-revisions-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

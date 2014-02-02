@@ -283,7 +283,7 @@ function m_rename_update($elClicked) {
         default:
             var id = $elClicked.closest('li').attr('id');
             var projectName = getCurrentProjectName(id);
-            var packageName = $(document.getElementById(id)).children("a").text();
+            var packageName = $(document.getElementById(id)).closest('ul').closest('li').children("a").text();
             result = isRightClassName(name, packageName, projectName);
             break;
     }
@@ -325,6 +325,7 @@ function renameElement($elClicked) {
             var id = $elClicked.closest('li').attr('id');
             var projectName = getCurrentProjectName(id);
             var packageName = $(document.getElementById(id)).closest('ul').closest('li').children("a").text();
+            alert(packageName);
             if (!name.endsWith(".java"))
                 name += ".java";
             result = isRightClassName(name, packageName, projectName);
@@ -399,7 +400,7 @@ function getLatestProjectHash() {
     var hash = "";
     
     $.ajax({
-        url: PATH + '/webapi/revisions/lasthash',
+        url: PATH + '/webapi/data/lasthash',
         type:'GET',
         async: false,
         dataType: "json",
@@ -417,7 +418,7 @@ function m_revisions() {
     var revisions;
    
     $.ajax({
-        url: PATH + '/webapi/revisions/hierarchy',
+        url: PATH + '/webapi/data/hierarchy',
         type: 'GET',
         async: false,
         contentType: "application/json",
@@ -465,7 +466,7 @@ function getProjectsList() {
     var projectsList;
     
     $.ajax({
-        url: PATH + '/webapi/projectslist',
+        url: PATH + '/webapi/tree/projectslist',
         type: 'GET',
         dataType: "json",
         async: false,
@@ -481,7 +482,7 @@ function getPackagesList(projectname) {
     var packagesList;
     
     $.ajax({
-        url: PATH + '/webapi/packageslist',
+        url: PATH + '/webapi/tree/packageslist',
         type: 'GET',
         data: {
             projectname : projectname
@@ -500,7 +501,7 @@ function isRightProjectName(name) {
     var result;
     
     $.ajax({
-        url: PATH + '/webapi/tree/rightprojectname',
+        url: PATH + '/webapi/tree/rprojname',
         type: 'GET',
         data: {
             name: name
@@ -519,7 +520,7 @@ function isRightPackageName(packageName, projectName) {
     var result;
     
     $.ajax({
-        url: PATH + '/webapi/tree/packagename',
+        url: PATH + '/webapi/tree/rpackname',
         type: 'GET',
         dataType: "json",
         async: false,
@@ -539,7 +540,7 @@ function isRightClassName(name, packageName, projectName){
     var result;
     
     $.ajax({
-        url: PATH + '/webapi/tree/classname',
+        url: PATH + '/webapi/tree/rclassname',
         type: 'GET',
         data: {
             name: name,
