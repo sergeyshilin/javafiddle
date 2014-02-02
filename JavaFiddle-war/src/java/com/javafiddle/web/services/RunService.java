@@ -3,12 +3,14 @@ package com.javafiddle.web.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.javafiddle.pool.Task;
+import com.javafiddle.pool.TaskPool;
 import com.javafiddle.pool.TaskType;
 import com.javafiddle.runner.Compilation;
 import com.javafiddle.runner.Execution;
 import com.javafiddle.runner.Killer;
 import com.javafiddle.runner.LaunchPermissions;
 import com.javafiddle.saving.ProjectRevisionSaver;
+import com.javafiddle.web.services.data.ISessionData;
 import com.javafiddle.web.tree.TreeFile;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,35 +35,36 @@ import javax.ws.rs.core.Response;
 @Path("run")
 @RequestScoped
 public class RunService {
+    
     @Inject
-    private SessionData sd;
+    private ISessionData sd;
     
     @POST
     @Path("compile")
     public Response compile(
             @Context HttpServletRequest request
             ) {
-        ProjectRevisionSaver spr = new ProjectRevisionSaver(sd.projectRevisions, sd.tree, sd.idList, sd.files);
-        sd.tree.getHashes().setSrcHash(spr.saveSrc(sd.tree.getHashes().getSrcHash()));
-        if (sd.tree.getHashes().getSrcHash() == null)
+        ProjectRevisionSaver spr = new ProjectRevisionSaver(sd.getTree(), sd.getIdList(), sd.getFiles());
+        sd.getTree().getHashes().setSrcHash(spr.saveSrc(sd.getTree().getHashes().getSrcHash()));
+        if (sd.getTree().getHashes().getSrcHash() == null)
             return Response.status(404).build();
         
         AccessController.doPrivileged(new PrivilegedAction() {
             @Override
             public Object run() {
                 ArrayList<String> paths = new ArrayList<>();
-                for (TreeFile tf : sd.idList.getFileList().values()) {
+                for (TreeFile tf : sd.getIdList().getFileList().values()) {
                     StringBuilder path = new StringBuilder();
-                    String packageName = sd.idList.getPackage(tf.getPackageId()).getName();
+                    String packageName = sd.getIdList().getPackage(tf.getPackageId()).getName();
                     if (packageName.startsWith("!"))
-                        path.append(SessionData.BUILD).append(SessionData.SEP).append(sd.tree.getHashes().getSrcHash()).append(SessionData.SEP).append("src").append(SessionData.SEP).append(tf.getName());
+                        path.append(ISessionData.BUILD).append(ISessionData.SEP).append(sd.getTree().getHashes().getSrcHash()).append(ISessionData.SEP).append("src").append(ISessionData.SEP).append(tf.getName());
                     else
-                        path.append(SessionData.BUILD).append(SessionData.SEP).append(sd.tree.getHashes().getSrcHash()).append(SessionData.SEP).append("src").append(SessionData.SEP).append(packageName.replace(".", SessionData.SEP)).append(SessionData.SEP).append(tf.getName());
+                        path.append(ISessionData.BUILD).append(ISessionData.SEP).append(sd.getTree().getHashes().getSrcHash()).append(ISessionData.SEP).append("src").append(ISessionData.SEP).append(packageName.replace(".", ISessionData.SEP)).append(ISessionData.SEP).append(tf.getName());
                     paths.add(path.toString());
                 }
                 
                 Task task = new Task(TaskType.COMPILATION, new Compilation(paths));
-                sd.pool.add(task);
+                TaskPool.getInstance().add(task);
                 try {
                     task.start();
                 } finally {
@@ -86,21 +89,21 @@ public class RunService {
                 StringBuilder path = new StringBuilder();
                 String packageName = null;
                 String runnableName = null;
-                for (TreeFile tf : sd.idList.getFileList().values())
+                for (TreeFile tf : sd.getIdList().getFileList().values())
                     if (tf.getType().equals("runnable")) {
                         runnableName = tf.getName();
                         if (tf.getName().endsWith(".java"))
                             runnableName = runnableName.substring(0, runnableName.length() - ".java".length());
-                        packageName = sd.idList.getPackage(tf.getPackageId()).getName();
+                        packageName = sd.getIdList().getPackage(tf.getPackageId()).getName();
                         packageName = packageName.startsWith("!") ? "" : packageName + ".";
-                        path.append(SessionData.BUILD).append(SessionData.SEP).append(sd.tree.getHashes().getSrcHash()).append(SessionData.SEP).append("src").append(SessionData.SEP);
+                        path.append(ISessionData.BUILD).append(ISessionData.SEP).append(sd.getTree().getHashes().getSrcHash()).append(ISessionData.SEP).append("src").append(ISessionData.SEP);
                         break;
                     }
                 if (runnableName == null || packageName == null)
                     return null;
 
                 Task task = new Task(TaskType.EXECUTION, new Execution("-classpath " + path.toString(), packageName + runnableName));
-                sd.pool.add(task);
+                TaskPool.getInstance().add(task);
                 try {
                     task.start();
                 } finally {
@@ -122,9 +125,9 @@ public class RunService {
     public Response compileAndRun(
             @Context HttpServletRequest request
             ) {
-        ProjectRevisionSaver spr = new ProjectRevisionSaver(sd.projectRevisions, sd.tree, sd.idList, sd.files);
-        sd.tree.getHashes().setSrcHash(spr.saveSrc(sd.tree.getHashes().getSrcHash()));
-        if (sd.tree.getHashes().getSrcHash() == null)
+        ProjectRevisionSaver spr = new ProjectRevisionSaver(sd.getTree(), sd.getIdList(), sd.getFiles());
+        sd.getTree().getHashes().setSrcHash(spr.saveSrc(sd.getTree().getHashes().getSrcHash()));
+        if (sd.getTree().getHashes().getSrcHash() == null)
             return Response.status(404).build();
         
         AccessController.doPrivileged(new PrivilegedAction() {
@@ -136,17 +139,17 @@ public class RunService {
                 String packageName = null;
                 String runnableName = null;
                 
-                for (TreeFile file : sd.idList.getFileList().values()) {
+                for (TreeFile file : sd.getIdList().getFileList().values()) {
                     StringBuilder path = new StringBuilder();
-                    path.append(SessionData.BUILD).append(SessionData.SEP).append(sd.tree.getHashes().getSrcHash()).append(SessionData.SEP).append("src").append(SessionData.SEP).append(sd.idList.getPackage(file.getPackageId()).getName().replace(".", SessionData.SEP)).append(SessionData.SEP).append(file.getName());
+                    path.append(ISessionData.BUILD).append(ISessionData.SEP).append(sd.getTree().getHashes().getSrcHash()).append(ISessionData.SEP).append("src").append(ISessionData.SEP).append(sd.getIdList().getPackage(file.getPackageId()).getName().replace(".", ISessionData.SEP)).append(ISessionData.SEP).append(file.getName());
                     paths.add(path.toString());
                    
                     if (file.getType().equals("runnable")) {
                         runnableName = file.getName();
                         if (file.getName().endsWith(".java"))
                             runnableName = runnableName.substring(0, runnableName.length() - ".java".length());
-                        packageName = sd.idList.getPackage(file.getPackageId()).getName();
-                        executepath.append(SessionData.BUILD).append(SessionData.SEP).append(sd.tree.getHashes().getSrcHash()).append(SessionData.SEP).append("src").append(SessionData.SEP);
+                        packageName = sd.getIdList().getPackage(file.getPackageId()).getName();
+                        executepath.append(ISessionData.BUILD).append(ISessionData.SEP).append(sd.getTree().getHashes().getSrcHash()).append(ISessionData.SEP).append("src").append(ISessionData.SEP);
                         break;
                     }
                 }
@@ -155,7 +158,7 @@ public class RunService {
                     return null;
                 
                 Task task1 = new Task(TaskType.COMPILATION, new Compilation(paths));
-                sd.pool.add(task1);
+                TaskPool.getInstance().add(task1);
                 try {
                     task1.start();
                 } finally {
@@ -171,7 +174,7 @@ public class RunService {
                 } finally { 
                     if(!task1.isError()) {
                         Task task2 = new Task(TaskType.EXECUTION, new Execution("-classpath " + executepath.toString(), packageName + "." + runnableName));
-                        sd.pool.add(task2);
+                        TaskPool.getInstance().add(task2);
                         try {
                             task2.start();
                         } finally {
@@ -193,7 +196,7 @@ public class RunService {
     public Response getOutput(
             @Context HttpServletRequest request
             ){
-        Task task = sd.pool.get(sd.pool.size()-1);
+        Task task = TaskPool.getInstance().get(TaskPool.getInstance().size()-1);
         if (task == null)
             return Response.status(404).build();
 
@@ -229,7 +232,7 @@ public class RunService {
             @FormParam("input") String input
             ) {
             
-            Task task = sd.pool.get(sd.pool.size()-1);
+            Task task = TaskPool.getInstance().get(TaskPool.getInstance().size()-1);
             OutputStream stream = task.getInputStream();
             try {
                 String str = input + "\n";

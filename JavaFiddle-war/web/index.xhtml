@@ -32,7 +32,8 @@
         <h:outputStylesheet library="css" name="style.css"/>
         <h:outputStylesheet library="css" name="osans.css"/>
         <h:outputStylesheet library="css" name="bootstrap.min.css"/>
-
+        <h:outputStylesheet library="css" name="bootstrap-theme.min.css"/>
+        
         <h:outputStylesheet library="cm" name="lib/codemirror.css"/>
         <h:outputStylesheet library="cm" name="theme/idea.css"/> 
         <h:outputStylesheet library="cm" name="addon/fold/foldgutter.css"/>
@@ -271,7 +272,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="modal-newpack-name">Package Name:</label>
-                            <input id="modal-newpack-name" type="text" class="form-control" placeholder="Input class name…" onkeyup="m_newpack_updname();" />
+                            <input id="modal-newpack-name" type="text" class="form-control enter-active" placeholder="Input class name…" onkeyup="m_newpack_updname();" />
                             <p id ="modal-newpack-verify" style="color:red"></p>
                         </div>
                         <div class="form-group">
@@ -304,7 +305,7 @@
                             <div class="row">
                                 <div class="col-md-7">
                                     <label for="modal-newfile-name">Class Name:</label>
-                                    <input id="modal-newfile-name" type="text" class="form-control" placeholder="Input class name…" onkeyup="m_newfile_updname();" />
+                                    <input id="modal-newfile-name" type="text" class="form-control enter-active" placeholder="Input class name…" onkeyup="m_newfile_updname();" />
                                 </div>
                                 <div class="col-md-5">
                                     <label for="modal-newfile-classtype">Type:</label>
@@ -353,7 +354,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                           <label for="modal-rename-name">New Name:</label>
-                          <input id="modal-rename-name" type="text" class="form-control" placeholder="Input class name…" onkeyup="m_rename_updname($elClicked);"/>
+                          <input id="modal-rename-name" type="text" class="form-control enter-active" placeholder="Input class name…" onkeyup="m_rename_updname($elClicked);"/>
                           <p id ="modal-rename-verify" style="color:red"></p>
                         </div>
                     </div>
@@ -397,7 +398,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                           <label for="modal-share-name">Link:</label>
-                          <input id="modal-share-name" type="text" class="form-control" />
+                          <input id="modal-share-name" type="text" class="form-control enter-active" />
                           <p id ="modal-share-verify"></p>
                         </div>
                     </div>
@@ -419,7 +420,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="modal-revisions-name">Commit:</label>
-                            <select id="modal-revisions-name" class="form-control" placeholder="Please wait…" />
+                            <select id="modal-revisions-name" class="form-control enter-active" placeholder="Please wait…" />
                         </div>
                     </div>
                     <div class="modal-footer">

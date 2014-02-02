@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.javafiddle.revisions.Revisions;
 import com.javafiddle.saving.GetProjectRevision;
 import com.javafiddle.saving.ProjectRevisionSaver;
+import com.javafiddle.web.services.data.ISessionData;
 import com.javafiddle.web.services.utils.FileRevision;
 import com.javafiddle.web.services.utils.Utility;
 import com.javafiddle.web.tree.Tree;
@@ -33,7 +34,7 @@ import javax.ws.rs.core.Response;
 public class DataService {
     
     @Inject
-    private SessionData sd;
+    private ISessionData sd;
     
     @GET
     @Path("project")
@@ -48,17 +49,17 @@ public class DataService {
         if (!gpr.treeExists())
             return Response.status(404).build();
         sd.resetData();
-        sd.tree = gpr.getTree();
-        sd.idList.putAll(sd.tree.getIdList());
+        sd.setTree(gpr.getTree());
+        sd.getIdList().putAll(sd.getTree().getIdList());
         ArrayList<TreeFile> filesList = new ArrayList<>();
-        filesList.addAll(sd.idList.getFileList().values());
+        filesList.addAll(sd.getIdList().getFileList().values());
         for (TreeFile tf : filesList) {
             int id = tf.getId();
             long time = tf.getTimeStamp();
-            String text = gpr.getFile(sd.idList.getPackage(tf.getPackageId()).getName(), id, time);
+            String text = gpr.getFile(sd.getIdList().getPackage(tf.getPackageId()).getName(), id, time);
             TreeMap<Long, String> revisions = new TreeMap<>();
             revisions.put(time, text);
-            sd.files.put(id, revisions);
+            sd.getFiles().put(id, revisions);
         }
         
         return Response.ok().build();
@@ -74,12 +75,11 @@ public class DataService {
         
         // save project to disk
         Date date = new Date();
-        sd.projectRevisions.add(date.getTime());
 
-        ProjectRevisionSaver spr = new ProjectRevisionSaver(sd.projectRevisions, sd.tree, sd.idList, sd.files);			
+        ProjectRevisionSaver spr = new ProjectRevisionSaver(sd.getTree(), sd.getIdList(), sd.getFiles());			
         spr.saveRevision();	
         
-        String hash = sd.tree.getHashes().getBranchHash() + sd.tree.getHashes().getTreeHash();
+        String hash = sd.getTree().getHashes().getBranchHash() + sd.getTree().getHashes().getTreeHash();
         
         return Response.ok(hash, MediaType.TEXT_PLAIN).build();
     }
@@ -90,13 +90,13 @@ public class DataService {
     public Response getTreeHierarchy( 
             @Context HttpServletRequest request
             ) {
-        GetProjectRevision gpr = new GetProjectRevision(sd.tree.getHashes());
-        ArrayList<Tree> trees = gpr.findParents(sd.tree);
+        GetProjectRevision gpr = new GetProjectRevision(sd.getTree().getHashes());
+        ArrayList<Tree> trees = gpr.findParents(sd.getTree());
         if (trees == null)
            return Response.ok().build();
         ArrayList<String> names = new ArrayList<>();
         for (Tree entry : trees)
-           names.add(sd.tree.getHashes().getBranchHash() + entry.getHashes().getTreeHash());
+           names.add(sd.getTree().getHashes().getBranchHash() + entry.getHashes().getTreeHash());
         Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(names), MediaType.APPLICATION_JSON).build();
     }
@@ -116,22 +116,22 @@ public class DataService {
         Gson gson = new GsonBuilder().create();
         switch(idString) {
             case "about_tab":
-                text = GetProjectRevision.readFile(SessionData.PREFIX + SessionData.SEP + "static" + SessionData.SEP + "about");
+                text = GetProjectRevision.readFile(ISessionData.PREFIX + ISessionData.SEP + "static" + ISessionData.SEP + "about");
                 fr = new FileRevision(new Date().getTime(), text);
                 break;
             case "shortcuts_tab":
-                text = GetProjectRevision.readFile(SessionData.PREFIX + SessionData.SEP + "static" + SessionData.SEP + "shortcuts");
+                text = GetProjectRevision.readFile(ISessionData.PREFIX + ISessionData.SEP + "static" + ISessionData.SEP + "shortcuts");
                 fr = new FileRevision(new Date().getTime(), text);
                 break;
             default:
                 int id = Utility.parseId(idString);
-                if (sd.idList.getFile(id) == null)
+                if (sd.getIdList().getFile(id) == null)
                     return Response.status(406).build();
-                long time = sd.idList.getFile(id).getTimeStamp();
+                long time = sd.getIdList().getFile(id).getTimeStamp();
                 if (time == 0) {
                     fr = new FileRevision(0, "");
                 } else {   
-                    text = sd.files.get(id).get(time);
+                    text = sd.getFiles().get(id).get(time);
                     fr = new FileRevision(time, text);
                 }  
                 break;
@@ -163,7 +163,7 @@ public class DataService {
                 break;
             default:
                 int id = Utility.parseId(idString);
-                Revisions revisions = new Revisions(sd.idList, sd.files);
+                Revisions revisions = new Revisions(sd.getIdList(), sd.getFiles());
                 addResult = revisions.addFileRevision(id, timeStamp, value);
         }
         

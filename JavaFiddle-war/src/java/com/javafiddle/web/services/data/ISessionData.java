@@ -1,14 +1,16 @@
-package com.javafiddle.web.services;
+package com.javafiddle.web.services.data;
 
-import com.javafiddle.core.jpa.Project;
-import com.javafiddle.pool.TaskPool;
+import static com.javafiddle.web.services.data.SessionData.SEP;
 import com.javafiddle.web.tree.IdList;
 import com.javafiddle.web.tree.Tree;
+import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.TreeMap;
 
 public interface ISessionData extends Serializable {
+    static final String SEP = File.separator;
+    static final String PREFIX = System.getProperty("user.home") + SEP + "javafiddle_data";
+    static final String BUILD = PREFIX + SEP + "build";
        
     public void resetData();
      
@@ -20,21 +22,7 @@ public interface ISessionData extends Serializable {
 
     public void setIdList(IdList idList);
 
-    public TaskPool getPool();
-
-    public void setPool(TaskPool pool);
-
-    public ArrayList<Long> getProjectRevisions();
-
-    public void setProjectRevisions(ArrayList<Long> projectRevisions);
-
     public TreeMap<Integer, TreeMap<Long, String>> getFiles();
 
     public void setFiles(TreeMap<Integer, TreeMap<Long, String>> files);
-
-    public Project getProject();
-
-    public void setProject(Project project);
-    
-    
 }

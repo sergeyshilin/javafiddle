@@ -19,13 +19,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProjectRevisionSaver {
-    ArrayList projectRevisions;
     Tree tree;
     IdList idList;
     TreeMap<Integer, TreeMap<Long, String>> files;
     
-    public ProjectRevisionSaver(ArrayList projectRevisions, Tree tree, IdList idList, TreeMap<Integer, TreeMap<Long, String>> files) {
-        this.projectRevisions = projectRevisions;
+    public ProjectRevisionSaver(Tree tree, IdList idList, TreeMap<Integer, TreeMap<Long, String>> files) {
         this.tree = tree;
         this.idList = idList;
         this.files = files;

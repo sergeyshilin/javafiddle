@@ -2,7 +2,7 @@ var PATH = "";
 var timer;
 
 $(document).ready(function() {
-    $("#modal-newfile-name").keyup(function(event) {
+    $(".enter-active").keyup(function(event) {
         if (event.keyCode === 13) {
             if (addFile()) {
                 $('#modal-newfile').modal('hide');
@@ -312,17 +312,17 @@ function renameElement($elClicked) {
     var name = $("#modal-rename-name").val();
     var result;
     
+    var id = $elClicked.closest('li').attr('id');
+    
     switch (nodeType($elClicked)) {
         case "project":
             result = isRightProjectName(name);
             break;
         case "package":
-            var id = $elClicked.closest('li').attr('id');
             var projectName = getCurrentProjectName(id);
             result = isRightPackageName(name, projectName);
             break;
         default:
-            var id = $elClicked.closest('li').attr('id');
             var projectName = getCurrentProjectName(id);
             var packageName = $(document.getElementById(id)).closest('ul').closest('li').children("a").text();
             alert(packageName);
@@ -426,7 +426,6 @@ function m_revisions() {
             revisions = data;
         }
     }); 
-    
   
     for(var i = 0; i < revisions.length; ++i)
         $("#modal-revisions-name").prepend("<option>" + revisions[i] +"</option>");
