@@ -6,7 +6,6 @@ import com.javafiddle.core.ejb.ProjectManagerLocal;
 import com.javafiddle.core.ejb.UserManagerLocal;
 import com.javafiddle.core.ejb.util.IdGeneratorLocal;
 import com.javafiddle.core.jpa.Project;
-import com.javafiddle.core.jpa.Revision;
 import com.javafiddle.pool.*;
 import com.javafiddle.revisions.Revisions;
 import com.javafiddle.runner.*;
@@ -41,7 +40,6 @@ public class TreeService implements Serializable {
     
     Tree tree;
     IdList idList;
-    ArrayList<String> packages;
     TaskPool pool;
     ArrayList<Long> projectRevisions;
     TreeMap<Integer, TreeMap<Long, String>> files;
@@ -61,7 +59,6 @@ public class TreeService implements Serializable {
     private void resetData() {
         idList = new IdList();
         tree = new Tree();
-        packages = new ArrayList<>();
         pool = new TaskPool();
         projectRevisions = new ArrayList<>();
         files = new TreeMap<>();
@@ -84,16 +81,14 @@ public class TreeService implements Serializable {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response addPackage(
             @Context HttpServletResponse response,
-            @FormParam("project_id") String idString,
-            @FormParam("name") String name
+            @FormParam("packageName") String packageName,
+            @FormParam("projectName") String projectName
             ) {
-        if (idString == null || name == null)
+        if (packageName == null || projectName == null)
             return Response.status(401).build();
         
-        int id = Utility.parseId(idString);
-        TreeProject tpr = idList.getProject(id);
-        tpr.addPackage(idList, name);
-        packages.addAll(Tree.getAllPossiblePackages(name));
+        TreeProject tpr = tree.getProjectInstance(idList, projectName);
+        tpr.addPackage(idList, packageName);
         
         return Response.ok().build();
     }
@@ -104,26 +99,23 @@ public class TreeService implements Serializable {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addFile(
             @Context HttpServletResponse response,
-            @FormParam("package_id") String idString,
-            @FormParam("name") String name,
+            @FormParam("className") String className,
+            @FormParam("packageName") String packageName,
+            @FormParam("projectName") String projectName,
             @FormParam("type") String type
             ) {
-        if (idString == null || name == null || type == null)
+        if (className == null || packageName == null || projectName == null || type == null)
             return Response.status(401).build();
         
-        int id = Utility.parseId(idString);
-        TreePackage tp;
-        if (idList.isProject(id))
-            tp = idList.getProject(id).getPackageInstance(idList, "!default_package");
-        else 
-            tp = idList.getPackage(id);
-        TreeFile file = tp.addFile(idList, type, name + ".java");
+        TreeProject project = tree.getProjectInstance(idList, projectName);
+        TreePackage pack = project.getPackageInstance(idList, packageName);
+        TreeFile file = pack.addFile(idList, type, className.endsWith(".java") ? className  : className + ".java");
         Revisions revisions = new Revisions(idList, files);
         revisions.addFileRevision(file, idList);
         
         Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(file.getId()), MediaType.APPLICATION_JSON).build();
-     }
+    }
         
     @GET
     @Path("tree/rightprojectname")
@@ -135,15 +127,13 @@ public class TreeService implements Serializable {
         if (name == null)
             return Response.status(401).build();
         
-        boolean result = false;
         if(name.matches("([a-zA-Z][a-zA-Z0-9_]*)"))
-            result = !result;
+            return Response.ok("\"ok\"", MediaType.APPLICATION_JSON).build();
         
-        Gson gson = new GsonBuilder().create();
-        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+        return Response.ok("\"wrongname\"", MediaType.APPLICATION_JSON).build();
     }
     
-    @GET
+    @GET 
     @Path("tree/projectname")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getProjectName(
@@ -154,43 +144,52 @@ public class TreeService implements Serializable {
             return Response.status(401).build();
         
         int id = Utility.parseId(idString);
-        int project_id;
+        int projectId;
         if (idList.isProject(id))
-            project_id = id;
-        else
-            project_id = idList.getPackage(id).getProjectId();
-        String result = idList.getProject(project_id).getName();
+            projectId = id;
+        else if (idList.isPackage(id))
+            projectId = idList.getPackage(id).getProjectId();
+        else if (idList.isFile(id)) {
+            int packageId = idList.getFile(id).getPackageId();
+            projectId = idList.getPackage(packageId).getProjectId();
+        } else
+            return Response.status(401).build();
+        String result = idList.getProject(projectId).getName();
         
         Gson gson = new GsonBuilder().create();
         return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
     }
-        
+         
     @GET
     @Path("tree/packagename")
     @Produces(MediaType.APPLICATION_JSON)
     public Response isRightPackageName(
             @Context HttpServletRequest request,
-            @QueryParam("project_id") String idString,
-            @QueryParam("name") String name
+            @QueryParam("packageName") String packageName,
+            @QueryParam("projectName") String projectName
             ) {
-        if (idString == null || name == null)
+        if (packageName == null || projectName == null)
             return Response.status(401).build();
         
-        String result = "unknown";
-        if(packages.isEmpty() && idList.isProject(Utility.parseId(idString))) {
-            packages.addAll(Tree.getPackagesNames(idList.getProject(Utility.parseId(idString)).getPackages()));
-        }
+        if (!packageName.matches("(([a-zA-Z][a-zA-Z0-9]*)(\\.)?)+"))
+            return Response.ok("\"wrongname\"", MediaType.APPLICATION_JSON).build();
+
+        if (packageName.endsWith("."))
+            packageName = packageName.substring(0, packageName.length()-1);
         
-        if(!name.matches("(([a-zA-Z][a-zA-Z0-9]*)(\\.)?)+")) {
-            result = "wrongname";
-        } else if(packages.contains(name)) {
-            result = "used";
-        } else {
-            result = "ok";
+        TreeProject project = tree.getProjectInstance(idList, projectName);
+        ArrayList<TreePackage> packagesList = project.getPackages();
+        for (TreePackage temp : packagesList) {
+            String tempName = temp.getName();
+            while (tempName.contains(".")) {
+                if (tempName.equals(packageName))
+                    return Response.ok("\"used\"", MediaType.APPLICATION_JSON).build();
+                tempName = tempName.substring(0, tempName.lastIndexOf("."));
+            }
+            if (tempName.equals(packageName))
+                return Response.ok("\"used\"", MediaType.APPLICATION_JSON).build();
         }
-        
-        Gson gson = new GsonBuilder().create();
-        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+        return Response.ok("\"ok\"", MediaType.APPLICATION_JSON).build();
     }
     
     @GET
@@ -198,41 +197,37 @@ public class TreeService implements Serializable {
     @Produces(MediaType.APPLICATION_JSON)
     public Response isRightClassName(
             @Context HttpServletRequest request,
-            @QueryParam("package_id") String idString,
-            @QueryParam("name") String name
+            @QueryParam("name") String name,
+            @QueryParam("packageName") String packageName,
+            @QueryParam("projectName") String projectName
             ) {
-        if (idString == null || name == null)
+        if (name == null || packageName == null || projectName == null)
             return Response.status(401).build();
-                
-        String result = "unknown";
-        String javaname = name;
-        javaname += ".java";
-        javaname = javaname.toLowerCase();
         
-        int packageid = Utility.parseId(idString);
-        if(idList.isFile(packageid))
-            packageid = idList.getFile(packageid).getPackageId();
-        else if(idList.isProject(packageid))
-            packageid = idList.getProject(packageid).getPackageInstance(idList, "!default_package").getId();
-        List<TreeFile> package_files = idList.getPackage(packageid).getFiles();
+        if (name.endsWith(".java"))
+            name = name.substring(0, name.length()-5);
+        
+        if (!name.matches("([a-zA-Z][a-zA-Z0-9_]*)"))
+            return Response.ok("\"wrongname\"", MediaType.APPLICATION_JSON).build();
+                
+        if (!name.endsWith(".java"))
+            name += ".java";
+                
+        TreeProject project = tree.getProjectInstance(idList, projectName);
+        if ("<default_package>".equals(packageName))
+            packageName = "!default_package";
+        TreePackage pack = project.getPackageInstance(idList, packageName);
+        List<TreeFile> filesList = pack.getFiles();
         Boolean exist = false;
-        for(TreeFile file : package_files) {
-            if(file.getName().toLowerCase().equals(javaname)) {
+        for(TreeFile file : filesList)
+            if(file.getName().equals(name)) {
                 exist = true;
                 break;
             }
-        }
         
-        if(!name.matches("([a-zA-Z][a-zA-Z0-9_]*)")){
-            result = "wrongname";
-        } else if(exist) {
-            result = "used";
-        } else {
-            result = "ok";
-        }
-        
-        Gson gson = new GsonBuilder().create();
-        return Response.ok(gson.toJson(result), MediaType.APPLICATION_JSON).build();
+        if (exist)
+            return Response.ok("\"used\"", MediaType.APPLICATION_JSON).build();
+        return Response.ok("\"ok\"", MediaType.APPLICATION_JSON).build();
     }
     
     @GET
@@ -257,24 +252,13 @@ public class TreeService implements Serializable {
     public Response renameElement(
             @Context HttpServletResponse response,
             @FormParam("id") String idString,
-            @FormParam("name") String name,
-            @FormParam("type") String type
+            @FormParam("name") String name
             ) {
-        if (idString == null || name == null || type == null)
+        if (idString == null || name == null)
             return Response.status(401).build();
         
         int id = Utility.parseId(idString);
-        switch(type) {
-            case "package":
-                idList.getPackage(id).setName(name);
-                break;
-            case "root":
-                idList.getProject(id).setName(name);
-                break;
-            default:
-                idList.getFile(id).setName(name + ".java");
-                break;
-        }
+        idList.get(id).setName(name);
         
         return Response.ok().build();
     }
@@ -300,8 +284,6 @@ public class TreeService implements Serializable {
                 TreePackage tp = idList.getPackage(id);
                 TreeProject tpr = idList.getProject(tp.getProjectId());
                 tpr.deletePackage(idList, id);
-                packages.clear();
-                packages.addAll(Tree.getPackagesNames(tpr.getPackages()));
                 break;
             case FILE:
                 TreeFile tf = idList.getFile(id);
@@ -707,5 +689,42 @@ public class TreeService implements Serializable {
                 Logger.getLogger(TreeService.class.getName()).log(Level.SEVERE, null, ex);
             }
         return Response.ok().build();
+    }
+    
+    // Services for modal
+    @GET
+    @Path("projectslist")
+    public Response getProjectsList(
+            @Context HttpServletRequest request
+            ) {
+        ArrayList<String> projects = new ArrayList<>();
+        for(TreeProject temp : tree.getProjects()) {
+            projects.add(temp.getName());
+        }
+        
+        Gson gson = new GsonBuilder().create();
+        return Response.ok(gson.toJson(projects), MediaType.APPLICATION_JSON).build();
+    }
+    
+    @GET
+    @Path("packageslist")
+    public Response getPackagesList(
+            @Context HttpServletRequest request,
+            @QueryParam("projectname") String projectname
+  //          @QueryParam("id") String idString
+            ) {
+   /*     if (idString == null)
+            return Response.status(401).build();
+        
+        int id = Utility.parseId(idString);*/
+        
+        
+        ArrayList<String> packages = new ArrayList<>();
+        for(TreePackage temp : tree.getProjectInstance(idList, projectname).getPackages()) {
+            packages.add(temp.getName());
+        }       
+        
+        Gson gson = new GsonBuilder().create();
+        return Response.ok(gson.toJson(packages), MediaType.APPLICATION_JSON).build();
     }
 }

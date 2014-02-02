@@ -12,7 +12,7 @@ public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializa
     private final IdNodeType nodeType = IdNodeType.PROJECT;
     private String name;
     private int id;
-    private List<TreePackage> packages = new ArrayList<>();
+    private ArrayList<TreePackage> packages = new ArrayList<>();
     
     public TreeProject(String name) {
         this.name = name;
@@ -43,11 +43,11 @@ public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializa
         this.name = name;
     }
 
-    public List<TreePackage> getPackages() {
+    public ArrayList<TreePackage> getPackages() {
         return packages;
     }
 
-    public void setPackages(List<TreePackage> packages) {
+    public void setPackages(ArrayList<TreePackage> packages) {
         this.packages = packages;
     }
     

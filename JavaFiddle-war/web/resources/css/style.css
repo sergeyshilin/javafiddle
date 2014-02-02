@@ -22,7 +22,6 @@ body {
     background-color: #fff;
     height: auto;
     width: 100%;
-    /*border: 1px solid red;*/
 }
 
 #header-top {
@@ -37,14 +36,17 @@ body {
     margin: 8px 0 0 8px;
     float: left;
     padding: 0;
-    cursor: pointer;
 }
 
-#logo .ltgt {
+#logo .bracket {
     display: inline;
     width: 32px;
     height: 32px;
     padding-bottom: 6px;
+    font-weight: bold;
+    font-size: 20px;
+    font-family: 'Open Sans';
+    font-style: inherit;
 }
 
 #logo h2 {
@@ -62,6 +64,21 @@ body {
     color: #388de7;
 }
 
+#header-top {
+    display: -ms-flex; 
+    display: -webkit-flex; 
+    display: flex; 
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+#header-top-left {
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;   
+}
+
 #header-top #projectname {
     height: 20px;
     margin: 10px 0 0 10px;
@@ -74,7 +91,6 @@ body {
 }
 
 #header-top #username {
-    float: right;
     height: 20px;
     margin: 12px 10px 0 0;
     font-size: 13px;
@@ -168,34 +184,21 @@ body {
     font-style: normal;
     position: relative;
     float: left;
-    margin: 2px 0 0 55px;
+    margin: 0px 0 0 55px;
 }
 
-#header-top #bottom #share {
-    margin: -9px 7px 0 0;
-    float: right;
-    padding: 6px 0 6px 10px;
-    background-color: #4c8ffb;
-    border-radius: 2px;
-    -webkit-border-radius: 2px;
-    -moz-border-radius: 2px;
-    text-indent: 0;
-    border: 1px solid #1f6eed;
-    display: inline-block;
-    color: #ffffff;
+#header-top #username {
+    height: 20px;
+    margin: 12px 10px 0 0;
     font-size: 13px;
     font-family: 'Open Sans';
-    font-weight: bold;
+    font-weight: normal;
     font-style: normal;
-    width: 120px;
-    letter-spacing: 0;
-    text-decoration: none;
-    text-align: center;
-    text-shadow: 1px 1px 0px #1b6df2;
-    background-image: url('img/share.ico');
-    background-repeat: no-repeat;
-    background-position: 7% 50%;
-    cursor: default;
+}
+
+#header-top #share {
+    margin: 0 7px 0 0;
+    padding: 0 1px 0 0;
 }
 
 #share:hover {
@@ -231,7 +234,7 @@ body {
     height: 18px;
     list-style: none;
     /*border: 1px solid red;*/
-    margin: 9px 0 0 20px;
+    margin: 6px 0 0 15px;
     position: relative;
     float: left;
     padding: 0;
@@ -241,6 +244,7 @@ body {
     display: inline;
     margin-right: 5px;
     cursor: default;
+    font-size: 18px;
 }
 
 #editor_buttons li input {
@@ -266,22 +270,6 @@ body {
     border-left: 1px solid #333 !important;
     margin-left: 18px;
 }
-
-#editor_buttons li #open {background-image: url('img/folder_open.ico')}
-#editor_buttons li #save {background-image: url('img/save.ico')}
-#editor_buttons li #saveall {background-image: url('img/saveall.ico')}
-#editor_buttons li #reload {background-image: url('img/playback_reload.ico')}
-#editor_buttons li #undo {background-image: url('img/undo.ico')}
-#editor_buttons li #redo {background-image: url('img/redo.ico')}
-#editor_buttons li #cut {background-image: url('img/clipboard_cut.ico')}
-#editor_buttons li #copy {background-image: url('img/copy.ico')}
-#editor_buttons li #paste {background-image: url('img/paste.ico')}
-#editor_buttons li #run {background-image: url('img/playback_play.ico')}
-#editor_buttons li #compile {background-image: url('img/compile.ico')}
-#editor_buttons li #compileandrun {background-image: url('img/compileandrun.ico')}
-#editor_buttons li #toggle_console {background-image: url('img/console.png')}
-#editor_buttons li #toggle_tree {background-image: url('img/tree.png')}
-#editor_buttons li #toggle_header {background-image: url('img/header.png')}
 
 #header-bottom #tabpanel {
     height: auto;
@@ -840,10 +828,4 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
 
 #revisions-list li div.revert:hover {
     background-color: #99CCFF;
-}
-
-div, input, a {      
-    -webkit-box-sizing: content-box !important;
-    -moz-box-sizing: content-box !important;
-    box-sizing: content-box !important;
 }
