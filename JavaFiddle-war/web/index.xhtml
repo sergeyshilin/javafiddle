@@ -3,54 +3,40 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
         <title>Java Fiddle</title>
+        
         <h:outputScript library="js" name="jquery-2.1.0.min.js"/>
+        <h:outputScript library="js" name="jquery-ui-latest.js"/>
+        <h:outputScript library="js" name="jquery.layout-latest.js"/>
         <h:outputScript library="js" name="moment-with-langs.min.js"/>
-        <h:outputScript library="js" name="main.js"/>
-        <h:outputScript library="js" name="modal.js"/>
-        <h:outputScript library="js" name="sessionstorage.js"/>
         <h:outputScript library="js" name="bootstrap.min.js"/>
         <h:outputScript library="js" name="bootstrap-modal.js"/>
         
-        <h:outputScript library="cm" name="lib/codemirror.js"/>
-        <h:outputScript library="cm" name="mode/java.js"/>
-        <h:outputScript library="cm" name="addon/edit/matchbrackets.js"/>
-        <h:outputScript library="cm" name="addon/edit/closebrackets.js"/>
-        <h:outputScript library="cm" name="addon/fold/brace-fold.js"/>
-        <h:outputScript library="cm" name="addon/fold/comment-fold.js"/>
-        <h:outputScript library="cm" name="addon/fold/foldcode.js"/>
-        <h:outputScript library="cm" name="addon/fold/foldgutter.js"/>
-        <h:outputScript library="cm" name="addon/fold/indent-fold.js"/>
-        <h:outputScript library="cm" name="addon/dialog/dialog.js"/>
-        <h:outputScript library="cm" name="addon/search/searchcursor.js"/>
-        <h:outputScript library="cm" name="addon/search/search.js"/>
-        <h:outputScript library="cm" name="addon/selection/active-line.js"/>
-        <h:outputScript library="cm" name="addon/selection/mark-selection.js"/>
-        <h:outputScript library="cm" name="addon/hint/show-hint.js"/>
-        <h:outputScript library="cm" name="addon/hint/anyword-hint.js"/>
-        <h:outputScript library="cm" name="addon/display/fullscreen.js"/>
+        <h:outputScript library="js" name="main.js"/>
+        <h:outputScript library="js" name="modal.js"/>
+        <h:outputScript library="js" name="sessionstorage.js"/>
         
-        <h:outputStylesheet library="css" name="style.css"/>
-        <h:outputStylesheet library="css" name="osans.css"/>
+        <h:outputScript library="ace" name="ace.js"/>
+        <h:outputScript library="ace" name="theme-chrome.js"/>
+        <h:outputScript library="ace" name="mode-java.js"/>
+        <h:outputScript library="ace" name="mode-text.js"/>
+        
+        <h:outputStylesheet library="css" name="layout-default-latest.css"/>
         <h:outputStylesheet library="css" name="bootstrap.min.css"/>
         <h:outputStylesheet library="css" name="bootstrap-theme.min.css"/>
         
-        <h:outputStylesheet library="cm" name="lib/codemirror.css"/>
-        <h:outputStylesheet library="cm" name="theme/idea.css"/> 
-        <h:outputStylesheet library="cm" name="addon/fold/foldgutter.css"/>
-        <h:outputStylesheet library="cm" name="addon/dialog/dialog.css"/>
-        <h:outputStylesheet library="cm" name="addon/hint/show-hint.css"/>
-        <h:outputStylesheet library="cm" name="addon/display/fullscreen.css"/>
+        <h:outputStylesheet library="css" name="style.css"/>
+        <h:outputStylesheet library="css" name="osans.css"/>
     </h:head>
     <h:body>
         <div id="header">
             <div id="header-top">
                  <div id="header-top-left">
                     <div id="logo"> 
-                        <h:outputText class="bracket" value="&lt;" />
-                        <h2><h:link value="JavaFiddle" outcome="index" /></h2>
-                        <h:outputText class="bracket" value="&gt;" />
+                        <h:outputText class="bracket" value="&lt;"/>
+                        <h2><h:link value="JavaFiddle" outcome="index"/></h2>
+                        <h:outputText class="bracket" value="&gt;"/>
                     </div>
-                    <h:panelGroup layout="block" id="projectname" >NetCrackerTasks</h:panelGroup>
+                    <h:panelGroup layout="block" id="projectname">NetCrackerTasks</h:panelGroup>
                     <div id="bottom" class="nav-collapse"> 
                         <ul id="main_menu" class="nav nav-pills">
                             <li class="dropdown">
@@ -66,23 +52,23 @@
                             <li class="dropdown">
                                 <div class="dropdown-toggle" data-toggle="dropdown">Edit</div>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                    <li onclick="javaEditor.execCommand('undo');">Undo</li>
-                                    <li onclick="javaEditor.execCommand('redo');">Redo</li>
+                                    <li onclick="editor.undo();">Undo</li>
+                                    <li onclick="editor.redo();">Redo</li>
                                     <li class="divider"></li>
-                                    <li onclick="javaEditor.execCommand('findPrev');">Find Previous</li>
-                                    <li onclick="javaEditor.execCommand('findNext');">Find Next</li>
+                                    <li onclick="editor.findPrev();">Find Previous</li>
+                                    <li onclick="editor.findNext();">Find Next</li>
                                     <li class="divider"></li>
-                                    <li onclick="javaEditor.execCommand('find');">Find</li>
-                                    <li onclick="javaEditor.execCommand('replace');">Replace</li>
-                                    <li onclick="javaEditor.execCommand('replaceAll');">Replace All</li>
+                                    <li onclick="editor.find();">Find</li>
+                                    <li onclick="editor.replace();">Replace</li>
+                                    <li onclick="editor.replaceAll();">Replace All</li>
                                 </ul>
                             </li>
                             <li class="dropdown">
                                 <div class="dropdown-toggle" data-toggle="dropdown">View</div>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                                     <li onclick="toggleHeader();">Toggle Header</li>
-                                    <li onclick="toggleConsoleWindow();">Toggle Console</li>
-                                    <li onclick="toggleProjectTreePanel();">Toggle Project Tree</li>
+                                    <li onclick="outerLayout.toggle('west');">Toggle Project Tree</li>
+                                    <li onclick="innerLayout.toggle('south');">Toggle Console</li>
                                 </ul>
                             </li>
                             <li class="dropdown">
@@ -132,8 +118,8 @@
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><span class="glyphicon glyphicon glyphicon-fullscreen" onclick="toggleHeader();" title="Toggle Header"/></li>
-                    <li><span class="glyphicon glyphicon-list" onclick="toggleProjectTreePanel();" title="Toggle Tree"/></li>
-                    <li><span class="glyphicon glyphicon-list-alt" onclick="toggleConsoleWindow();" title="Toggle Console"/></li>
+                    <li><span class="glyphicon glyphicon-list" onclick="outerLayout.toggle('west');" title="Toggle Tree"/></li>
+                    <li><span class="glyphicon glyphicon-list-alt" onclick="innerLayout.toggle('south');" title="Toggle Console"/></li>
                     <div class="separator" />
                     <li><h:outputText value="&#160;" style="font-size:10%"/></li>
                     <li><span class="glyphicon glyphicon-wrench" onclick="compile();" title="Compile"/></li>
@@ -146,68 +132,45 @@
                 <div style="clear:both"></div>
             </div>
         </div>
-        <div id="content">
-            <div id="treepanel" class="mainblock">
-                <div id="tree" class="project">
-
+        <div id="container-outer" class="container">
+            <div class="outer-west">
+                <div id="block-tree" class="mainblock">
+                    <div id="tree"/>
                 </div>
             </div>
-            <div id="rightblock"> 
-                <div id="codetext" class="mainblock">
-                    <h:inputTextarea id="textarea"/>
-                    <script type="text/javascript">
-                    //<![CDATA[
-                        PATH = "#{request.contextPath}";
-                        PROJECTPARAM = "#{param['project']}";               
-
-                        CodeMirror.commands.autocomplete = function(cm) {
-                            CodeMirror.showHint(cm, CodeMirror.hint.anyword);
-                        };
-                        javaEditor = CodeMirror.fromTextArea(document.getElementById("textarea"), {
-                            lineNumbers: true,
-                            styleActiveLine: true,
-                            theme: "idea",
-                            indentWithTabs: true,
-                            styleSelectedText: true,
-                            indentUnit: 4,
-                            smartIndent: true,
-                            mode: "text/x-java",
-                            matchBrackets: true,
-                            autoCloseBrackets: true,
-                            extraKeys: {
-                                "Ctrl-Q": function(cm){cm.foldCode(cm.getCursor());},
-                                "Ctrl-S": function(){saveFile();},
-                                "Shift-Ctrl-S": function(){saveAllFiles();},
-                                "Ctrl-Space": "autocomplete",
-                                "F11": function(cm) {
-                                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                                },
-                                "Esc": function(cm) {
-                                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                                },
-                                Tab: function(cm) {
-                                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-                                    cm.replaceSelection(spaces, "end", "+input");
-                                }
-                            },
-                            foldGutter: {
-                                rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
-                            },    
-                            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
-                        });
-                    //]]>
-                    </script>
-                </div>
-                <div id="compilation-window" class="mainblock closed">
-                    <div id="stdout" />
-                    <div id="stdin">
-                        <h:outputText id="stdin-name" value="stdin:" />
-                        <h:inputText id="stdinput" onkeypress="if (event.keyCode === 13){sendInput(); return false;}" />
+            <div id="container-inner" class="outer-center container"> 
+                <div class="inner-center">
+                    <div id="block-editor" class="mainblock">
+                        <div id="editor"/>
                     </div>
-                </div>     
+                </div>
+                <div class="inner-south">
+                    <div id="block-console" class="mainblock">
+                        <div id="console-wrapper">
+                            <div id="console"/>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <h:inputText id="stdin" class="form-control input-sm" onkeypress="if (event.keyCode === 13){sendInput(); return false;}" />
+                            <span class="input-group-btn btn-group-custom">
+                                <button id="stdin-send" type="button" class="btn btn-default btn-sm">Send</button>
+                            </span>
+                        </div>
+                    </div>
+                </div> 
             </div>
         </div>
-            
+        <script type="text/javascript">
+            //<![CDATA[
+                PATH = "#{request.contextPath}";
+                PROJECTPARAM = "#{param['project']}"; 
+                
+                var editor = ace.edit("editor");
+                var console = ace.edit("console");
+                var outerLayout, innerLayout;
+            //]]>
+        </script>
+        
+                
         <!-- Popup for Tree -->
         <div id="treeMenu" class="dropdown clearfix contextMenu">
             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
@@ -262,7 +225,7 @@
         </div>
 
         <!-- Modal add package -->
-        <div class="modal" id="modal-newpack" tabindex="-1" role="dialog" aria-labelledby="modal-newpath-header" aria-hidden="false">
+        <div class="modal flat" id="modal-newpack" tabindex="-1" role="dialog" aria-labelledby="modal-newpath-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -293,7 +256,7 @@
         </div>
         
         <!-- Modal add new file -->
-        <div class="modal" id="modal-newfile" tabindex="-1" role="dialog" aria-labelledby="modal-newfile-header" aria-hidden="false">
+        <div class="modal flat" id="modal-newfile" tabindex="-1" role="dialog" aria-labelledby="modal-newfile-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -344,7 +307,7 @@
         </div>
         
         <!-- Modal rename -->    
-        <div class="modal" id="modal-rename" tabindex="-1" role="dialog" aria-labelledby="modal-rename-header" aria-hidden="false">
+        <div class="modal flat" id="modal-rename" tabindex="-1" role="dialog" aria-labelledby="modal-rename-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -367,7 +330,7 @@
         </div>
 
         <!-- Modal delete -->    
-        <div class="modal" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-delete-header" aria-hidden="false">
+        <div class="modal flat" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-delete-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -388,7 +351,7 @@
         </div>
                 
         <!-- Modal share --> 
-        <div class="modal" id="modal-share" tabindex="-1" role="dialog" aria-labelledby="modal-share-header" aria-hidden="false">
+        <div class="modal flat" id="modal-share" tabindex="-1" role="dialog" aria-labelledby="modal-share-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -410,7 +373,7 @@
         </div>
         
         <!-- Modal commit's list -->
-        <div class="modal" id="modal-revisions" tabindex="-1" role="dialog" aria-labelledby="modal-revisions-header" aria-hidden="false">
+        <div class="modal flat" id="modal-revisions" tabindex="-1" role="dialog" aria-labelledby="modal-revisions-header" aria-hidden="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -429,6 +392,6 @@
                    </div>
                 </div>
             </div>
-        </div>        
+        </div>     
     </h:body>
 </html>

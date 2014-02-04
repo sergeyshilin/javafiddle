@@ -5,24 +5,88 @@ html, body {
     height: 100%;
 }
 
+/**
+* COMMON LAYOUT
+*/
+
 body {
-    display: -ms-flex; 
-    display: -webkit-flex; 
-    display: flex; 
+    display: -ms-flex !important; 
+    display: -webkit-flex !important; 
+    display: flex !important; 
     -ms-flex-direction: column;
     -webkit-flex-direction: column;
     flex-direction: column;
 }
 
-/**
-* Header
-*/
-
 #header {
     background-color: #fff;
-    height: auto;
+}
+
+.container {
+    background-color: #eee;   
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+#container-outer {
+    padding: 0; 
     width: 100%;
 }
+
+.ui-layout-pane {
+    background-color: #eee;
+    border-width: 0;
+    padding: 0;
+}
+.mainblock {
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    -webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
+    -moz-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
+    box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15); 
+    overflow: inherit;
+}
+
+#block-tree {
+    margin: 5px 0 5px 5px;
+    height: -webkit-calc(100% - 10px);
+    height: calc(100% - 10px);
+}
+
+#tree {
+    height: 100%;
+}
+
+#block-editor {
+    margin: 5px 5px 0 0;
+    height: -webkit-calc(100% - 5px);
+    height: calc(100% - 5px);
+}
+
+#block-console {
+    margin: 0 5px 5px 0px;
+    height: -webkit-calc(100% - 5px);
+    height: calc(100% - 5px);
+}
+
+#console-wrapper {
+    height: -webkit-calc(100% - 30px);
+    height: calc(100% - 30px);
+}
+
+#stdin-wrapper {
+    width: 100%;
+}
+
+.ui-layout-resizer {
+    background-color: #eee;
+    border-width: 0;                        
+}
+
+/**
+* HEADER-TOP
+*/
 
 #header-top {
     height: 68px;
@@ -115,10 +179,6 @@ body {
     width: 100%;
 }
 
-/**
-* Main menu styles
-*/
-
 #header-top #bottom #main_menu {
     margin: -5px 0 0 10px;
     height: 20px;
@@ -127,6 +187,10 @@ body {
     float: left;
     position: relative;
 }
+
+/**
+* MAIN MENU
+*/
 
 #main_menu li {
     color: #0e0e0e;
@@ -172,10 +236,6 @@ body {
     padding: 0px;
 }
 
-/**
-* Main menu style ends
-*/
-
 #header-top #bottom #latest_update {
     color: #b3b3b3;
     font-size: 13px;
@@ -204,6 +264,10 @@ body {
 #share:hover {
     background-color: #4189fc;
 }
+
+/**
+* HEADER-BOTTOM
+*/
 
 #header-bottom {
     height: auto;
@@ -301,6 +365,10 @@ ul#tabpanel li {
     background-position: 3% 50%;
     background-color: #eee;
     cursor: default;
+    border: 1px solid #d1d1d1;
+    -webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
+    -moz-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
+    box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15); 
 }
 
 ul#tabpanel li div.close {
@@ -326,107 +394,15 @@ ul#tabpanel li.notfound{font-style: italic; color:#777777; padding-left: 5px;}
 ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
 
 /**
-* Content
+* TREE
 */
 
-#content {   
-    background-color: #eee;
+#tree {
     -ms-flex: 1;
     -webkit-flex: 1;
-    flex: 1;
-    display: -ms-flex; 
-    display: -webkit-flex; 
-    display: flex; 
-    -ms-flex-direction: row;
-    -webkit-flex-direction: row;
-    flex-direction: row;
+    flex: 1; 
 }
-
-#content #treepanel { 
-    margin: 10px -5px 10px 10px;
-    width: 270px;
-    overflow: auto;
-}
-
-#content #rightblock {
-    -ms-flex: 1;
-    -webkit-flex: 1;
-    flex: 1;
-    display: -ms-flex; 
-    display: -webkit-flex; 
-    display: flex; 
-    -ms-flex-direction: column;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-}
-
-#content #codetext {  
-    margin: 10px;
-    -ms-flex: 1;
-    -webkit-flex: 1;
-    flex: 1;
-}
-
-#compilation-window {
-    margin: -5px 10px 10px 10px;
-    height: 140px;
-    display: none;
-    font-size: 13px;
-    font-family: 'Open Sans';
-    font-weight: normal;
-    font-style: normal;
-}
-
-#compilation-window #stdout {
-    overflow: auto;
-    height: 100px;
-    min-height: 100px;
-    padding: 5px;
-}
-
-#compilation-window #stdin {
-    background-color: #fff;
-    border-top: 1px solid #ccc;
-    display: -ms-flex; 
-    display: -webkit-flex; 
-    display: flex; 
-    -ms-flex-direction: row;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-}
-
-#stdin #stdin-name {
-    height: 27px;
-    font-weight: bold;
-    padding: 5px;
-}
-
-#stdin #stdinput {
-    border: 0;
-    outline: none;
-    height: 27px;
-    font-size: 13px;
-    font-family: 'Open Sans';
-    font-weight: normal;
-    font-style: normal;
-    -ms-flex: 1;
-    -webkit-flex: 1;
-    flex: 1;  
-}
-
-#content .mainblock, #tabpanel li {
-    background-color: #fff;
-    border: 1px solid #d1d1d1;
-    -webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.15);
-    -moz-box-shadow:    0px 0px 5px rgba(50, 50, 50, 0.15);
-    box-shadow:         0px 0px 5px rgba(50, 50, 50, 0.15); 
-}
-
-/**
-* Project tree styles
-*/
-
-.project, .project ul {
+#tree, #tree ul {
     font-size: 13px;
     font-family: 'Open Sans';
     font-weight: normal;
@@ -437,22 +413,22 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     /*border: 1px solid red;*/
 }
 
-.project ul {
+#tree ul {
     display: none;
     margin: 0 0 0 10px;
     border-left: 1px solid #ddd;
 }
 
-.project li {
+#tree li {
     list-style: none;
     padding: 0 3px 0 0;
 }
 
-.project ul.opened {
+#tree ul.opened {
     display: block;
 }
 
-.project a {
+#tree a {
     color: #000;
     display: block;
     position: relative;
@@ -464,21 +440,21 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     background-position: 4% 50%;  
 }
 
-.project a.folder {background-image: url('img/idea-folder.png')}
-.project a.root {background-image: url('img/idea-folder-root.gif'); font-weight: bold}
-.project a.sources {background-image: url('img/idea-folder-src.gif')}
-.project a.package {background-image: url('img/idea-package.png')}
-.project a.runnable {background-image: url('img/idea-class-runnable.png')}
-.project a.iml {background-image: url('img/idea-logo.png')}
-.project a.lib {background-image: url('img/idea-libs.png'); background-position-y: 1px}
-.project a.class {background-image: url('img/idea-class.png')}
-.project a.interface {background-image: url('img/idea-class-interface.png')}
-.project a.exception {background-image: url('img/idea-class-exception.png')}
-.project a.enum {background-image: url('img/idea-class-enum.png')}
-.project a.annotation {background-image: url('img/idea-class-annotation.png')}
-.project a.help {background-image: url('img/idea-libs.png')}
+#tree a.folder {background-image: url('img/idea-folder.png')}
+#tree a.root {background-image: url('img/idea-folder-root.gif'); font-weight: bold}
+#tree a.sources {background-image: url('img/idea-folder-src.gif')}
+#tree a.package {background-image: url('img/idea-package.png')}
+#tree a.runnable {background-image: url('img/idea-class-runnable.png')}
+#tree a.iml {background-image: url('img/idea-logo.png')}
+#tree a.lib {background-image: url('img/idea-libs.png'); background-position-y: 1px}
+#tree a.class {background-image: url('img/idea-class.png')}
+#tree a.interface {background-image: url('img/idea-class-interface.png')}
+#tree a.exception {background-image: url('img/idea-class-exception.png')}
+#tree a.enum {background-image: url('img/idea-class-enum.png')}
+#tree a.annotation {background-image: url('img/idea-class-annotation.png')}
+#tree a.help {background-image: url('img/idea-libs.png')}
 
-.project a:before {
+#tree a:before {
     content: '';
     width: 0;
     height: 0;
@@ -493,7 +469,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     margin: 0 4px 0 0;
 }
 
-.project a.harFull.harOpen:before {
+#tree a.harFull.harOpen:before {
     border:0;
     border-left: 3px solid transparent;
     border-top: 4px solid #555;
@@ -501,7 +477,7 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     top: 7px;
 }
 
-.project a.harFull:before {
+#tree a.harFull:before {
     border:0;
     border-top: 3px solid transparent;
     border-left: 4px solid #555;
@@ -509,235 +485,16 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
     top: 5px;
 }
 
-.project a:hover {
+#tree a:hover {
     text-decoration: underline;
 }
 
-.project a.cur {
+#tree a.cur {
   color: #000
 }
 
-.project a.harOpen {
+#tree a.harOpen {
   color: #000
-}
-
-/**
-*  Popup Window
-*/
-
-#opaco {
-    background-color: #fff;
-    left: 0;
-    opacity: 0.7;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    z-index: 10;
-}
-
-#popup {
-    position: fixed;
-    left:50%;
-    top:50%;
-    right: 50% !important;
-    min-width: 100px;
-    min-height: 100px;
-    z-index: 11;
-    -webkit-box-shadow: 0 4px 16px rgba(0,0,0,.2);
-    -moz-box-shadow: 0 4px 16px rgba(0,0,0,.2);
-    box-shadow: 0 4px 16px rgba(0,0,0,.2);
-    background: #fff;
-    background-clip: padding-box;
-    border: 1px solid #acacac;
-    border: 1px solid rgba(0,0,0,.333);
-    outline: 0;
-}
-
-.hidden {
-    display: none !important;
-}
-
-#delete_confirm {
-    text-align: center;
-    color: #0e0e0e;
-    font-size: 15px;
-    font-family: 'Open Sans';
-    font-weight: normal;
-    font-style: normal;
-    padding: 15px;
-}
-
-#confirm-buttons {
-    width: 270px;
-    position: relative;
-    margin: 0 auto;
-    height: 50px;
-    margin-top: 40px;
-}
-
-#confirm-buttons div.button {
-    width: 120px;
-    height: 22px;
-    background-color: #eaeaea;
-    padding: 12px 0;
-    border: 1px solid #acacac;
-    border: 1px solid rgba(0,0,0,.111);
-    outline: 0;
-    cursor: default;
-}
-
-#confirm-buttons div.button:hover {
-    background-color: #99CCFF;
-}
-
-#confirm.button {
-    float: left;
-}
-
-#decline.button {
-    float: right;
-}
-
-.popup_window {
-    text-align: center;
-    color: #0e0e0e;
-    font-size: 15px;
-    font-family: 'Open Sans';
-    font-weight: normal;
-    font-style: normal;
-    padding: 15px;
-}
-
-.popup_window .inputname {
-    font-size: 18px;
-    color: #0e0e0e;
-    position: absolute;
-    margin: 9px 0 0 23px;
-    z-index: 50;
-}
-
-.popup_window input {
-    font-family: 'Open Sans';
-    font-weight: bold;
-    font-style: normal;
-    position: relative;
-    z-index: 20;
-    outline: none;
-    font-size: 17px;
-    color: #ccc;
-    height: 40px;
-    width: 330px;
-    margin: 0 auto;
-    padding: 0 10px 0 110px;
-    border: 1px solid rgba(0,0,0,.111);
-    background-color: #ececec;
-}
-
-.popup_window #result-msg {
-    position: relative;
-    margin: 0 auto;
-    margin-top: 10px;
-    min-width: 200px;
-    text-align: center;
-    padding-top: 4px;
-    height: 26px;
-    /*display: none;*/
-}
-
-.popup_window input:focus {
-    color: #0e0e0e;
-    border: 1px solid rgba(0,0,0,.222);
-}
-
-#addfile .addfileinputs {
-    margin-top: 20px;
-}
-
-#addfile .addfilename {
-    margin-top: 28px;
-}
-
-#addfile input {
-    width: 348px;
-    padding-left: 170px;
-    padding-right: 50px;
-    color: #bbb;
-}
-
-#addfile input#class {
-    color: #bbb;
-}
-
-#addfile input#class:focus {
-    color: #0e0e0e;
-}
-
-#addfile #path, #addfile #package, #addfile #project {
-    background-color: #FFFFCC;
-    cursor: text;
-}
-
-#addfile #path:focus, #addfile #package:focus, #addfile #project:focus {
-    border: 1px solid rgba(0,0,0,.111);
-    color: #bbb;
-}
-
-#addfile #filetype {
-    height: 40px;
-    width: 40px;
-    margin-left: 528px;
-    margin-top: 1px;
-    position: absolute;
-    z-index: 50;
-    background-color: #ffffff;
-    border-left: 1px solid rgba(0,0,0,.111);
-}
-
-#addfile ul#typelist {
-    z-index: 100 !important;
-    display: block;
-    margin: 50px 0 0 500px;
-}
-
-#addfile #typelist li {
-    padding-left: 30px;
-    text-align: left;
-}
-
-#addfile #typelist li:hover {
-    background-color: #eaeaea !important;
-}
-
-#addfile #filetype.class {background: url('img/idea-class.png') no-repeat 50% 50%}
-#addfile #filetype.interface {background: url('img/idea-class-interface.png') no-repeat 50% 50%}
-#addfile #filetype.runnable {background: url('img/idea-class-runnable.png') no-repeat 50% 50%}
-#addfile #filetype.annotation {background: url('img/idea-class-annotation.png') no-repeat 50% 50%}
-#addfile #filetype.exception {background: url('img/idea-class-exception.png') no-repeat 50% 50%}
-#addfile #filetype.enum {background: url('img/idea-class-enum.png') no-repeat 50% 50%}
-#addfile #filetype.help {background: url('img/idea-libs.png') no-repeat 50% 50%}
-
-#addfile #typelist li.class {background: url('img/idea-class.png') no-repeat 5% 50%}
-#addfile #typelist li.interface {background: url('img/idea-class-interface.png') no-repeat 5% 50%}
-#addfile #typelist li.runnable {background: url('img/idea-class-runnable.png') no-repeat 5% 50%}
-#addfile #typelist li.annotation {background: url('img/idea-class-annotation.png') no-repeat 5% 50%}
-#addfile #typelist li.exception {background: url('img/idea-class-exception.png') no-repeat 5% 50%}
-#addfile #typelist li.enum {background: url('img/idea-class-enum.png') no-repeat 5% 50%}
-#addfile #typelist li.help {background: url('img/idea-libs.png') no-repeat 5% 50%}
-
-#sharecode input {
-    width: 370px;
-    padding-left: 70px;
-}
-
-#sharecode #confirm-buttons {
-    margin: 0 auto;
-    margin-top: 4px;
-    width: auto;
-    text-align: center;
-}
-
-#sharecode #confirm {
-    margin: 0 0 0 166px;
 }
 
 /**
@@ -785,47 +542,4 @@ ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
 
 .contextMenu .divider {
     padding: 0px;
-}
-
-
-/**
- * Revisions List
- */
-
-#revisions-list {
-    overflow: auto;
-    width: 400px;
-    height: 280px;
-    list-style-type: none;
-    padding-right: 20px;
-    padding-bottom: 10px;
-    font-size: 13px;
-    font-family: 'Open Sans';
-    font-weight: normal;
-    font-style: normal;
-}
-
-#revisions-list li {
-    width: 320px;
-    margin-top: 10px;
-    border: 1px solid #ccc;
-    background-color: #eee;
-    height: 27px;
-}
-
-#revisions-list li div.revision-time {
-    padding: 5px 10px;
-    float: left;
-}
-
-#revisions-list li div.revert {
-    cursor: default;
-    float: right;
-    border-left: 1px solid #ccc;
-    background-color: #ddd;
-    padding: 4px 10px 3px 10px;
-}
-
-#revisions-list li div.revert:hover {
-    background-color: #99CCFF;
 }

@@ -1,62 +1,35 @@
-var PATH = "";
-var javaEditor;
-var PROJECTPARAM;
-var $elClicked;
+var outerLayout, innerLayout;
 
 // EVENTS
-
-String.prototype.endsWith = function(suffix) {
-    return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
-
+//
 $(document).ready(function(){
+    checkProjectParam();
+    runLayouts();
     loadLiHarmonica();
-    var projecthash = PROJECTPARAM;
-    if(projecthash !== "") {
-        getProject(projecthash);
-        invalidateSession();
-    }
-    javaEditor.setOption("readOnly", true);
     buildTree();
     loadTabs();
-    setJavaEditorSize();
-    loadPopupMenu();
-    $(function() {
-        $('.dropdown-toggle').dropdown();
-    });
-    
-    if (typeof String.prototype.endsWith !== 'function') {
-        String.prototype.endsWith = function(str) {
-            return this.substring(this.length - str.length, this.length) === str;
-        };
-    };
-    
-    javaEditor.on("change", function() {
-        pushModifiedTab();
-        hidePopups();
-    });
-
-    javaEditor.on("mousedown", function() {
-        hidePopups();
-        $("#main_menu").find(".open").removeClass("open");
-    });
-
-    javaEditor.on("focus", function() {
-        hidePopups();
-        $("#main_menu").find(".open").removeClass("open");
-    });
+    loadPopups();
+    editorSettings();    
+    resizeEditor();
 });
                         
 $(window).resize(function() {
-    setJavaEditorSize();
-});
-
-$("#codetext").resize(function() {
-    setJavaEditorSize();
+    resizeEditor();
 });
 
 $(document).click(function () {
     hidePopups();
+});
+
+$(document).bind('keydown', function(e) {
+    if(e.ctrlKey && (e.which === 83)) {
+        e.preventDefault();
+        if(e.shiftKey)
+            saveAllFiles();
+        else
+            saveFile();
+        return false;
+    }
 });
 
 window.onbeforeunload = (function() {
@@ -66,10 +39,71 @@ window.onbeforeunload = (function() {
     return "WARNING! The project has unsaved files. When the session expires, any unsaved changes will be lost!";
 });
 
-function setJavaEditorSize() { 
-    javaEditor.setSize(null, $("#codetext").height());
+
+function resizeEditor() { 
+    $("#editor").height($("#block-editor").height());
+    $("#console").height($("#console-wrapper").height());
+    editor.resize();
+    console.resize();
 }
 
+// LOADFUNCTIONS
+// 
+function checkProjectParam() {
+    var projecthash = PROJECTPARAM;
+    if(projecthash !== "") {
+        getProject(projecthash);
+        invalidateSession();
+    }
+}
+
+function runLayouts() {
+    outerLayout = $('#container-outer').layout({
+        center__paneSelector: ".outer-center", 
+	west__paneSelector: ".outer-west",
+        center__minWidth: 100,
+        west__size: 250,
+        west__minSize: 100,
+        spacing_open: 5,		
+	spacing_closed: 5,
+        livePaneResizing: true,
+        stateManagement__enabled: true,
+        onresize: function() {
+            resizeEditor();
+            innerLayout.resizeAll;
+        }
+    });
+    innerLayout = $('#container-inner').layout({
+        center__paneSelector: ".inner-center", 
+	south__paneSelector: ".inner-south",
+        center__minHeight: 100,
+        south__minSize: 100,
+        south__initClosed: true,
+        spacing_open: 5,		
+	spacing_closed: 5,
+        livePaneResizing: true,
+        stateManagement__enabled: true,
+        onresize: function() {
+            resizeEditor();
+        }
+    });
+}
+
+function editorSettings() {
+    editor.setTheme("ace/theme/chrome");
+    editor.getSession().setMode("ace/mode/java");
+    editor.setReadOnly(true);
+    
+    editor.getSession().on("change", function() {
+        pushModifiedTab();
+    });
+
+    console.setTheme("ace/theme/chrome");
+    console.getSession().setMode("ace/mode/text");
+    console.renderer.setShowGutter(false); 
+    console.renderer.setShowPrintMargin(false);
+    console.setReadOnly(true); 
+}
 
 // TABS
 
@@ -92,7 +126,6 @@ function loadTabs() {
             if (entry === opened)
                 selectTab(li);
         }
-            
     });
 }
 
@@ -135,13 +168,12 @@ function selectTab(li) {
     getReadOnly(id);
     getCurrentFileText();
     changeLastUpdateLabel();
-    javaEditor.focus();
+    editor.focus();
 }
 
 function selectEmptyTab() {
-    javaEditor.setValue("");
-    javaEditor.clearHistory();
-    javaEditor.setOption("readOnly", true);  
+    editor.setValue("");
+    editor.setReadOnly(true);  
     $('#latest_update').text("");
     
 }
@@ -283,29 +315,23 @@ function loadLiHarmonica() {
     })(jQuery);
 }
 
-function toggleProjectTreePanel() {
-    var $treepanel = $("#treepanel");
-    if($treepanel.css("display") === "none")
-        $treepanel.css("display", "block");
-    else
-        $treepanel.css("display", "none");
-}
-
 function toggleHeader() {
     var $header = $("#header-top");
     if($header.css("display") === "none")
         $header.css("display", "flex");
     else
         $header.css("display", "none");
-    setJavaEditorSize();
+    resizeEditor();
+    outerLayout.resizeAll();
+    innerLayout.resizeAll();
 }
 
 
 // TOGGLES
 
-function loadPopupMenu() {
+function loadPopups() {
     $(function () {
-        $("#treepanel").on("contextmenu", "div", function(e) {
+        $("#block-tree").on("contextmenu", "div", function(e) {
             var $contextMenu = $("#treeMenu");
             hidePopups();
             $elClicked = $(this);
@@ -361,8 +387,9 @@ function hidePopups() {
     $("#fileMenu").hide();
 }
 
-// FILE REVISIONS (SERVICES)
 
+// FILE REVISIONS (SERVICES)
+//
 function saveFile(id) {
     if(arguments.length === 0) {
         id = getCurrentFileID();
@@ -438,8 +465,7 @@ function getFileRevision(id) {
         dataType: "json",
         contentType: "application/json",
         success: function(data) {
-            javaEditor.setValue(data.value);
-            javaEditor.clearHistory();
+            editor.setValue(data.value);
             addCurrentFileTimeStamp(data.timeStamp);
         },
         error: function(jqXHR) {
@@ -450,9 +476,8 @@ function getFileRevision(id) {
 }
 
 
-
 // UTILS
-
+//
 String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
@@ -481,42 +506,42 @@ function getFileDataById(id) {
 }
 
 
-
-/**
- * Compilation and Executing
- */
-
+// COMPILATION AND EXECUTING
+//
 function compile() {
-    if(!isConsoleOpened()) {
-        toggleConsoleWindow();
-    }
-    
-    visualizeProcess("compile");
+    innerLayout.open('south');
     
     $.ajax({
         url: PATH + '/webapi/run/compile',
         type: 'POST',
         contentType: "application/x-www-form-urlencoded",
         success: function() {
-            $("#stdout").text("");
             poll();
         }
     });  
 }
 
 function execute() {
-    if(!isConsoleOpened()) {
-        toggleConsoleWindow();
-    }
-    
-    visualizeProcess("run");
+    innerLayout.open('south');
     
     $.ajax({
         url: PATH + '/webapi/run/execute',
         type: 'POST',
         contentType: "application/x-www-form-urlencoded",
         success: function() {
-            $("#stdout").text("");
+            poll();
+        }
+    });  
+}
+
+function compileAndRun() {
+    innerLayout.open('south');
+    
+    $.ajax({
+        url: PATH + '/webapi/run/compilerun',
+        type: 'POST',
+        contentType: "application/x-www-form-urlencoded",
+        success: function() {
             poll();
         }
     });  
@@ -535,46 +560,27 @@ function poll() {
                             result = 0;
                             return;
                         }
-                        $("#stdout").append(entry).append("<br>");
+                        console.insert(entry + "\n");
                     }
                 });
             if (result === 1)
                 poll();
-            else if(result === 0)
+            else if (result === 0)
                 stopProcess();
         }
     });
 }    
 
-function compileAndRun() {
-    
-    if(!isConsoleOpened()) {
-        toggleConsoleWindow();
-    }
-    
-    visualizeProcess("compileandrun");
-    
-    $.ajax({
-        url: PATH + '/webapi/run/compilerun',
-        type: 'POST',
-        contentType: "application/x-www-form-urlencoded",
-        success: function() {
-            $("#stdout").text("");
-            poll();
-        }
-    });  
-}
-
 function sendInput() {
-    var input = $("#stdinput").val();
+    var input = $("#stdin").val();
     $.ajax({
         url: PATH + '/webapi/run/send',
         type: 'POST',
         contentType: "application/x-www-form-urlencoded",
         data: {input: input},
         success: function() {
-            $("#stdinput").val("");
-            $("#stdout").append("stdin: ").append(input).append("<br>");
+            $("#stdin").val("");
+            console.insert("> " + entry + "\n");
         }
     }); 
     return false;
@@ -611,43 +617,6 @@ function openStaticTab(name) {
     selectTab(li);
 }
 
-function visualizeProcess(process) {
-    disableProcess();
-    
-    switch(process) {
-        case "compile":
-            $("#compile").css("background-image", "url('resources/img/stop.ico')");
-            $("#compile").attr("onclick", "stopProcess();");
-            break;
-        case "run":
-            $("#run").css("background-image", "url('resources/img/stop.ico')");
-            $("#run").attr("onclick", "stopProcess();");
-            break;
-        case "compileandrun":
-            $("#compileandrun").css("background-image", "url('resources/img/stop.ico')");
-            $("#compileandrun").attr("onclick", "stopProcess();");
-            break;        
-    }
-}
-
-function disableProcess() {
-    $("#compile").attr("onclick", "return false;");
-    $("#run").attr("onclick", "return false;");
-    $("#compileandrun").attr("onclick", "return false;");
-    $("#compile").css("background-image", "url('resources/img/compile-block.ico')");
-    $("#run").css("background-image", "url('resources/img/run-block.ico')");
-    $("#compileandrun").css("background-image", "url('resources/img/compileandrun-block.ico')");
-}
-
-function stopProcess() {
-    $("#compile").attr("onclick", "compile();");
-    $("#run").attr("onclick", "execute();");
-    $("#compileandrun").attr("onclick", "compileAndRun();");
-    $("#compile").css("background-image", "url('resources/img/compile.ico')");
-    $("#run").css("background-image", "url('resources/img/playback_play.ico')");
-    $("#compileandrun").css("background-image", "url('resources/img/compileandrun.ico')");
-}
-
 function hashIsCorrect(hash) {
     var result = false;
     $.ajax({
@@ -661,23 +630,4 @@ function hashIsCorrect(hash) {
         }
     });
     return result;
-}
-
-function toggleConsoleWindow() {
-    $compilation = $("#compilation-window");
-    if($compilation.hasClass("closed")) {
-        $("#compilation-window").css("display", "block");
-        $compilation.removeClass("closed");
-    } else {
-        $compilation.addClass("closed");
-        $("#compilation-window").css("display", "none");
-    }
-    setJavaEditorSize();
-    setJavaEditorSize();
-}
-
-function isConsoleOpened() {
-    if($("#compilation-window").hasClass("closed"))
-        return false;
-    return true;
 }

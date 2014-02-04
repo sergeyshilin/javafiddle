@@ -1,3 +1,5 @@
+var editor;
+
 // CURRENT FILE
 
 function setCurrentFileID(id) {
@@ -55,8 +57,8 @@ function addCurrentFileText() {
     var id = sessionStorage.getItem("currentFileID");
     if (id === null || id === '')
         return false;
-    sessionStorage.setItem("openedtabs." + id, javaEditor.getValue());
-    sessionStorage.setItem("openedtabs." + id + "_history", JSON.stringify(javaEditor.getHistory()));
+    sessionStorage.setItem("openedtabs." + id, editor.getValue());
+//    sessionStorage.setItem("openedtabs." + id + "_history", JSON.stringify(editor.getSession().getUndoManager().toJSON()));
 }
 
 function getCurrentFileText() {
@@ -65,13 +67,12 @@ function getCurrentFileText() {
     var id = sessionStorage.getItem("currentFileID");
     var text = sessionStorage.getItem("openedtabs." + id);
     if (text !== null) {
-        javaEditor.setValue(text);
-        var history = JSON.parse(sessionStorage.getItem("openedtabs." + id + "_history"));
-        if (history !== null) {
-            javaEditor.setHistory(history);
-        } else {
-            javaEditor.clearHistory();
-        }
+        var modified = isModified(id);
+        editor.setValue(text);
+        editor.session.getUndoManager().reset();
+        editor.clearSelection();
+        editor.setReadOnly(false);
+        changeModifiedState(id, modified);
     } else
         getFileRevision(id);
 }
@@ -96,6 +97,16 @@ function isModified(id) {
     return isExist('modified', id);
 }
 
+function changeModifiedState(id, state) {
+    if (state) {
+        pushToList('modified', getCurrentFileID());
+        $("#tabpanel").find(".active").addClass("modified");
+    } else {
+        removeTabFromList('modified', id);
+        $("#" + id).removeClass("modified");
+    }
+}
+
 function pushModifiedTab() {
     if (!supportsSessionStorage())
         return false;
@@ -103,7 +114,7 @@ function pushModifiedTab() {
         sessionStorage.setItem("currentFileIDChanged", "false");
     else {
         pushToList('modified', getCurrentFileID());
-         $("#tabpanel").find(".active").addClass("modified");
+        $("#tabpanel").find(".active").addClass("modified");
     }
 }
 
@@ -135,10 +146,10 @@ function getReadOnly(id) {
     if (!supportsSessionStorage())
         return false;
     var status = sessionStorage.getItem("readonly." + id);
-    if (status !== null) {
-        javaEditor.setOption("readOnly", true);
-    } else
-        javaEditor.setOption("readOnly", false);
+    if (status !== null)
+        editor.setReadOnly(true);
+    else
+        editor.setReadOnly(false);
 }
 
 
@@ -173,7 +184,7 @@ function closeTabInStorage(id) {
     removeTabFromList("openedtabs", id);
     sessionStorage.removeItem("timestamp." + id);
     sessionStorage.removeItem("openedtabs." + id);
-    sessionStorage.removeItem("openedtabs." + id + "_history");
+//    sessionStorage.removeItem("openedtabs." + id + "_history");
     sessionStorage.removeItem("readonly." + id);
     removeTabFromList("modified", id); 
 }
