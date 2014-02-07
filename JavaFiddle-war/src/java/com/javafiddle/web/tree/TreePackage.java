@@ -11,6 +11,7 @@ import java.util.TreeMap;
 public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializable {
     private final IdNodeType nodeType = IdNodeType.PACKAGE;
     private String name;
+    private String shortName;
     private int id;
     private int parentId;
     private int parents;
@@ -45,6 +46,14 @@ public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializa
     public String getName() {
         return name;
     }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
         
     public int getParentId() {
         return parentId;
@@ -74,10 +83,6 @@ public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializa
         return files;
     }
 
-    public void setFiles(List<TreeFile> files) {
-        this.files = files;
-    }
-    
     public TreeFile addFile(IdList idList, String type, String name) {
         TreeFile tf = new TreeFile(name, type);
         files.add(tf);
@@ -87,6 +92,13 @@ public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializa
         return tf;
     }
         
+    public TreeFile getFile(String name) {
+        for (TreeFile temp : files)
+            if (name.equals(temp.getName()))
+                    return temp;
+        return null;
+    }
+    
     public void deleteFile(IdList idList, int fileId) {
         files.remove(idList.getFile(fileId));
         idList.remove(fileId);
@@ -109,7 +121,7 @@ public class TreePackage implements TreeNode, Comparable<TreePackage>, Serializa
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("\"id\"").append(":").append(id).append(", ");
-        sb.append("\"name\"").append(":\"").append(name).append("\", ");   
+        sb.append("\"name\"").append(":\"").append(shortName == null ? name : shortName).append("\", ");   
         sb.append("\"parentId\"").append(":\"").append(parentId).append("\", ");    
         sb.append("\"files\"").append(":").append("[");
         for (TreeFile entry : files)

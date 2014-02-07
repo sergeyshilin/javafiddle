@@ -1,45 +1,135 @@
-var PATH = "";
+var PATH;
 var timer;
+var $elClicked;
 
 $(document).ready(function() {
-    $(".enter-active").keyup(function(event) {
+    // NEW PACKAGE DIALOG
+    //
+    $('#modal-newpack').on('show.bs.modal', function () {
+        $("#modal-newpack-name").val("");
+        $("#modal-newpack-project").find('option').remove();
+
+        var projects = getProjectsList();
+        for (var i = 0; i < projects.length; i++)
+            $("#modal-newpack-project").prepend("<option>" + projects[i] +"</option>");
+        var projectName = getNameByID(getProjectId());
+        $("#modal-newpack-project").val(projectName);
+        
+        var fullpath = "./" + projectName + "/";
+
+        if ($elClicked.hasClass("package")) {
+            var oldPackageName = getNameByID($elClicked.closest('li').attr('id'));
+            $("#modal-newpack-name").val(oldPackageName + ".");
+            fullpath += oldPackageName.replace(/\./g, '/');
+        }
+        $("#modal-newpack-fullpath").val(fullpath);
+    });
+
+    $("#modal-newpack-name").keyup(function(event) {
+        if (event.keyCode === 13) {
+            if (addPackage()) {
+                $('#modal-newpack').modal('hide');
+            }
+        }
+    });
+    
+    
+    // NEW FILE DIALOG
+    //
+    $('#modal-newfile').on('show.bs.modal', function (e) {
+        $("#modal-newfile-name").val(""); 
+        $("#modal-newfile-package").find('option').remove();
+        $("#modal-newfile-project").find('option').remove();
+        $("#modal-newfile-fullpath").find('option').remove();
+
+        var projects = getProjectsList();
+        for (var i = 0; i < projects.length; i++)
+            $("#modal-newfile-project").prepend("<option>" + projects[i] +"</option>");
+        var currentProject = getNameByID(getProjectId());
+        $("#modal-newfile-project").val(currentProject);
+
+        var packages = getPackagesList($("#modal-newfile-project").val());
+        $("#modal-newfile-package").prepend("<option>&lt;default_package&gt;</option>");
+        for (var i = 0; i < packages.length; i++)
+            $("#modal-newfile-package").append("<option>" + packages[i] +"</option>");
+
+        var fullpath = "./" + currentProject + "/";
+
+        if ($elClicked.hasClass("package")) {
+            var packageName = getNameByID($elClicked.closest('li').attr('id'));
+            fullpath += packageName.replace(/\./g, '/') + "/";
+            $("#modal-newfile-package").val(packageName);
+        }
+        
+        $("#modal-newfile-fullpath").val(fullpath);
+    });
+    
+    $("#modal-newfile-name").keyup(function(event) {
         if (event.keyCode === 13) {
             if (addFile()) {
                 $('#modal-newfile').modal('hide');
             }
         }
     });
+    
+    
+    // RENAME DIALOG
+    //
+    $('#modal-rename').on('show.bs.modal', function (e) {
+        var name = $elClicked.text();
+        $("#modal-rename-header").text("Rename " + nodeType($elClicked) + " " + name);
+        $("#modal-rename-name").val(name);
+    });
+    
+    $("#modal-rename-name").keyup(function(event) {
+        if (event.keyCode === 13) {
+            if (renameElement()) {
+                $('#modal-rename').modal('hide');
+            }
+        }
+    });
+    
+    
+    // DELETE DIALOG
+    // 
+    $('#modal-delete').on('show.bs.modal', function (e) {
+        var id = $elClicked.closest('li').attr('id');
+        var name = $(document.getElementById(id)).children("a").text();
+        $("#modal-delete-name").text("Are you sure you want to delete " + nodeType($elClicked) + " " + name + "?");
+    });
+    
+    
+    // SHARE PROJECT DIALOG
+    //
+    $('#modal-share').on('show.bs.modal', function (e) {
+        var latest = getLatestProjectHash();
+        $("#modal-share-name").val("http://javafiddle.org/?project=" + (!latest.localeCompare("null") ? "" : latest));
+        $("#modal-share-verify").text(!latest.localeCompare("null") ? "There are no project revisions. Commit it!" : "Share this link with your friends!");
+    });
+    
+    
+    // REVISIONS LIST DIALOG 
+    // 
+    $('#modal-revisions').on('show.bs.modal', function (e) {
+        var revisions;
+
+        $.ajax({
+            url: PATH + '/webapi/data/hierarchy',
+            type: 'GET',
+            async: false,
+            contentType: "application/json",
+            success: function(data) {
+                revisions = data;
+            }
+        }); 
+
+        for(var i = 0; i < revisions.length; ++i)
+            $("#modal-revisions-name").prepend("<option>" + revisions[i] +"</option>");
+    });
 });
 
 // NEW PACKAGE DIALOG
 //
-function m_newpack($elClicked) {
-    $("#modal-newpack-name").val("");
-    $("#modal-newpack-project").find('option').remove();
-    
-    var projects = getProjectsList();
-    for (var i = 0; i < projects.length; i++)
-        $("#modal-newpack-project").prepend("<option>" + projects[i] +"</option>");
-    
-    var fullpath = "./" + projectName + "/";
-    
-    if (arguments.length === 1) {
-        var id = $elClicked.closest('li').attr('id');
-        var projectName = getCurrentProjectName(id);
-        $("#modal-newpack-project").val(projectName);
-
-        if ($(document.getElementById(id)).children("a").hasClass("package")) {
-            var oldPackageName = $(document.getElementById(id)).children("a").text();
-            $("#modal-newpack-name").val(oldPackageName + ".");
-            fullpath += oldPackageName.replace(/\./g, '/');
-        }
-    }
-    
-    $("#modal-newpack-fullpath").val(fullpath);
-    
-    $('#modal-newpack').modal('show');
-}
-
 function m_newpack_updname() {
     $("#modal-newpack-ok").prop('disabled', true);
     var localtimer = setTimeout(function () {
@@ -101,41 +191,6 @@ function addPackage() {
 
 // NEW FILE DIALOG
 //
-function m_newfile($elClicked) {
-    $("#modal-newfile-name").val(""); 
-    $("#modal-newfile-package").find('option').remove();
-    $("#modal-newfile-project").find('option').remove();
-    $("#modal-newfile-fullpath").find('option').remove();
-    
-    var projects = getProjectsList();
-    for (var i = 0; i < projects.length; i++)
-        $("#modal-newfile-project").prepend("<option>" + projects[i] +"</option>");
-    
-    if (arguments.length === 1) {
-        var id = $elClicked.closest('li').attr('id');
-        var currentProject = getCurrentProjectName(id);
-        $("#modal-newfile-project").val(currentProject);
-    }
-    
-    var packages = getPackagesList($("#modal-newfile-project").val());
-    $("#modal-newfile-package").prepend("<option>&lt;default_package&gt;</option>");
-    for (var i = 0; i < packages.length; i++)
-        $("#modal-newfile-package").prepend("<option>" + packages[i] +"</option>");
-    
-    var fullpath = "./" + currentProject + "/";
-    
-    if (arguments.length === 1) {
-        if ($(document.getElementById(id)).children("a").hasClass("package")) {
-            var packageName = $(document.getElementById(id)).children("a").text();
-            fullpath += packageName.replace(/\./g, '/') + "/";
-            $("#modal-newfile-package").val(packageName);
-        }
-    }
-    
-    $("#modal-newfile-fullpath").val(fullpath);
-    $('#modal-newfile').modal('show');
-}
-
 function m_newfile_updname() {
     $("#modal-newfile-ok").prop('disabled', true);
     var localtimer = setTimeout(function () {
@@ -200,31 +255,6 @@ function addFile() {
     }
     
     if(isRightClassName(className, packName, projectName)) {
-        var type;
-        switch (classType) {
-           case "Java Class":
-               type = "class";
-               break;
-           case "Java Interface":
-               type = "interface";
-               break;
-           case "Java Enum":
-               type = "enumeration";
-               break;
-           case "Java Annotation Type":
-               type = "annotation";
-               break;
-           case "Java Exception":
-               type = "exception";
-               break;
-           case "Java Main Class":
-               type = "runnable";
-               break;
-           default:
-               type = "class";
-               break;
-        }
-    
         $.ajax({
             url: PATH + '/webapi/tree/addFile',
             type: 'POST',
@@ -232,11 +262,11 @@ function addFile() {
                 className: className,
                 packageName: packName,
                 projectName: projectName,
-                type: type
+                type: classType
             },
             contentType: "application/x-www-form-urlencoded",
             success: function(data) {
-                var li = addTabToPanel("node_" + data + "_tab", (className.endsWith(".java") ? className  : className + ".java"), type);
+                var li = addTabToPanel("node_" + data + "_tab", (className.endsWith(".java") ? className  : className + ".java"), classType);
                 selectTab(li);
                 buildTree();
             }
@@ -249,16 +279,7 @@ function addFile() {
 
 // RENAME DIALOG
 //
-function m_rename($elClicked) {
-    var id = $elClicked.closest('li').attr('id');
-    var name = $(document.getElementById(id)).children("a").text();
-    $("#modal-rename-header").text("Rename " + nodeType($elClicked) + " " + name);
-    $("#modal-rename-name").val(name);
-    
-    $('#modal-rename').modal('show');
-}
-
-function m_rename_updname($elClicked) {
+function m_rename_updname() {
     $("#modal-rename-ok").prop('disabled', true);
     var localtimer = setTimeout(function () {
         if (localtimer === timer)
@@ -267,7 +288,7 @@ function m_rename_updname($elClicked) {
     timer = localtimer;
 }
 
-function m_rename_update($elClicked) {
+function m_rename_update() {
     var name = $("#modal-rename-name").val();
     var result;
     
@@ -276,14 +297,12 @@ function m_rename_update($elClicked) {
             result = isRightProjectName(name);
             break;
         case "package":
-            var id = $elClicked.closest('li').attr('id');
-            var projectName = getCurrentProjectName(id);
+            var projectName = getNameByID(getProjectId());
             result = isRightPackageName(name, projectName);
             break;
         default:
-            var id = $elClicked.closest('li').attr('id');
-            var projectName = getCurrentProjectName(id);
-            var packageName = $(document.getElementById(id)).closest('ul').closest('li').children("a").text();
+            var projectName = getNameByID(getProjectId());
+            var packageName = $elClicked.closest('li').closest('ul').closest('li').children("a").text();
             result = isRightClassName(name, packageName, projectName);
             break;
     }
@@ -306,33 +325,17 @@ function m_rename_update($elClicked) {
             $("#modal-rename-verify").text("Unknown error.");
             break;
     }
+    
+    return result;
 }
 
-function renameElement($elClicked) {
+function renameElement() {
     var name = $("#modal-rename-name").val();
     var result;
     
     var id = $elClicked.closest('li').attr('id');
     
-    switch (nodeType($elClicked)) {
-        case "project":
-            result = isRightProjectName(name);
-            break;
-        case "package":
-            var projectName = getCurrentProjectName(id);
-            result = isRightPackageName(name, projectName);
-            break;
-        default:
-            var projectName = getCurrentProjectName(id);
-            var packageName = $(document.getElementById(id)).closest('ul').closest('li').children("a").text();
-            alert(packageName);
-            if (!name.endsWith(".java"))
-                name += ".java";
-            result = isRightClassName(name, packageName, projectName);
-            break;
-    }
-    
-    if (result === "ok") {
+    if (m_rename_update() === "ok") {
         $.ajax({
             url: PATH + '/webapi/tree/rename',
             type: 'POST',
@@ -351,12 +354,6 @@ function renameElement($elClicked) {
 
 // DELETE DIALOG
 // 
-function m_delete($elClicked) {
-    var id = $elClicked.closest('li').attr('id');
-    var name = $(document.getElementById(id)).children("a").text();
-    $("#modal-delete-name").text("Are you sure you want to delete " + nodeType($elClicked) + " " + name + "?");
-    $('#modal-delete').modal('show');
-}
 
 function deleteElement($elClicked) {
     var id = $elClicked.closest('li').attr('id');
@@ -389,13 +386,6 @@ function deleteElement($elClicked) {
 
 // SHARE PROJECT DIALOG
 //
-function m_share() {
-    var latest = getLatestProjectHash();
-    $("#modal-share-name").val("http://javafiddle.org/?project=" + (!latest.localeCompare("null") ? "" : latest));
-    $("#modal-share-verify").text(!latest.localeCompare("null") ? "There are no project revisions. Commit it!" : "Share this link with your friends!");
-    $('#modal-share').modal('show');
-}
-
 function getLatestProjectHash() {
     var hash = "";
     
@@ -413,26 +403,7 @@ function getLatestProjectHash() {
 }
 
 // REVISIONS LIST DIALOG 
-// 
-function m_revisions() {
-    var revisions;
-   
-    $.ajax({
-        url: PATH + '/webapi/data/hierarchy',
-        type: 'GET',
-        async: false,
-        contentType: "application/json",
-        success: function(data) {
-            revisions = data;
-        }
-    }); 
-  
-    for(var i = 0; i < revisions.length; ++i)
-        $("#modal-revisions-name").prepend("<option>" + revisions[i] +"</option>");
-    
-    $("#modal-revisions").modal('show');   
-}
-
+//
 function revert() {
     var hash = $("#modal-revisions-name").val();
     closeAllTabs();
@@ -442,16 +413,14 @@ function revert() {
 
 // AJAX REQUESTS
 //
-function getCurrentProjectName(id) {
+function getNameByID(id) {
     var name;
     
     $.ajax({
-        url: PATH + '/webapi/tree/projectname',
+        url: PATH + '/webapi/tree/namebyid',
         type: 'GET',
         dataType: "json",
-        data: {
-            id: id
-        },
+        data: {id: id},
         async: false,
         success: function(data) {
             name = data;

@@ -15,21 +15,6 @@
                     <file>${reference.JavaFiddle-ejb.dist}</file>
                 </library>
                 <library dirs="200">
-                    <file>${file.reference.jersey-client.jar}</file>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.jersey-common.jar}</file>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.jersey-container-servlet-core.jar}</file>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.jersey-container-servlet.jar}</file>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.jersey-server.jar}</file>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.gson-2.2.4.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>

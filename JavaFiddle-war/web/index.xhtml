@@ -5,27 +5,25 @@
         <title>Java Fiddle</title>
         
         <h:outputScript library="js" name="jquery-2.1.0.min.js"/>
-        <h:outputScript library="js" name="jquery-ui-latest.js"/>
-        <h:outputScript library="js" name="jquery.layout-latest.js"/>
-        <h:outputScript library="js" name="moment-with-langs.min.js"/>
+        <h:outputScript library="js" name="jquery-ui.min.js"/>
+        <h:outputScript library="js" name="jquery.layout.min.js"/>
+        <h:outputScript library="js" name="moment.min.js"/>
         <h:outputScript library="js" name="bootstrap.min.js"/>
-        <h:outputScript library="js" name="bootstrap-modal.js"/>
         
+        <h:outputScript library="ace" name="ace.js"/>
+        <h:outputScript library="ace" name="mode-java.js"/>
+        <h:outputScript library="ace" name="mode-text.js"/>
+        <h:outputScript library="ace" name="theme-idea.js"/>
+ 
         <h:outputScript library="js" name="main.js"/>
         <h:outputScript library="js" name="modal.js"/>
         <h:outputScript library="js" name="sessionstorage.js"/>
         
-        <h:outputScript library="ace" name="ace.js"/>
-        <h:outputScript library="ace" name="theme-chrome.js"/>
-        <h:outputScript library="ace" name="mode-java.js"/>
-        <h:outputScript library="ace" name="mode-text.js"/>
-        
-        <h:outputStylesheet library="css" name="layout-default-latest.css"/>
+        <h:outputStylesheet library="css" name="layout-default.css"/>
         <h:outputStylesheet library="css" name="bootstrap.min.css"/>
-        <h:outputStylesheet library="css" name="bootstrap-theme.min.css"/>
         
         <h:outputStylesheet library="css" name="style.css"/>
-        <h:outputStylesheet library="css" name="osans.css"/>
+        <h:outputStylesheet library="css" name="tree.css"/>
     </h:head>
     <h:body>
         <div id="header">
@@ -40,56 +38,56 @@
                     <div id="bottom" class="nav-collapse"> 
                         <ul id="main_menu" class="nav nav-pills">
                             <li class="dropdown">
-                                <div class="dropdown-toggle" data-toggle="dropdown">Project</div>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                    <li onclick="saveFile();">Save</li>
-                                    <li onclick="saveAllFiles();">Save All</li>
-                                    <li onclick="saveProject();">Commit</li>
-                                    <li class="divider"></li>
-                                    <li onclick="closeProject();">Close Project</li>
+                                <a id="dropdown-project" class="dropdown-toggle" data-toggle="dropdown" href="#">Project</a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-project">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="saveFile();">Save</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="saveAllFiles();">Save All</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="saveProject();">Commit</a></li>
+                                    <li role="presentation" class="divider"></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="closeProject();">Close Project</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown">
-                                <div class="dropdown-toggle" data-toggle="dropdown">Edit</div>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                    <li onclick="editor.undo();">Undo</li>
-                                    <li onclick="editor.redo();">Redo</li>
-                                    <li class="divider"></li>
-                                    <li onclick="editor.findPrev();">Find Previous</li>
-                                    <li onclick="editor.findNext();">Find Next</li>
-                                    <li class="divider"></li>
-                                    <li onclick="editor.find();">Find</li>
-                                    <li onclick="editor.replace();">Replace</li>
-                                    <li onclick="editor.replaceAll();">Replace All</li>
+                                <a id="dropdown-edit" class="dropdown-toggle" data-toggle="dropdown" href="#">Edit</a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-edit">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="editor.undo();">Undo</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="editor.redo();">Redo</a></li>
+                                    <li role="presentation" class="divider"></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="editor.findPrev();">Find Previous</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="editor.findNext();">Find Next</a></li>
+                                    <li role="presentation" class="divider"></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="editor.find();">Find</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="editor.replace();">Replace</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="editor.replaceAll();">Replace All</a></li>
+                                </ul>
+                            </li>
+                             <li class="dropdown">
+                                <a id="dropdown-view" class="dropdown-toggle" data-toggle="dropdown" href="#">View</a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-view">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="toggleHeader();">Toggle Header</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="outerLayout.toggle('west');">Toggle Project Tree</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="innerLayout.toggle('south');">Toggle Console</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown">
-                                <div class="dropdown-toggle" data-toggle="dropdown">View</div>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                    <li onclick="toggleHeader();">Toggle Header</li>
-                                    <li onclick="outerLayout.toggle('west');">Toggle Project Tree</li>
-                                    <li onclick="innerLayout.toggle('south');">Toggle Console</li>
+                                <a id="dropdown-run" class="dropdown-toggle" data-toggle="dropdown" href="#">Run</a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-run">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="compile();">Compile</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="execute();">Run</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="compileAndRun();">Compile&amp;Run</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown">
-                                <div class="link dropdown-toggle" data-toggle="dropdown">Run</div>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                    <li onclick="compile();">Compile</li>
-                                    <li onclick="execute();">Run</li>
-                                    <li onclick="compileAndRun();">Compile&amp;Run</li>
+                                <a id="dropdown-history" class="dropdown-toggle" data-toggle="dropdown" href="#">History</a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-history">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-toggle="modal" data-target="#modal-revisions">Commit's List</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown">
-                                <div class="dropdown-toggle" data-toggle="dropdown">History</div>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                    <li onclick="m_revisions();">Commit's List</li>
-                                </ul>
-                            </li>
-                            <li class="dropdown">
-                                <div class="dropdown-toggle" data-toggle="dropdown">Help</div>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                                    <li onclick="openStaticTab('shortcuts');">Shortcuts</li>
-                                    <li onclick="openStaticTab('about');">About JavaFiddle</li>
+                                <a id="dropdown-help" class="dropdown-toggle" data-toggle="dropdown" href="#">Help</a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-help">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="openStaticTab('shortcuts');">Shortcuts</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="openStaticTab('about');">About JavaFiddle</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -135,7 +133,12 @@
         <div id="container-outer" class="container">
             <div class="outer-west">
                 <div id="block-tree" class="mainblock">
-                    <div id="tree"/>
+                    <div class="block-header">
+                        Projects
+                        <button type="button" class="btn btn-xs block-header-button"><span class="glyphicon glyphicon-minus block-header-icon" onmouseup="outerLayout.close('west');" title="Minimize Panel"/></button>
+                        <button type="button" class="btn btn-xs block-header-button"><span class="glyphicon glyphicon-pushpin block-header-icon" onmouseup="toggleTree();" title="Dock"/></button>
+                    </div>
+                        <div id="tree"/>
                 </div>
             </div>
             <div id="container-inner" class="outer-center container"> 
@@ -146,9 +149,12 @@
                 </div>
                 <div class="inner-south">
                     <div id="block-console" class="mainblock">
-                        <div id="console-wrapper">
-                            <div id="console"/>
+                        <div class="block-header">
+                            Console
+                            <button type="button" class="btn btn-xs block-header-button"><span class="glyphicon glyphicon-minus block-header-icon" onmouseup="innerLayout.close('south');" title="Minimize Panel"/></button>
+                            <button type="button" class="btn btn-xs block-header-button"><span class="glyphicon glyphicon-pushpin block-header-icon" onmouseup="toggleConsole();" title="Dock"/></button>
                         </div>
+                        <div id="console"/>
                         <div class="input-group input-group-sm">
                             <h:inputText id="stdin" class="form-control input-sm" onkeypress="if (event.keyCode === 13){sendInput(); return false;}" />
                             <span class="input-group-btn btn-group-custom">
@@ -173,59 +179,59 @@
                 
         <!-- Popup for Tree -->
         <div id="treeMenu" class="dropdown clearfix contextMenu">
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-                <li onclick="m_newfile();">New Java Class</li>
-                <li onclick="m_newpack();">New Package</li>
-                <li class="divider"></li>
-                <li onclick="compile();">Compile</li>
-                <li onclick="execute();">Run</li>
-                <li onclick="compileAndRun();">Compile&amp;Run</li>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-newfile").modal("show");'>New Java Class</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-newpack").modal("show");'>New Package</a></li>
+                <li role="presentation" class="divider"></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="compile();">Compile</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="execute();">Run</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="compileAndRun();">Compile&amp;Run</a></li>
             </ul>
         </div>
         
         <!-- Popup for Project -->   
         <div id="projectMenu" class="dropdown clearfix contextMenu">
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-                <li onclick="m_newpack($elClicked);">New Package</li>
-                <li class="divider"></li>
-                <li onclick="compile();">Compile</li>
-                <li onclick="execute();">Run</li>
-                <li onclick="compileAndRun();">Compile&amp;Run</li>
-                <li class="divider"></li>
-                <li onclick="m_rename($elClicked);">Rename</li>
-                <li onclick="m_delete($elClicked);">Close</li>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-newpack").modal("show");'>New Package</a></li>
+                <li role="presentation" class="divider"></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="compile();">Compile</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="execute();">Run</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="compileAndRun();">Compile&amp;Run</a></li>
+                <li role="presentation" class="divider"></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-rename").modal("show");'>Rename</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-delete").modal("show");'>Close</a></li>
             </ul>
         </div>
         
         <!-- Popup for SrcFolder -->   
         <div id="srcMenu" class="dropdown clearfix contextMenu">
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-                <li onclick="m_newpack($elClicked);">New Package</li>
-                <li onclick="m_newclass($elClicked);">New Java Class</li>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-newpack").modal("show");'>New Package</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-newfile").modal("show");'>New Java Class</a></li>
             </ul>
         </div>    
         
         <!-- Popup for Package -->   
         <div id="packageMenu" class="dropdown clearfix contextMenu">
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-                <li onclick="m_newfile($elClicked);">New Java Class</li>
-                <li onclick="m_newpack($elClicked);">New Package</li>
-                <li onclick="m_rename($elClicked);">Rename</li>
-                <li onclick="m_delete($elClicked);">Delete</li>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-newfile").modal("show");'>New Java Class</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-newpack").modal("show");'>New Package</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-rename").modal("show");'>Rename</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-delete").modal("show");'>Delete</a></li>
             </ul>
         </div>  
         
         <!-- Popup for File -->   
         <div id="fileMenu" class="dropdown clearfix contextMenu">
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-                <li onclick="openTabFromTree($elClicked);">Open</li>
-                <li onclick="m_rename($elClicked);">Rename</li>
-                <li onclick="m_delete($elClicked);">Delete</li>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="openTabFromTree($elClicked);">Open</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-rename").modal("show");'>Rename</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='$("#modal-delete").modal("show");'>Delete</a></li>
             </ul>
         </div>
 
         <!-- Modal add package -->
-        <div class="modal flat" id="modal-newpack" tabindex="-1" role="dialog" aria-labelledby="modal-newpath-header" aria-hidden="false">
+        <div class="modal flat" id="modal-newpack" tabindex="-1" role="dialog" aria-labelledby="modal-newpath-header" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -256,7 +262,7 @@
         </div>
         
         <!-- Modal add new file -->
-        <div class="modal flat" id="modal-newfile" tabindex="-1" role="dialog" aria-labelledby="modal-newfile-header" aria-hidden="false">
+        <div class="modal fade" id="modal-newfile" tabindex="-1" role="dialog" aria-labelledby="modal-newfile-header" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -273,12 +279,12 @@
                                 <div class="col-md-5">
                                     <label for="modal-newfile-classtype">Type:</label>
                                     <select id="modal-newfile-classtype" class="form-control">
-                                        <option>Java Class</option>
-                                        <option>Java Interface</option>
-                                        <option>Java Enum</option>
-                                        <option>Java Annotation Type</option>
-                                        <option>Java Exception</option>
-                                        <option>Java Main Class</option>
+                                        <option value='class'>Java Class</option>
+                                        <option value="interface">Java Interface</option>
+                                        <option value="enumeration">Java Enum</option>
+                                        <option value="annotation">Java Annotation Type</option>
+                                        <option value="exception">Java Exception</option>
+                                        <option value="runnable">Java Main Class</option>
                                     </select>
                                 </div>
                             </div>
@@ -307,7 +313,7 @@
         </div>
         
         <!-- Modal rename -->    
-        <div class="modal flat" id="modal-rename" tabindex="-1" role="dialog" aria-labelledby="modal-rename-header" aria-hidden="false">
+        <div class="modal fade" id="modal-rename" tabindex="-1" role="dialog" aria-labelledby="modal-rename-header" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -330,7 +336,7 @@
         </div>
 
         <!-- Modal delete -->    
-        <div class="modal flat" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-delete-header" aria-hidden="false">
+        <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-delete-header" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -351,7 +357,7 @@
         </div>
                 
         <!-- Modal share --> 
-        <div class="modal flat" id="modal-share" tabindex="-1" role="dialog" aria-labelledby="modal-share-header" aria-hidden="false">
+        <div class="modal fade" id="modal-share" tabindex="-1" role="dialog" aria-labelledby="modal-share-header" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -373,7 +379,7 @@
         </div>
         
         <!-- Modal commit's list -->
-        <div class="modal flat" id="modal-revisions" tabindex="-1" role="dialog" aria-labelledby="modal-revisions-header" aria-hidden="false">
+        <div class="modal flat" id="modal-revisions" tabindex="-1" role="dialog" aria-labelledby="modal-revisions-header" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

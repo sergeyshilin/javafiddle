@@ -47,24 +47,9 @@ public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializa
         return packages;
     }
 
-    public void setPackages(ArrayList<TreePackage> packages) {
-        this.packages = packages;
-    }
-    
-    public TreePackage getPackageInstance(IdList idList, String name) {
-        return addPackage(idList, name, true);
-    }
-    
     public TreePackage addPackage(IdList idList, String name) {
-        return addPackage(idList, name, false);
-    }
-    
-    public TreePackage addPackage(IdList idList, String name, boolean getInstance) {
         for (TreePackage temp : packages)
             if (name.equals(temp.getName()))
-                if (getInstance)
-                    return temp;
-                else 
                     return null;
         TreePackage tp = new TreePackage(name);
         packages.add(tp);
@@ -74,8 +59,15 @@ public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializa
 
         return tp;
     }
-    
-    public void  deletePackage(IdList idList, int packageId) {
+
+    public TreePackage getPackage(String name) {
+        for (TreePackage temp : packages)
+            if (name.equals(temp.getName()))
+                    return temp;
+        return null;
+    }
+        
+    public void deletePackage(IdList idList, int packageId) {
         List<TreePackage> childPackages = new ArrayList<>();
         TreePackage tp = idList.getPackage(packageId);
      
@@ -102,6 +94,7 @@ public class TreeProject implements TreeNode, Comparable<TreeProject>, Serializa
                     if (current.equals(packages.get(j).getName())) {
                         packages.get(i).setParentId(packages.get(j).getId());
                         packages.get(i).setParents(packages.get(j).getParents() + 1);
+                        packages.get(i).setShortName(packages.get(i).getName().substring(current.length() + 1));
                         current = "";
                         break;
                     }

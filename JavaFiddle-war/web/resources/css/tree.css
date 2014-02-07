@@ -1,0 +1,94 @@
+#tree, #tree ul {
+    font-size: 13px;
+    font-family: 'Open Sans';
+    font-weight: normal;
+    font-style: normal;
+    margin: 0;
+    padding: 3px 0 0 7px;
+    list-style: none;
+    /*border: 1px solid red;*/
+}
+
+#tree ul {
+    display: none;
+    margin: 0 0 0 10px;
+    border-left: 1px solid #ddd;
+}
+
+#tree li {
+    list-style: none;
+    padding: 0 3px 0 0;
+}
+
+#tree ul.opened {
+    display: block;
+}
+
+#tree a {
+    color: #000;
+    display: block;
+    position: relative;
+    text-decoration: none;
+    padding: 1px 0 1px 28px;
+    background-repeat: no-repeat;
+    background-position-y: 3px !important;
+    background-position-x: 9px !important;  
+    background-position: 4% 50%;  
+}
+
+#tree a.folder {background-image: url('img/idea-folder.png')}
+#tree a.root {background-image: url('img/idea-folder-root.gif'); font-weight: bold}
+#tree a.sources {background-image: url('img/idea-folder-src.gif')}
+#tree a.package {background-image: url('img/idea-package.png')}
+#tree a.runnable {background-image: url('img/idea-class-runnable.png')}
+#tree a.iml {background-image: url('img/idea-logo.png')}
+#tree a.lib {background-image: url('img/idea-libs.png'); background-position-y: 1px}
+#tree a.class {background-image: url('img/idea-class.png')}
+#tree a.interface {background-image: url('img/idea-class-interface.png')}
+#tree a.exception {background-image: url('img/idea-class-exception.png')}
+#tree a.enum {background-image: url('img/idea-class-enum.png')}
+#tree a.annotation {background-image: url('img/idea-class-annotation.png')}
+#tree a.help {background-image: url('img/idea-libs.png')}
+
+#tree a:before {
+    content: '';
+    width: 0;
+    height: 0;
+    border: 0;
+    border-top: 3px solid transparent;
+    border-left: 4px solid #ccc;
+    border-bottom: 3px solid transparent;
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    left: 0px;
+    margin: 0 4px 0 0;
+}
+
+#tree a.harFull.harOpen:before {
+    border:0;
+    border-left: 3px solid transparent;
+    border-top: 4px solid #555;
+    border-right: 3px solid transparent;
+    top: 7px;
+}
+
+#tree a.harFull:before {
+    border:0;
+    border-top: 3px solid transparent;
+    border-left: 4px solid #555;
+    border-bottom: 3px solid transparent;
+    top: 5px;
+}
+
+#tree a:hover {
+    text-decoration: underline;
+}
+
+#tree a.cur {
+  color: #000
+}
+
+#tree a.harOpen {
+  color: #000
+}

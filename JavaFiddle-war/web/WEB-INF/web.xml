@@ -20,10 +20,6 @@
     <welcome-file-list>
         <welcome-file>fiddle/index.xhtml</welcome-file>
     </welcome-file-list>
-    <mime-mapping>
-        <extension>eot</extension>
-        <mime-type>application/vnd.ms-fontobject</mime-type>
-    </mime-mapping>     
     <mime-mapping>  
         <extension>woff</extension>  
         <mime-type>application/x-font-woff</mime-type>  

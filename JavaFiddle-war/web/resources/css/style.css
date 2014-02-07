@@ -1,13 +1,13 @@
+/**
+* COMMON LAYOUT
+*/
+
 html, body {
     margin: 0;
     padding: 0; 
     width: 100%;
     height: 100%;
 }
-
-/**
-* COMMON LAYOUT
-*/
 
 body {
     display: -ms-flex !important; 
@@ -54,10 +54,6 @@ body {
     height: calc(100% - 10px);
 }
 
-#tree {
-    height: 100%;
-}
-
 #block-editor {
     margin: 5px 5px 0 0;
     height: -webkit-calc(100% - 5px);
@@ -70,18 +66,56 @@ body {
     height: calc(100% - 5px);
 }
 
-#console-wrapper {
-    height: -webkit-calc(100% - 30px);
-    height: calc(100% - 30px);
+.block-header {
+    background: rgb(204,213,229);
+    border-bottom: 1px solid #ccc;
+    font-size: 12px;
+    font-family: 'Open Sans';
+    font-weight: bold;
+    font-style: normal;
+    padding: 0 1px 0 6px;
+    height: 18px;
 }
 
-#stdin-wrapper {
-    width: 100%;
+.block-header-button {
+    float: right;
+    border: 1px solid #ccc;
+    height: 17px;
+    width: 17px;
+    margin-left: 2px;
+}
+
+.block-header-icon {
+    top: -1px;
+    left: -4px;
+}
+
+#tree {
+    height: -webkit-calc(100% - 20px);
+    height: calc(100% - 20px);
+    overflow: overlay;
+}
+
+#console {
+    height: -webkit-calc(100% - 48px);
+    height: calc(100% - 48px);
+    overflow: overlay;
 }
 
 .ui-layout-resizer {
     background-color: #eee;
     border-width: 0;                        
+}
+
+.dropdown-menu {
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+}
+
+.contextMenu {
+    position: absolute !important;
+    z-index : 100;
 }
 
 /**
@@ -182,8 +216,6 @@ body {
 #header-top #bottom #main_menu {
     margin: -5px 0 0 10px;
     height: 20px;
-    list-style: none;
-    padding: 0 5px;
     float: left;
     position: relative;
 }
@@ -192,48 +224,21 @@ body {
 * MAIN MENU
 */
 
-#main_menu li {
-    color: #0e0e0e;
+.dropdown a {
     font-size: 13px;
     font-family: 'Open Sans';
     font-weight: normal;
     font-style: normal;
     cursor: default;
-}
-
-#main_menu .dropdown-toggle {
-    margin: 0;
-    padding: 5px 6px;
-}
-
-#main_menu .open {
-    background: #eaeaea; 
-}
-
-#main_menu .dropdown-menu {
+    color: #0e0e0e; 
     -webkit-border-radius: 0 !important;
     -moz-border-radius: 0 !important;
     border-radius: 0 !important;
 }
 
-#main_menu li:hover {
-    background-color: #eaeaea; 
-}
-
-#main_menu li.active {
-    background-color: #777;
-    border-top: 1px solid rgba(0, 0, 0, 0.2);
-    border-left: 1px solid rgba(0, 0, 0, 0.2);
-    border-right: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-#main_menu ul li {
-    min-width: 160px;
-    padding: 4px 10px;
-}
-
-#main_menu li .divider {
-    padding: 0px;
+#main_menu .dropdown-toggle {
+    margin: 0;
+    padding: 5px 6px;
 }
 
 #header-top #bottom #latest_update {
@@ -256,15 +261,6 @@ body {
     font-style: normal;
 }
 
-#header-top #share {
-    margin: 0 7px 0 0;
-    padding: 0 1px 0 0;
-}
-
-#share:hover {
-    background-color: #4189fc;
-}
-
 /**
 * HEADER-BOTTOM
 */
@@ -281,16 +277,7 @@ body {
     box-shadow: inset 0 1px 0 0 #fff;
     background-color: #f5f5f5;
     background-image: -webkit-linear-gradient(top,#f5f5f5,#eee);
-    background-image: -moz-linear-gradient(top,#f5f5f5,#eee);
-    background-image: -ms-linear-gradient(top,#f5f5f5,#eee);
-    background-image: -o-linear-gradient(top,#f5f5f5,#eee);
     background-image: linear-gradient(top,#f5f5f5,#eee);
-    display: -ms-flex; 
-    display: -webkit-flex; 
-    display: flex; 
-    -ms-flex-direction: row;
-    -webkit-flex-direction: row;
-    flex-direction: row;
 }
 
 #header-bottom #editor_buttons {
@@ -323,7 +310,7 @@ body {
 
 #editor_buttons div.separator {
     width: 1px; 
-    height: 33px; 
+    height: 38px; 
     border-left: 1px solid #ccc; 
     display: inline; 
     position: absolute; 
@@ -337,16 +324,13 @@ body {
 
 #header-bottom #tabpanel {
     height: auto;
-    min-height: 34px;
+    min-height: 36px;
     list-style: none;
-    border-left: 1px solid #999;
+    border-left: 1px solid #ccc;
     position: relative;
     float: left;
     padding: 0 5px 3px 5px;
-    margin: 0;
-    -ms-flex: 1;
-    -webkit-flex: 1;
-    flex: 1;    
+    margin: 0;   
 }
 
 ul#tabpanel li {
@@ -394,152 +378,24 @@ ul#tabpanel li.notfound{font-style: italic; color:#777777; padding-left: 5px;}
 ul#tabpanel li.help{background-image: url('img/idea-libs.png')}
 
 /**
-* TREE
+*   FONTS
 */
 
-#tree {
-    -ms-flex: 1;
-    -webkit-flex: 1;
-    flex: 1; 
-}
-#tree, #tree ul {
-    font-size: 13px;
+@font-face {
     font-family: 'Open Sans';
+    src: local('Open Sans'), local('Open Sans Regular'), url('fonts/opensans-regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-    margin: 0;
-    padding: 3px 0 0 7px;
-    list-style: none;
-    /*border: 1px solid red;*/
 }
-
-#tree ul {
-    display: none;
-    margin: 0 0 0 10px;
-    border-left: 1px solid #ddd;
-}
-
-#tree li {
-    list-style: none;
-    padding: 0 3px 0 0;
-}
-
-#tree ul.opened {
-    display: block;
-}
-
-#tree a {
-    color: #000;
-    display: block;
-    position: relative;
-    text-decoration: none;
-    padding: 1px 0 1px 28px;
-    background-repeat: no-repeat;
-    background-position-y: 3px !important;
-    background-position-x: 9px !important;  
-    background-position: 4% 50%;  
-}
-
-#tree a.folder {background-image: url('img/idea-folder.png')}
-#tree a.root {background-image: url('img/idea-folder-root.gif'); font-weight: bold}
-#tree a.sources {background-image: url('img/idea-folder-src.gif')}
-#tree a.package {background-image: url('img/idea-package.png')}
-#tree a.runnable {background-image: url('img/idea-class-runnable.png')}
-#tree a.iml {background-image: url('img/idea-logo.png')}
-#tree a.lib {background-image: url('img/idea-libs.png'); background-position-y: 1px}
-#tree a.class {background-image: url('img/idea-class.png')}
-#tree a.interface {background-image: url('img/idea-class-interface.png')}
-#tree a.exception {background-image: url('img/idea-class-exception.png')}
-#tree a.enum {background-image: url('img/idea-class-enum.png')}
-#tree a.annotation {background-image: url('img/idea-class-annotation.png')}
-#tree a.help {background-image: url('img/idea-libs.png')}
-
-#tree a:before {
-    content: '';
-    width: 0;
-    height: 0;
-    border: 0;
-    border-top: 3px solid transparent;
-    border-left: 4px solid #ccc;
-    border-bottom: 3px solid transparent;
-    display: inline-block;
-    position: absolute;
-    top: 5px;
-    left: 0px;
-    margin: 0 4px 0 0;
-}
-
-#tree a.harFull.harOpen:before {
-    border:0;
-    border-left: 3px solid transparent;
-    border-top: 4px solid #555;
-    border-right: 3px solid transparent;
-    top: 7px;
-}
-
-#tree a.harFull:before {
-    border:0;
-    border-top: 3px solid transparent;
-    border-left: 4px solid #555;
-    border-bottom: 3px solid transparent;
-    top: 5px;
-}
-
-#tree a:hover {
-    text-decoration: underline;
-}
-
-#tree a.cur {
-  color: #000
-}
-
-#tree a.harOpen {
-  color: #000
-}
-
-/**
-* Context menu
-*/
-
-.contextMenu {
-    position: absolute !important;
-    display : none;
-    z-index : 100;
-    margin-bottom : 5px;
-}
-
-.contextMenu .dropdown-menu {
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    border-radius: 0 !important; 
-}
-
-.contextMenu li.active {
-    background-color: #777;
-    border-top: 1px solid rgba(0, 0, 0, 0.2);
-    border-left: 1px solid rgba(0, 0, 0, 0.2);
-    border-right: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.contextMenu li {
-    color: #0e0e0e;
-    font-size: 13px;
+@font-face {
     font-family: 'Open Sans';
-    font-weight: normal;
+    src: local('Open Sans'), local('Open Sans Bold'), url('fonts/opensans-bold.woff') format('woff');
+    font-weight: bold;
     font-style: normal;
-    cursor: default;
 }
-
-.contextMenu li {
-    min-width: 170px;
-    padding: 4px 10px;
-    cursor: default;
-}
-
-.contextMenu li:hover {
-    background-color: #eaeaea; 
-}
-
-.contextMenu .divider {
-    padding: 0px;
+@font-face {
+    font-family: 'Open Sans';
+    src: local('Open Sans Semibold'), local('Open Sans Semibold Regular'), url('fonts/opensans-semibold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
 }

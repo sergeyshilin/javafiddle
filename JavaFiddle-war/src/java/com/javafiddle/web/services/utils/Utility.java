@@ -30,8 +30,8 @@ public class Utility {
     }
 
     public static void addExampleTree(Tree tree, IdList idList, TreeMap<Integer, TreeMap<Long, String>> files) {
-        TreeProject tpr = tree.getProjectInstance(idList, "MyFirstProject");
-        TreePackage tp = tpr.getPackageInstance(idList, "com.myfirstproject.web");
+        TreeProject tpr = tree.addProject(idList, "MyFirstProject");
+        TreePackage tp = tpr.addPackage(idList, "com.myfirstproject.web");
         TreeFile main = tp.addFile(idList, "runnable", "Main.java");
         
         Revisions revisions = new Revisions(idList, files);

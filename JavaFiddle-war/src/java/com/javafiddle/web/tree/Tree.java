@@ -4,8 +4,6 @@ import com.javafiddle.web.services.utils.Hashes;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -32,26 +30,23 @@ public class Tree implements Serializable {
     public TreeProject addProject(IdList idList, String projectName) {
         for (TreeProject temp : projects)
             if (projectName.equals(temp.getName()))
-                return null;
-        TreeProject tpr = new TreeProject(projectName);
-        projects.add(tpr);
-        tpr.setId(idList.add(tpr));
-        Collections.sort(projects);
-        
-        return tpr;
-    }
-        
-    public TreeProject getProjectInstance(IdList idList, String projectName) {
-        for (TreeProject temp : projects)
-            if (projectName.equals(temp.getName()))
                 return temp;
         TreeProject tpr = new TreeProject(projectName);
         projects.add(tpr);
         tpr.setId(idList.add(tpr));
+        tpr.addPackage(idList, "<default_package>");
+        Collections.sort(projects);
         
         return tpr;
     }
     
+   public TreeProject getProject(IdList idList, String projectName) {
+        for (TreeProject temp : projects)
+            if (projectName.equals(temp.getName()))
+                return temp;
+        return null;
+    }
+        
     public void deleteProject(IdList idList, int projectId) {
         TreeProject tpr = idList.getProject(projectId);
         for (TreePackage temp : tpr.getPackages()) {
@@ -62,26 +57,6 @@ public class Tree implements Serializable {
         
         projects.remove(tpr);
         idList.remove(projectId);
-    }
-
-    public static ArrayList<String> getPackagesNames(List packages) {
-        HashSet<String> set = new HashSet<>();
-        Iterator<TreePackage> iterator = packages.iterator();
-	while (iterator.hasNext()) {
-            set.addAll(Tree.getAllPossiblePackages(iterator.next().getName()));
-	}
-        return new ArrayList<>(set);
-    }
-    
-    public static HashSet<String> getAllPossiblePackages(String name) {
-        HashSet<String> list = new HashSet<>();
-        String[] possiblepacks = name.split("\\.");
-        String current = "";
-        for(String pack : possiblepacks) {
-            current += current.isEmpty() ? pack : "." + pack;
-            list.add(current);
-        }
-        return list;
     }
 
     public String toJSON() {

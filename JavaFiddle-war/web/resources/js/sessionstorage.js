@@ -57,33 +57,63 @@ function addCurrentFileText() {
     var id = sessionStorage.getItem("currentFileID");
     if (id === null || id === '')
         return false;
-    sessionStorage.setItem("openedtabs." + id, editor.getValue());
-//    sessionStorage.setItem("openedtabs." + id + "_history", JSON.stringify(editor.getSession().getUndoManager().toJSON()));
+    
+    var session = editor.session;
+    state = {};
+    state.value = session.getValue();
+    state.selection = session.selection.toJSON();
+    state.options = session.getOptions();
+    state.mode = session.getMode().$id;
+    state.folds = session.getAllFolds().map(function(fold) {
+        return {
+            start       : fold.start,
+            end         : fold.end,
+            placeholder : fold.placeholder
+        };
+    });
+    state.scrollTop = session.getScrollTop();
+    state.scrollLeft = session.getScrollLeft();
+
+    sessionStorage.setItem("openedtabs." + id, JSON.stringify(state));
 }
 
 function getCurrentFileText() {
     if (!supportsSessionStorage())
         return false;
     var id = sessionStorage.getItem("currentFileID");
-    var text = sessionStorage.getItem("openedtabs." + id);
-    if (text !== null) {
-        var modified = isModified(id);
-        editor.setValue(text);
+    var modified = isModified(id);
+    var state = JSON.parse(sessionStorage.getItem("openedtabs." + id));
+    if (state !== null) {
+         var session = editor.session;
+        session.setValue(state.value);
+        session.selection.fromJSON(state.selection);
+        session.setOptions(state.options);
+        session.setMode(state.mode);
+        try {
+            state.folds.forEach(function(fold){
+                session.addFold(fold.placeholder, 
+                    Range.fromPoints(fold.start, fold.end));
+            });
+        } catch(e) {}
+        session.setScrollTop(state.scrollTop);
+        session.setScrollTop(state.scrollLeft);
+
         editor.session.getUndoManager().reset();
-        editor.clearSelection();
         editor.setReadOnly(false);
-        changeModifiedState(id, modified);
     } else
         getFileRevision(id);
+    
+    changeModifiedState(id, modified);
 }
 
 function getOpenedFileText(id) {
     if (!supportsSessionStorage())
         return false;
-    var text = sessionStorage.getItem("openedtabs." + id);
-    if (text !== null)
-        return text;
-    else
+    var data = sessionStorage.getItem("openedtabs." + id);
+    if (data !== null) {
+        var state = JSON.parse(data);
+        return state.value;
+    }else
         return false;
 }
 

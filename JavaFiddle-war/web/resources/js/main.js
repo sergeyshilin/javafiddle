@@ -1,9 +1,11 @@
+var PROJECTPARAM;
 var outerLayout, innerLayout;
+var $elClicked;
 
 // EVENTS
 //
 $(document).ready(function(){
-    checkProjectParam();
+    openProjectByHash(PROJECTPARAM);
     runLayouts();
     loadLiHarmonica();
     buildTree();
@@ -11,6 +13,27 @@ $(document).ready(function(){
     loadPopups();
     editorSettings();    
     resizeEditor();
+    
+    $("#main_menu .dropdown").on("mouseover", function() {
+        if ($(document).find('.dropdown.open').index() !== -1) {
+            $('.dropdown > ul').hide();
+            $(document).find('.dropdown.open').removeClass("open");
+            $(this).children("ul").show();
+            $(this).addClass("open");
+        }
+        return false;
+    });
+    
+    $("#main_menu .dropdown").on("click", function() {
+        $('.dropdown > ul').hide();
+        if ($(document).find('.dropdown.open').index() !== -1) {
+            $(document).find('.dropdown.open').removeClass("open");
+        } else {
+            $(this).addClass("open");
+            $(this).children("ul").show();
+        }
+        return false;
+    });
 });
                         
 $(window).resize(function() {
@@ -18,7 +41,7 @@ $(window).resize(function() {
 });
 
 $(document).click(function () {
-    hidePopups();
+    $('.dropdown > ul').hide();
 });
 
 $(document).bind('keydown', function(e) {
@@ -47,23 +70,16 @@ function resizeEditor() {
     console.resize();
 }
 
+
 // LOADFUNCTIONS
 // 
-function checkProjectParam() {
-    var projecthash = PROJECTPARAM;
-    if(projecthash !== "") {
-        getProject(projecthash);
-        invalidateSession();
-    }
-}
-
 function runLayouts() {
     outerLayout = $('#container-outer').layout({
         center__paneSelector: ".outer-center", 
 	west__paneSelector: ".outer-west",
-        center__minWidth: 100,
+        center__minWidth: 110,
         west__size: 250,
-        west__minSize: 100,
+        west__minSize: 110,
         spacing_open: 5,		
 	spacing_closed: 5,
         livePaneResizing: true,
@@ -76,8 +92,8 @@ function runLayouts() {
     innerLayout = $('#container-inner').layout({
         center__paneSelector: ".inner-center", 
 	south__paneSelector: ".inner-south",
-        center__minHeight: 100,
-        south__minSize: 100,
+        center__minHeight: 110,
+        south__minSize: 110,
         south__initClosed: true,
         spacing_open: 5,		
 	spacing_closed: 5,
@@ -90,7 +106,7 @@ function runLayouts() {
 }
 
 function editorSettings() {
-    editor.setTheme("ace/theme/chrome");
+    editor.setTheme("ace/theme/idea");
     editor.getSession().setMode("ace/mode/java");
     editor.setReadOnly(true);
     
@@ -98,7 +114,7 @@ function editorSettings() {
         pushModifiedTab();
     });
 
-    console.setTheme("ace/theme/chrome");
+    console.setTheme("ace/theme/idea");
     console.getSession().setMode("ace/mode/text");
     console.renderer.setShowGutter(false); 
     console.renderer.setShowPrintMargin(false);
@@ -315,6 +331,65 @@ function loadLiHarmonica() {
     })(jQuery);
 }
 
+function loadPopups() {
+    $(function () {
+        $("#block-tree").on("contextmenu", "div", function(e) {
+            $('.dropdown > ul').hide();
+            var $contextMenu = $("#treeMenu");
+            $("#treeMenu > ul").show();
+            $elClicked = $(this);
+            $contextMenu.css({
+                display: "block",
+                left: e.pageX,
+                top: e.pageY
+            });
+           
+            return false;           
+        });
+        $("#tree").on("contextmenu", "a", function(e) {
+            $('.dropdown > ul').hide();
+            var $contextMenu;
+            var classname = $(this).attr("class").split(" ")[0];
+            switch(classname) {
+            case "root":    
+                $contextMenu = $("#projectMenu");
+                $("#projectMenu > ul").show();
+                break;
+            case "sources":
+                $contextMenu = $("#srcMenu");
+                $("#srcMenu > ul").show();
+                break;
+            case "package":
+                $contextMenu = $("#packageMenu");
+                $("#packageMenu > ul").show();
+                break;
+            case "class": 
+            case "interface": 
+            case "exception": 
+            case "annotation": 
+            case "runnable":
+            case "enum":
+                $contextMenu = $("#fileMenu");
+                $("#fileMenu > ul").show();
+                break;
+            default:
+                return;
+            }
+            
+            $elClicked = $(this);
+            $contextMenu.css({
+                display: "block",
+                left: e.pageX,
+                top: e.pageY
+            });
+            return false;
+        });
+    });
+}
+ 
+// TOGGLE
+// 
+
 function toggleHeader() {
     var $header = $("#header-top");
     if($header.css("display") === "none")
@@ -326,67 +401,31 @@ function toggleHeader() {
     innerLayout.resizeAll();
 }
 
-
-// TOGGLES
-
-function loadPopups() {
-    $(function () {
-        $("#block-tree").on("contextmenu", "div", function(e) {
-            var $contextMenu = $("#treeMenu");
-            hidePopups();
-            $elClicked = $(this);
-            $contextMenu.css({
-                display: "block",
-                left: e.pageX,
-                top: e.pageY
-            });
-            return false;           
-        });
-        $("#tree").on("contextmenu", "a", function(e) {
-            var $contextMenu;
-            var classname = $(this).attr("class").split(" ")[0];
-            switch(classname) {
-            case "root":    
-                $contextMenu = $("#projectMenu");
-                break;
-            case "sources":
-                $contextMenu = $("#srcMenu");
-                break;
-            case "package":
-                $contextMenu = $("#packageMenu");
-                break;
-            case "class": 
-            case "interface": 
-            case "exception": 
-            case "annotation": 
-            case "runnable":
-            case "enum":
-                $contextMenu = $("#fileMenu");
-                break;
-            default:
-                return;
-            }
-            
-            hidePopups();
-            $elClicked = $(this);
-            $contextMenu.css({
-                display: "block",
-                left: e.pageX,
-                top: e.pageY
-            });
-            return false;
-        });
-    });
+function toggleTree() {
+    var state = outerLayout.state;
+    if (state.west.isSliding)
+        outerLayout.open('west');
+    else {
+        outerLayout.close('west');
+        setTimeout(function () {
+            outerLayout.slideOpen('west');
+        }, 250);
+        
+    }  
 }
 
-function hidePopups() {
-    $("#treeMenu").hide();
-    $("#projectMenu").hide();
-    $("#srcMenu").hide();
-    $("#packageMenu").hide();
-    $("#fileMenu").hide();
+function toggleConsole() {
+    var state = innerLayout.state;
+    if (state.south.isSliding)
+        innerLayout.open('south');
+    else {
+        innerLayout.close('south');
+        setTimeout(function () {
+            innerLayout.slideOpen('south');
+        }, 250);
+        
+    }
 }
-
 
 // FILE REVISIONS (SERVICES)
 //
@@ -443,14 +482,23 @@ function saveProject() {
     });
 }
 
-function getProject(projecthash) {
+function openProjectByHash(projecthash) {
+    if (!arguments.length === 1 || projecthash === null || projecthash === "")
+        return false;
+    
     $.ajax({
         url: PATH + '/webapi/data/project',
         type:'GET',
         async: false,
         data: {projecthash : projecthash},
         dataType: "json",
-        contentType: "application/json"
+        contentType: "application/json",
+        success: function() {
+            invalidateSession();
+        },
+        error: function() {
+            alert("Can't restore project with hash " + projecthash);
+        }
     });
 }
 
@@ -466,7 +514,11 @@ function getFileRevision(id) {
         contentType: "application/json",
         success: function(data) {
             editor.setValue(data.value);
+            editor.clearSelection();
+            editor.session.getUndoManager().reset();
+            editor.setReadOnly(false);
             addCurrentFileTimeStamp(data.timeStamp);
+            changeModifiedState(id, false);
         },
         error: function(jqXHR) {
             if (jqXHR.status === 406)
