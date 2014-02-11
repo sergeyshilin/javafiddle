@@ -49,9 +49,8 @@ $(document).ready(function() {
         $("#modal-newfile-project").val(currentProject);
 
         var packages = getPackagesList($("#modal-newfile-project").val());
-        $("#modal-newfile-package").prepend("<option>&lt;default_package&gt;</option>");
         for (var i = 0; i < packages.length; i++)
-            $("#modal-newfile-package").append("<option>" + packages[i] +"</option>");
+            $("#modal-newfile-package").append("<option>" + packages[i].replace("<", "&lt;").replace(">", "&gt;") +"</option>");
 
         var fullpath = "./" + currentProject + "/";
 
@@ -103,7 +102,7 @@ $(document).ready(function() {
     //
     $('#modal-share').on('show.bs.modal', function (e) {
         var latest = getLatestProjectHash();
-        $("#modal-share-name").val("http://javafiddle.org/?project=" + (!latest.localeCompare("null") ? "" : latest));
+        $("#modal-share-name").val("http://javafiddle.org/?h=" + (!latest.localeCompare("null") ? "" : latest));
         $("#modal-share-verify").text(!latest.localeCompare("null") ? "There are no project revisions. Commit it!" : "Share this link with your friends!");
     });
     
@@ -111,6 +110,7 @@ $(document).ready(function() {
     // REVISIONS LIST DIALOG 
     // 
     $('#modal-revisions').on('show.bs.modal', function (e) {
+        $("#modal-revisions-name").find('option').remove();
         var revisions;
 
         $.ajax({
@@ -204,7 +204,6 @@ function m_newfile_updproject() {
     var currentProject = $("#modal-newfile-project").val();
     $("#modal-newfile-package").find('option').remove();
     var packages = getPackagesList(currentProject);
-    $("#modal-newfile-package").prepend("<option>&lt;default_package&gt;</option>");
     for (var i = 0; i < packages.length; i++)
         $("#modal-newfile-package").prepend("<option>" + packages[i] +"</option>");
     m_newfile_update();
@@ -390,7 +389,7 @@ function getLatestProjectHash() {
     var hash = "";
     
     $.ajax({
-        url: PATH + '/webapi/data/lasthash',
+        url: PATH + '/webapi/tree/lasthash',
         type:'GET',
         async: false,
         dataType: "json",
@@ -406,9 +405,19 @@ function getLatestProjectHash() {
 //
 function revert() {
     var hash = $("#modal-revisions-name").val();
-    closeAllTabs();
-    getProject(hash);
-    buildTree();
+    
+   $.ajax({
+        url: PATH + '/webapi/data/changeproject',
+        type: 'POST',
+        async: false,
+        data: {projecthash : hash},
+        contentType: "application/x-www-form-urlencoded",
+        success: function() {
+            closeAllTabs();
+            invalidateSession();
+            buildTree();
+        }
+    });
 }
 
 // AJAX REQUESTS

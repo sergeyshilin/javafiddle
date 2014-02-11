@@ -262,14 +262,14 @@ public class TreeService {
     // other/temp
     //
     @GET
-    @Path("revisions/lasthash")
+    @Path("lasthash")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLastHash(
             @Context HttpServletRequest request
             ) {
         Gson gson = new GsonBuilder().create();
         if(sd.getTree().getHashes().getHash() == null)
-            return Response.ok(gson.toJson("null"), MediaType.APPLICATION_JSON).build();
+            return Response.ok().build();
         return Response.ok(gson.toJson(sd.getTree().getHashes().getHash()), MediaType.APPLICATION_JSON).build();
     }
     

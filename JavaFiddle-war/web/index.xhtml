@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
-        <title>Java Fiddle</title>
+        <title>JavaFiddle</title>
         
         <h:outputScript library="js" name="jquery-2.1.0.min.js"/>
         <h:outputScript library="js" name="jquery-ui.min.js"/>
@@ -80,7 +80,7 @@
                             <li class="dropdown">
                                 <a id="dropdown-history" class="dropdown-toggle" data-toggle="dropdown" href="#">History</a>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-history">
-                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-toggle="modal" data-target="#modal-revisions">Commit's List</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="$('#modal-revisions').modal('show');">Commit's List</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown">
@@ -99,7 +99,7 @@
                         Logged in as <h:link value="#{userBean.profile.nickname}" outcome="index" />
                     </h:panelGroup>
                     <div id="share" class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-primary" onclick="m_share();">
+                        <button type="button" class="btn btn-primary" onclick="$('#modal-share').modal('show');">
                             <span class="glyphicon glyphicon-share-alt"/> Share Code...
                         </button>
                     </div>
@@ -168,7 +168,7 @@
         <script type="text/javascript">
             //<![CDATA[
                 PATH = "#{request.contextPath}";
-                PROJECTPARAM = "#{param['project']}"; 
+                PROJECTPARAM = "#{param['h']}"; 
                 
                 var editor = ace.edit("editor");
                 var console = ace.edit("console");

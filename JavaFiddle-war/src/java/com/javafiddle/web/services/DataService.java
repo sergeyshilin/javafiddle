@@ -36,11 +36,12 @@ public class DataService {
     @Inject
     private ISessionData sd;
     
-    @GET
-    @Path("project")
+    @POST
+    @Path("changeproject")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response getProject(
             @Context HttpServletRequest request,
-            @QueryParam("projecthash") String hash
+            @FormParam("projecthash") String hash
             ) {
         if (hash == null)
             return Response.status(401).build();
@@ -142,7 +143,6 @@ public class DataService {
     
     @POST
     @Path("file")
-    @Produces(MediaType.TEXT_HTML)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response saveFile(
             @Context HttpServletRequest request,
