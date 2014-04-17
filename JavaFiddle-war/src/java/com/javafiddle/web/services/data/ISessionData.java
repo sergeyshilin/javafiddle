@@ -1,8 +1,9 @@
 package com.javafiddle.web.services.data;
 
 import static com.javafiddle.web.services.data.SessionData.SEP;
-import com.javafiddle.web.tree.IdList;
-import com.javafiddle.web.tree.Tree;
+import com.javafiddle.tree.IdList;
+import com.javafiddle.tree.Tree;
+import com.javafiddle.tree.TreeClass;
 import java.io.File;
 import java.io.Serializable;
 import java.util.TreeMap;
@@ -22,7 +23,7 @@ public interface ISessionData extends Serializable {
 
     public void setIdList(IdList idList);
 
-    public TreeMap<Integer, TreeMap<Long, String>> getFiles();
-
-    public void setFiles(TreeMap<Integer, TreeMap<Long, String>> files);
+    void addFileRevision(TreeClass file, IdList idList);
+    
+    long addFileRevision(long id, long timeStamp, String value);
 }

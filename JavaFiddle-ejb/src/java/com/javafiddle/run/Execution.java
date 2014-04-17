@@ -1,4 +1,4 @@
-package com.javafiddle.runner;
+package com.javafiddle.run;
 
 import java.io.BufferedReader;
 import java.io.IOException;

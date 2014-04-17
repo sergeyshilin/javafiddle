@@ -1,6 +1,5 @@
 package com.javafiddle.web.utils;
 
-import com.javafiddle.core.ejb.Application;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;

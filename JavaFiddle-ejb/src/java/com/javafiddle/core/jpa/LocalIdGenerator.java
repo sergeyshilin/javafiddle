@@ -7,8 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 
 /**
  *
@@ -18,8 +18,8 @@ import javax.persistence.TableGenerator;
 public class LocalIdGenerator implements Serializable {
     
     @Id @Column
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "local_gen")
-    @TableGenerator(pkColumnValue="LOCAL_GEN", name = "local_gen", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "local_gen")
+    @SequenceGenerator(sequenceName = "local_gen", name = "local_gen", allocationSize = 1)
     private Long id;
 
     public Long getId() {

@@ -2,14 +2,14 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.javafiddle.revisions.Revisions;
-import com.javafiddle.saving.GetProjectRevision;
-import com.javafiddle.saving.ProjectRevisionSaver;
+import com.javafiddle.web.services.data.FileRevisions;
+import com.javafiddle.data.ProjectRevisionGetter;
+import com.javafiddle.data.ProjectRevisionSaver;
 import com.javafiddle.web.services.data.ISessionData;
-import com.javafiddle.web.services.utils.FileRevision;
-import com.javafiddle.web.services.utils.Utility;
-import com.javafiddle.web.tree.Tree;
-import com.javafiddle.web.tree.TreeFile;
+import com.javafiddle.utils.FileRevision;
+import com.javafiddle.utils.Utility;
+import com.javafiddle.tree.Tree;
+import com.javafiddle.tree.TreeClass;
 import com.javafiddle.web.utils.SessionUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,15 +46,15 @@ public class DataService {
         if (hash == null)
             return Response.status(401).build();
         
-        GetProjectRevision gpr = new GetProjectRevision(hash);
+        ProjectRevisionGetter gpr = new ProjectRevisionGetter(hash);
         if (!gpr.treeExists())
             return Response.status(404).build();
         sd.resetData();
         sd.setTree(gpr.getTree());
         sd.getIdList().putAll(sd.getTree().getIdList());
-        ArrayList<TreeFile> filesList = new ArrayList<>();
+        ArrayList<TreeClass> filesList = new ArrayList<>();
         filesList.addAll(sd.getIdList().getFileList().values());
-        for (TreeFile tf : filesList) {
+        for (TreeClass tf : filesList) {
             int id = tf.getId();
             long time = tf.getTimeStamp();
             String text = gpr.getFile(sd.getIdList().getPackage(tf.getPackageId()).getName(), id, time);
@@ -91,7 +91,7 @@ public class DataService {
     public Response getTreeHierarchy( 
             @Context HttpServletRequest request
             ) {
-        GetProjectRevision gpr = new GetProjectRevision(sd.getTree().getHashes());
+        ProjectRevisionGetter gpr = new ProjectRevisionGetter(sd.getTree().getHashes());
         ArrayList<Tree> trees = gpr.findParents(sd.getTree());
         if (trees == null)
            return Response.ok().build();
@@ -117,18 +117,18 @@ public class DataService {
         Gson gson = new GsonBuilder().create();
         switch(idString) {
             case "about_tab":
-                text = GetProjectRevision.readFile(ISessionData.PREFIX + ISessionData.SEP + "static" + ISessionData.SEP + "about");
+                text = ProjectRevisionGetter.readFile(ISessionData.PREFIX + ISessionData.SEP + "static" + ISessionData.SEP + "about");
                 fr = new FileRevision(new Date().getTime(), text);
                 break;
             case "shortcuts_tab":
-                text = GetProjectRevision.readFile(ISessionData.PREFIX + ISessionData.SEP + "static" + ISessionData.SEP + "shortcuts");
+                text = ProjectRevisionGetter.readFile(ISessionData.PREFIX + ISessionData.SEP + "static" + ISessionData.SEP + "shortcuts");
                 fr = new FileRevision(new Date().getTime(), text);
                 break;
             default:
                 int id = Utility.parseId(idString);
-                if (sd.getIdList().getFile(id) == null)
+                if (sd.getIdList().getClass(id) == null)
                     return Response.status(406).build();
-                long time = sd.getIdList().getFile(id).getTimeStamp();
+                long time = sd.getIdList().getClass(id).getTimeStamp();
                 if (time == 0) {
                     fr = new FileRevision(0, "");
                 } else {   
@@ -163,7 +163,7 @@ public class DataService {
                 break;
             default:
                 int id = Utility.parseId(idString);
-                Revisions revisions = new Revisions(sd.getIdList(), sd.getFiles());
+                FileRevisions revisions = new FileRevisions(sd.getIdList(), sd.getFiles());
                 addResult = revisions.addFileRevision(id, timeStamp, value);
         }
         

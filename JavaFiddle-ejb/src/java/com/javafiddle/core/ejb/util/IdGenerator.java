@@ -5,10 +5,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-/**
- * EJB class for id generation.
- * @author danon
- */
 @Stateless
 public class IdGenerator implements IdGeneratorLocal {
     

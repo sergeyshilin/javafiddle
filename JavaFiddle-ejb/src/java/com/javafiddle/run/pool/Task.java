@@ -1,6 +1,6 @@
-package com.javafiddle.pool;
+package com.javafiddle.run.pool;
 
-import com.javafiddle.runner.Launcher;
+import com.javafiddle.run.Launcher;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;

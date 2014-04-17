@@ -29,9 +29,6 @@ public class Project implements Serializable {
     @Column(length = 4000)
     private String properties;
     
-    @Column(name = "hashcode", nullable = false, unique = true, length = 64)
-    private String hashcode;
-    
     @JoinColumn(name = "profile_id", nullable = false)
     @ManyToOne(cascade = CascadeType.ALL)
     private UserProfile userProfile;
@@ -58,14 +55,6 @@ public class Project implements Serializable {
 
     public void setProperties(String properties) {
         this.properties = properties;
-    }
-
-    public String getHashcode() {
-        return hashcode;
-    }
-
-    public void setHashcode(String hashcode) {
-        this.hashcode = hashcode;
     }
 
     public UserProfile getUserProfile() {

@@ -2,16 +2,16 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.javafiddle.pool.Task;
-import com.javafiddle.pool.TaskPool;
-import com.javafiddle.pool.TaskType;
-import com.javafiddle.runner.Compilation;
-import com.javafiddle.runner.Execution;
-import com.javafiddle.runner.Killer;
-import com.javafiddle.runner.LaunchPermissions;
-import com.javafiddle.saving.ProjectRevisionSaver;
+import com.javafiddle.run.pool.Task;
+import com.javafiddle.run.pool.TaskPool;
+import com.javafiddle.run.pool.TaskType;
+import com.javafiddle.run.Compilation;
+import com.javafiddle.run.Execution;
+import com.javafiddle.run.Killer;
+import com.javafiddle.run.LaunchPermissions;
+import com.javafiddle.data.ProjectRevisionSaver;
 import com.javafiddle.web.services.data.ISessionData;
-import com.javafiddle.web.tree.TreeFile;
+import com.javafiddle.tree.TreeClass;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.AccessController;
@@ -53,7 +53,7 @@ public class RunService {
             @Override
             public Object run() {
                 ArrayList<String> paths = new ArrayList<>();
-                for (TreeFile tf : sd.getIdList().getFileList().values()) {
+                for (TreeClass tf : sd.getIdList().getFileList().values()) {
                     StringBuilder path = new StringBuilder();
                     String packageName = sd.getIdList().getPackage(tf.getPackageId()).getName();
                     if (packageName.startsWith("!"))
@@ -89,7 +89,7 @@ public class RunService {
                 StringBuilder path = new StringBuilder();
                 String packageName = null;
                 String runnableName = null;
-                for (TreeFile tf : sd.getIdList().getFileList().values())
+                for (TreeClass tf : sd.getIdList().getFileList().values())
                     if (tf.getType().equals("runnable")) {
                         runnableName = tf.getName();
                         if (tf.getName().endsWith(".java"))
@@ -139,7 +139,7 @@ public class RunService {
                 String packageName = null;
                 String runnableName = null;
                 
-                for (TreeFile file : sd.getIdList().getFileList().values()) {
+                for (TreeClass file : sd.getIdList().getFileList().values()) {
                     StringBuilder path = new StringBuilder();
                     path.append(ISessionData.BUILD).append(ISessionData.SEP).append(sd.getTree().getHashes().getSrcHash()).append(ISessionData.SEP).append("src").append(ISessionData.SEP).append(sd.getIdList().getPackage(file.getPackageId()).getName().replace(".", ISessionData.SEP)).append(ISessionData.SEP).append(file.getName());
                     paths.add(path.toString());

@@ -113,6 +113,11 @@ function editorSettings() {
     editor.getSession().on("change", function() {
         pushModifiedTab();
     });
+    
+    ace.require("ace/ext/language_tools");
+    editor.setOptions({
+        enableBasicAutocompletion: true
+    });
 
     console.setTheme("ace/theme/idea");
     console.getSession().setMode("ace/mode/text");

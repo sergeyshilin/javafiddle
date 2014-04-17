@@ -2,16 +2,16 @@ package com.javafiddle.web.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.javafiddle.revisions.Revisions;
+import com.javafiddle.web.services.data.FileRevisions;
 import com.javafiddle.web.services.data.ISessionData;
-import com.javafiddle.web.services.utils.Utility;
-import static com.javafiddle.web.tree.IdNodeType.FILE;
-import static com.javafiddle.web.tree.IdNodeType.PACKAGE;
-import static com.javafiddle.web.tree.IdNodeType.PROJECT;
-import com.javafiddle.web.tree.TreeFile;
-import com.javafiddle.web.tree.TreeNode;
-import com.javafiddle.web.tree.TreePackage;
-import com.javafiddle.web.tree.TreeProject;
+import com.javafiddle.utils.Utility;
+import static com.javafiddle.tree.IdNodeType.CLASS;
+import static com.javafiddle.tree.IdNodeType.PACKAGE;
+import static com.javafiddle.tree.IdNodeType.PROJECT;
+import com.javafiddle.tree.TreeClass;
+import com.javafiddle.tree.TreeNode;
+import com.javafiddle.tree.TreePackage;
+import com.javafiddle.tree.TreeProject;
 import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
@@ -80,8 +80,8 @@ public class TreeService {
         
         TreeProject project = sd.getTree().getProject(sd.getIdList(), projectName);
         TreePackage pack = project.getPackage(packageName);
-        TreeFile file = pack.addFile(sd.getIdList(), type, className.endsWith(".java") ? className  : className + ".java");
-        Revisions revisions = new Revisions(sd.getIdList(), sd.getFiles());
+        TreeClass file = pack.addFile(sd.getIdList(), type, className.endsWith(".java") ? className  : className + ".java");
+        FileRevisions revisions = new FileRevisions(sd.getIdList(), sd.getFiles());
         revisions.addFileRevision(file, sd.getIdList());
         
         Gson gson = new GsonBuilder().create();
@@ -127,8 +127,8 @@ public class TreeService {
                 TreeProject tpr = sd.getIdList().getProject(tp.getProjectId());
                 tpr.deletePackage(sd.getIdList(), id);
                 break;
-            case FILE:
-                TreeFile tf = sd.getIdList().getFile(id);
+            case CLASS:
+                TreeClass tf = sd.getIdList().getClass(id);
                 TreePackage tpack = sd.getIdList().getPackage(tf.getPackageId());
                 tpack.deleteFile(sd.getIdList(), id);
                 break;
@@ -216,9 +216,9 @@ public class TreeService {
         TreePackage pack = project.getPackage(packageName);
         if (pack == null)
             return Response.ok("\"unknownpack\"", MediaType.APPLICATION_JSON).build();
-        List<TreeFile> filesList = pack.getFiles();
+        List<TreeClass> filesList = pack.getFiles();
         Boolean exist = false;
-        for(TreeFile file : filesList)
+        for(TreeClass file : filesList)
             if(file.getName().equals(name)) {
                 exist = true;
                 break;
@@ -283,17 +283,17 @@ public class TreeService {
         if (idString == null)
             return Response.status(401).build();
         
-        TreeFile tf;
+        TreeClass tf;
         switch(idString) {
             case "about_tab":
-                tf = new TreeFile("About", "help"); 
+                tf = new TreeClass("About", "help"); 
                 break;
             case "shortcuts_tab":
-                tf = new TreeFile("Shortcuts", "help"); 
+                tf = new TreeClass("Shortcuts", "help"); 
                 break;
             default:
                 int id = Utility.parseId(idString);
-                tf = sd.getIdList().getFile(id);
+                tf = sd.getIdList().getClass(id);
         }
         if (tf == null)
             return Response.status(410).build();
