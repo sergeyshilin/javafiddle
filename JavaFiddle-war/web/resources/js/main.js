@@ -92,8 +92,8 @@ function runLayouts() {
     innerLayout = $('#container-inner').layout({
         center__paneSelector: ".inner-center", 
 	south__paneSelector: ".inner-south",
-        center__minHeight: 55,
-        south__minSize: 55,
+        center__minHeight: 110,
+        south__minSize: 110,
         south__initClosed: true,
         spacing_open: 5,		
 	spacing_closed: 5,
@@ -492,14 +492,14 @@ function openProjectByHash(projecthash) {
         return false;
     
     $.ajax({
-        url: PATH + '/webapi/data/changeproject',
-        type: 'POST',
+        url: PATH + '/webapi/data/project',
+        type:'GET',
         async: false,
         data: {projecthash : projecthash},
-        contentType: "application/x-www-form-urlencoded",
+        dataType: "json",
+        contentType: "application/json",
         success: function() {
             invalidateSession();
-            alert("Restored project with hash " + projecthash);
         },
         error: function() {
             alert("Can't restore project with hash " + projecthash);
@@ -622,6 +622,8 @@ function poll() {
                 });
             if (result === 1)
                 poll();
+            else if (result === 0)
+                stopProcess();
         }
     });
 }    
